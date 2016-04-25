@@ -37,6 +37,8 @@
             this.trackZoom = new System.Windows.Forms.TrackBar();
             this.picGeoRef = new System.Windows.Forms.PictureBox();
             this.chkMapShift = new System.Windows.Forms.CheckBox();
+            this.tsProgress = new System.Windows.Forms.ToolStripProgressBar();
+            this.tsInfo = new System.Windows.Forms.ToolStripStatusLabel();
             this.status.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackZoom)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picGeoRef)).BeginInit();
@@ -70,6 +72,8 @@
             this.gMap.TabIndex = 0;
             this.gMap.Zoom = 2D;
             this.gMap.OnPositionChanged += new GMap.NET.PositionChanged(this.gMap_OnPositionChanged);
+            this.gMap.OnTileLoadComplete += new GMap.NET.TileLoadComplete(this.gMap_OnTileLoadComplete);
+            this.gMap.OnTileLoadStart += new GMap.NET.TileLoadStart(this.gMap_OnTileLoadStart);
             this.gMap.OnMapZoomChanged += new GMap.NET.MapZoomChanged(this.gMap_OnMapZoomChanged);
             this.gMap.OnMapTypeChanged += new GMap.NET.MapTypeChanged(this.gMap_OnMapTypeChanged);
             // 
@@ -92,7 +96,9 @@
             this.status.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsLat,
             this.tsLon,
-            this.tsZoom});
+            this.tsZoom,
+            this.tsInfo,
+            this.tsProgress});
             this.status.Location = new System.Drawing.Point(0, 487);
             this.status.Name = "status";
             this.status.Size = new System.Drawing.Size(640, 22);
@@ -178,6 +184,18 @@
             this.chkMapShift.UseVisualStyleBackColor = true;
             this.chkMapShift.CheckedChanged += new System.EventHandler(this.chkMapShift_CheckedChanged);
             // 
+            // tsProgress
+            // 
+            this.tsProgress.Name = "tsProgress";
+            this.tsProgress.Size = new System.Drawing.Size(100, 16);
+            // 
+            // tsInfo
+            // 
+            this.tsInfo.Name = "tsInfo";
+            this.tsInfo.Size = new System.Drawing.Size(156, 17);
+            this.tsInfo.Spring = true;
+            this.tsInfo.Text = "OK";
+            // 
             // MainForm
             // 
             this.AllowDrop = true;
@@ -215,6 +233,8 @@
         private System.Windows.Forms.ToolStripStatusLabel tsZoom;
         private System.Windows.Forms.PictureBox picGeoRef;
         private System.Windows.Forms.CheckBox chkMapShift;
+        private System.Windows.Forms.ToolStripStatusLabel tsInfo;
+        private System.Windows.Forms.ToolStripProgressBar tsProgress;
     }
 }
 

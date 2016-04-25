@@ -28,20 +28,22 @@ namespace PhotoGeoTag
         MarsWGS PosShift = new MarsWGS();
         bool MapShift = false;
 
-        GMapOverlay OverlayRefPos = new GMapOverlay("RefPos");
-        GMapOverlay OverlayPhotos = new GMapOverlay("Photos");
-        GMapOverlay OverlayPoints = new GMapOverlay("Points");
-        GMapOverlay OverlayRoutes = new GMapOverlay("Routes");
+        private GeocodingProvider Geo;
 
-        GMapOverlay OverlayRefPosWGS = new GMapOverlay("RefPos");
-        GMapOverlay OverlayPhotosWGS = new GMapOverlay("Photos");
-        GMapOverlay OverlayPointsWGS = new GMapOverlay("Points");
-        GMapOverlay OverlayRoutesWGS = new GMapOverlay("Routes");
+        private GMapOverlay OverlayRefPos = new GMapOverlay("RefPos");
+        private GMapOverlay OverlayPhotos = new GMapOverlay("Photos");
+        private GMapOverlay OverlayPoints = new GMapOverlay("Points");
+        private GMapOverlay OverlayRoutes = new GMapOverlay("Routes");
 
-        GMapOverlay OverlayRefPosMAR = new GMapOverlay("RefPos");
-        GMapOverlay OverlayPhotosMAR = new GMapOverlay("Photos");
-        GMapOverlay OverlayPointsMAR = new GMapOverlay("Points");
-        GMapOverlay OverlayRoutesMAR = new GMapOverlay("Routes");
+        private GMapOverlay OverlayRefPosWGS = new GMapOverlay("RefPos");
+        private GMapOverlay OverlayPhotosWGS = new GMapOverlay("Photos");
+        private GMapOverlay OverlayPointsWGS = new GMapOverlay("Points");
+        private GMapOverlay OverlayRoutesWGS = new GMapOverlay("Routes");
+
+        private GMapOverlay OverlayRefPosMAR = new GMapOverlay("RefPos");
+        private GMapOverlay OverlayPhotosMAR = new GMapOverlay("Photos");
+        private GMapOverlay OverlayPointsMAR = new GMapOverlay("Points");
+        private GMapOverlay OverlayRoutesMAR = new GMapOverlay("Routes");
 
         private void updatePositions( GMapOverlay overlay, bool force=false )
         {
@@ -109,6 +111,65 @@ namespace PhotoGeoTag
             foreach ( GMapOverlay overlay in gMap.Overlays )
             {
                 updatePositions( overlay, force );
+            }
+        }
+
+        private void updateMarkerOffset( GMapOverlay overlay, bool force = false )
+        {
+            double lng_wgs = 0, lat_wgs = 0;
+            double lng_mar = 0, lat_mar = 0;
+
+            if ( MapShift == chkMapShift.Checked && !force ) return;
+
+            string mapName = gMap.MapProvider.Name;
+
+            MapShift = chkMapShift.Checked;
+
+            foreach ( GMarkerGoogle marker in overlay.Markers )
+            {
+                double offset_x = 0, offset_y = 0;
+                if ( MapShift )
+                {
+                    lng_wgs = marker.Position.Lng;
+                    lat_wgs = marker.Position.Lat;
+
+                    PosShift.Convert2Mars( lng_wgs, lat_wgs, out lng_mar, out lat_mar );
+
+                    GPoint pixel_wgs = gMap.MapProvider.Projection.FromLatLngToPixel(lat_wgs, lng_wgs, (int)gMap.Zoom);
+                    GPoint pixel_mar = gMap.MapProvider.Projection.FromLatLngToPixel(lat_mar, lng_mar, (int)gMap.Zoom);
+
+                    double res = gMap.MapProvider.Projection.GetGroundResolution( (int)gMap.Zoom, lat_wgs );
+
+                    offset_x = pixel_mar.X - pixel_wgs.X;
+                    offset_y = pixel_mar.Y - pixel_wgs.Y;
+                }
+                marker.Offset = new Point( (int) offset_x, (int) offset_y );
+            }
+
+            //double offset_x = 0, offset_y = 0;
+            //if ( MapShift )
+            //{
+            //    lng_wgs = gMap.Position.Lng;
+            //    lat_wgs = gMap.Position.Lat;
+
+            //    PosShift.Convert2Mars( lng_wgs, lat_wgs, out lng_mar, out lat_mar );
+
+            //    GPoint pixel_wgs = gMap.MapProvider.Projection.FromLatLngToPixel(lat_wgs, lng_wgs, (int)gMap.Zoom);
+            //    GPoint pixel_mar = gMap.MapProvider.Projection.FromLatLngToPixel(lat_mar, lng_mar, (int)gMap.Zoom);
+
+            //    double res = gMap.MapProvider.Projection.GetGroundResolution( (int)gMap.Zoom, lat_wgs );
+
+            //    offset_x = pixel_mar.X - pixel_wgs.X;
+            //    offset_y = pixel_mar.Y - pixel_wgs.Y;
+            //}
+            //gMap.Offset( (int) offset_x, (int) offset_y );
+        }
+
+        private void updateMarkerOffset( bool force = false )
+        {
+            foreach ( GMapOverlay overlay in gMap.Overlays )
+            {
+                updateMarkerOffset( overlay, force );
             }
         }
 
@@ -188,12 +249,11 @@ namespace PhotoGeoTag
             gMap.MinZoom = trackZoom.Minimum;
             //gMap.MouseWheelZoomType = MouseWheelZoomType.MousePositionAndCenter;
             gMap.RetryLoadTile = 5;
-            gMap.ScaleMode = ScaleModes.Fractional;
+            //gMap.ScaleMode = ScaleModes.Fractional;
+            gMap.ScaleMode = ScaleModes.Integer;
             gMap.ScalePen = Pens.AntiqueWhite;
             gMap.ShowCenter = false;
             gMap.Zoom = trackZoom.Value;
-
-            //GeocodingProvider
 
             gMap.CacheLocation = CacheFolder;
             gMap.MapProvider = GMapProviders.TryGetProvider( mapSource["GoogleChinaHybridMap"] );
@@ -240,6 +300,8 @@ namespace PhotoGeoTag
             trackZoom.Value = (int)gMap.Zoom;
             tsZoom.Text = $"Zoom: {gMap.Zoom.ToString()}";
             tsZoom.ToolTipText = tsZoom.Text;
+
+            // updateMarkerOffset( OverlayRefPos, true );
         }
 
         private void gMap_OnPositionChanged( PointLatLng point )
@@ -278,36 +340,57 @@ namespace PhotoGeoTag
             OverlayRefPosWGS.Markers.Clear();
             //OverlayRefPosWGS.Markers.Add( new GMarkerGoogle( pos, GMarkerGoogleType.blue_pushpin ) );
             //OverlayRefPosWGS.Markers.Add( new GMarkerGoogle( pos, getPhotoThumb( picGeoRef.Image ) ) );
-            GMarkerGoogle marker = new GMarkerGoogle( pos, GMarkerGoogleType.lightblue_dot );
-            marker.ToolTip = new GMapBaloonToolTip( marker );
-            marker.ToolTip.Stroke = Pens.Violet;
-            marker.ToolTip.Fill = Brushes.Snow; //new SolidBrush(Color.WhiteSmoke);
-            marker.ToolTipText = "<html><body><img src=\"./P4083508.jpg\" /></body></html>";
-            OverlayRefPosWGS.Markers.Add( marker );
+            GMarkerGoogle marker_wgs = new GMarkerGoogle( pos, GMarkerGoogleType.lightblue_dot );
+            marker_wgs.ToolTip = new GMapBaloonToolTip( marker_wgs );
+            marker_wgs.ToolTip.Stroke = Pens.Violet;
+            marker_wgs.ToolTip.Fill = Brushes.Snow; //new SolidBrush(Color.WhiteSmoke);
+            //marker.ToolTipText = "<html><body><img src=\"./P4083508.jpg\" /></body></html>";
+            marker_wgs.ToolTipText = flist[0];
+            OverlayRefPosWGS.Markers.Add( marker_wgs );
             
             OverlayRefPosMAR.Markers.Clear();
             //OverlayRefPosMAR.Markers.Add( new GMarkerGoogle( new PointLatLng(lat, lng), GMarkerGoogleType.blue_pushpin ) );
             //OverlayRefPosMAR.Markers.Add( new GMarkerGoogle( new PointLatLng( lat, lng ), getPhotoThumb( picGeoRef.Image ) ) );
-            GMarkerGoogle markermar = new GMarkerGoogle( new PointLatLng( lat, lng ), GMarkerGoogleType.orange );
-            markermar.ToolTip = new GMapRoundedToolTip( markermar );
-            markermar.ToolTip.Stroke = Pens.Violet;
-            markermar.ToolTip.Fill = Brushes.Snow;
-            markermar.ToolTipText = "<html><body><img src=\"./P4083508.jpg\" /></body></html>";
-            OverlayRefPosMAR.Markers.Add( markermar );
+            GMarkerGoogle marker_mar = new GMarkerGoogle( new PointLatLng( lat, lng ), GMarkerGoogleType.orange_dot );
+            marker_mar.ToolTip = new GMapRoundedToolTip( marker_mar );
+            marker_mar.ToolTip.Stroke = Pens.SlateBlue;
+            marker_mar.ToolTip.Fill = Brushes.Snow;
+            //markermar.ToolTipText = "<html><body><img src=\"./P4083508.jpg\" /></body></html>";
+            marker_mar.ToolTipText = flist[0];
+            OverlayRefPosMAR.Markers.Add( marker_mar );
 
-            gMap.Zoom = 12;
+            //gMap.Zoom = 12;
 
-            updatePositions( gMap.Overlays[0], true );
+            updatePositions( OverlayRefPos, true );
+
+            //OverlayRefPos.Markers.Add( marker_wgs );
+            //updateMarkerOffset( OverlayRefPos, true );
         }
 
         private void gMap_OnMapTypeChanged( GMapProvider type )
         {
+            //GeocodingProvider
+            Geo = gMap.MapProvider as GeocodingProvider;
+
             updatePositions();
+            //updateMarkerOffset();
         }
 
         private void chkMapShift_CheckedChanged( object sender, EventArgs e )
         {
             updatePositions( true );
+            //updateMarkerOffset( true );
+        }
+
+        private void gMap_OnTileLoadStart()
+        {
+            tsProgress.Value = 0;
+        }
+
+        private void gMap_OnTileLoadComplete( long ElapsedMilliseconds )
+        {
+            tsInfo.Text = $"Load Time: { (ElapsedMilliseconds / 1000F).ToString("F6") } s";               
+            //tsProgress.Value = 100;
         }
     }
 }
