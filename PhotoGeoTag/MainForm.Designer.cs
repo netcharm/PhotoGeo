@@ -167,13 +167,16 @@
             // 
             // chkMapShift
             // 
+            this.chkMapShift.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.chkMapShift.AutoSize = true;
             this.chkMapShift.Location = new System.Drawing.Point(424, 454);
             this.chkMapShift.Name = "chkMapShift";
             this.chkMapShift.Size = new System.Drawing.Size(108, 16);
             this.chkMapShift.TabIndex = 6;
             this.chkMapShift.Text = "Map Need Shift";
+            this.chkMapShift.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.chkMapShift.UseVisualStyleBackColor = true;
+            this.chkMapShift.CheckedChanged += new System.EventHandler(this.chkMapShift_CheckedChanged);
             // 
             // MainForm
             // 

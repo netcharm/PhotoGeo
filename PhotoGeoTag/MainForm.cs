@@ -9,9 +9,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+
 using GMap.NET;
-using GMap.NET.MapProviders;
 using GMap.NET.WindowsForms;
+using GMap.NET.MapProviders;
 using GMap.NET.WindowsForms.Markers;
 using GMap.NET.WindowsForms.ToolTips;
 
@@ -30,28 +31,29 @@ namespace PhotoGeoTag
         GMapOverlay OverlayRefPos = new GMapOverlay("RefPos");
         GMapOverlay OverlayPhotos = new GMapOverlay("Photos");
         GMapOverlay OverlayPoints = new GMapOverlay("Points");
-        GMapOverlay OverlayTracks = new GMapOverlay("Tracks");
         GMapOverlay OverlayRoutes = new GMapOverlay("Routes");
 
         GMapOverlay OverlayRefPosWGS = new GMapOverlay("RefPos");
         GMapOverlay OverlayPhotosWGS = new GMapOverlay("Photos");
         GMapOverlay OverlayPointsWGS = new GMapOverlay("Points");
-        GMapOverlay OverlayTracksWGS = new GMapOverlay("Tracks");
         GMapOverlay OverlayRoutesWGS = new GMapOverlay("Routes");
 
         GMapOverlay OverlayRefPosMAR = new GMapOverlay("RefPos");
         GMapOverlay OverlayPhotosMAR = new GMapOverlay("Photos");
         GMapOverlay OverlayPointsMAR = new GMapOverlay("Points");
-        GMapOverlay OverlayTracksMAR = new GMapOverlay("Tracks");
         GMapOverlay OverlayRoutesMAR = new GMapOverlay("Routes");
 
-        private void updatePositions( GMapOverlay overlay )
+        private void updatePositions( GMapOverlay overlay, bool force=false )
         {
+            if ( MapShift == chkMapShift.Checked && !force ) return;
+
             string mapName = gMap.MapProvider.Name;
-            //MapShift = chkMapShift.Checked;
-            if ( mapName.StartsWith( "GoogleChina" ) || mapName.StartsWith( "BingMap" ) )
+
+            MapShift = chkMapShift.Checked;
+            //if ( mapName.StartsWith( "GoogleChina" ) || mapName.StartsWith( "BingMap" ) )
+            if(MapShift)
             {
-                MapShift = true;
+                //MapShift = true;
                 overlay.Markers.Clear();
                 if ( string.Equals( overlay.Id, "RefPos", StringComparison.CurrentCultureIgnoreCase ) )
                 {
@@ -68,20 +70,15 @@ namespace PhotoGeoTag
                     foreach ( GMarkerGoogle marker in OverlayPointsMAR.Markers )
                         overlay.Markers.Add( marker );
                 }
-                else if ( string.Equals( overlay.Id, "Tracks", StringComparison.CurrentCultureIgnoreCase ) )
-                {
-                    foreach ( GMarkerGoogle marker in OverlayTracksMAR.Markers )
-                        overlay.Markers.Add( marker );
-                }
                 else if ( string.Equals( overlay.Id, "Routes", StringComparison.CurrentCultureIgnoreCase ) )
                 {
-                    foreach ( GMarkerGoogle marker in OverlayRoutesMAR.Markers )
-                        overlay.Markers.Add( marker );
+                    foreach ( GMapRoute route in OverlayRoutesMAR.Routes )
+                        overlay.Routes.Add( route );
                 }
             }
             else
             {
-                MapShift = false;
+                //MapShift = false;
                 overlay.Markers.Clear();
                 if ( string.Equals( overlay.Id, "RefPos", StringComparison.CurrentCultureIgnoreCase ) )
                 {
@@ -98,25 +95,20 @@ namespace PhotoGeoTag
                     foreach ( GMarkerGoogle marker in OverlayPointsWGS.Markers )
                         overlay.Markers.Add( marker );
                 }
-                else if ( string.Equals( overlay.Id, "Tracks", StringComparison.CurrentCultureIgnoreCase ) )
-                {
-                    foreach ( GMarkerGoogle marker in OverlayTracksWGS.Markers )
-                        overlay.Markers.Add( marker );
-                }
                 else if ( string.Equals( overlay.Id, "Routes", StringComparison.CurrentCultureIgnoreCase ) )
                 {
-                    foreach ( GMarkerGoogle marker in OverlayRoutesWGS.Markers )
-                        overlay.Markers.Add( marker );
+                    foreach ( GMapRoute route in OverlayRoutesWGS.Routes )
+                        overlay.Routes.Add( route );
                 }
 
             }
         }
 
-        private void updatePositions()
+        private void updatePositions( bool force = false )
         {
             foreach ( GMapOverlay overlay in gMap.Overlays )
             {
-                updatePositions( overlay );
+                updatePositions( overlay, force );
             }
         }
 
@@ -156,9 +148,12 @@ namespace PhotoGeoTag
             foreach ( GMapProvider map in GMapProviders.List )
             {
                 if ( map.Name.StartsWith( "Bing" ) ||
-                     map.Name.StartsWith( "Google" ) ||
+                     (map.Name.StartsWith( "Google" ) && !map.Name.StartsWith( "GoogleKorea" ) ) ||
                      //map.Name.StartsWith( "Yahoo" ) ||
-                     map.Name.StartsWith( "Open" ) )
+                     map.Name.StartsWith( "Open" ) ||
+                     map.Name.StartsWith( "Ovi" ) ||
+                     map.Name.StartsWith( "Yandex" )
+                     )
                 {
                     cbMapProviders.Items.Add( map.Name );
                     mapSource.Add( map.Name, map.Id );
@@ -196,19 +191,25 @@ namespace PhotoGeoTag
             gMap.ScaleMode = ScaleModes.Fractional;
             gMap.ScalePen = Pens.AntiqueWhite;
             gMap.ShowCenter = false;
+            gMap.Zoom = trackZoom.Value;
+
             //GeocodingProvider
 
             gMap.CacheLocation = CacheFolder;
             gMap.MapProvider = GMapProviders.TryGetProvider( mapSource["GoogleChinaHybridMap"] );
             //gMap.MapProvider = GoogleChinaHybridMapProvider.Instance;
+            string refurl = gMap.MapProvider.RefererUrl;
+//            GMapsProvider.TimeoutMs = 10000;
+
             GMaps.Instance.Mode = AccessMode.ServerAndCache;
             gMap.SetPositionByKeywords( "Sanya,China" );
-            gMap.Zoom = trackZoom.Value;
+
+            gMap.MapProvider.MaxZoom = gMap.MaxZoom;
+            gMap.MapProvider.MinZoom = gMap.MinZoom;
 
             gMap.Overlays.Add( OverlayRefPos );
             gMap.Overlays.Add( OverlayPhotos );
             gMap.Overlays.Add( OverlayPoints );
-            gMap.Overlays.Add( OverlayTracks );
             gMap.Overlays.Add( OverlayRoutes );
         }
 
@@ -276,21 +277,37 @@ namespace PhotoGeoTag
 
             OverlayRefPosWGS.Markers.Clear();
             //OverlayRefPosWGS.Markers.Add( new GMarkerGoogle( pos, GMarkerGoogleType.blue_pushpin ) );
-            OverlayRefPosWGS.Markers.Add( new GMarkerGoogle( pos, getPhotoThumb( picGeoRef.Image ) ) );
-
+            //OverlayRefPosWGS.Markers.Add( new GMarkerGoogle( pos, getPhotoThumb( picGeoRef.Image ) ) );
+            GMarkerGoogle marker = new GMarkerGoogle( pos, GMarkerGoogleType.lightblue_dot );
+            marker.ToolTip = new GMapBaloonToolTip( marker );
+            marker.ToolTip.Stroke = Pens.Violet;
+            marker.ToolTip.Fill = Brushes.Snow; //new SolidBrush(Color.WhiteSmoke);
+            marker.ToolTipText = "<html><body><img src=\"./P4083508.jpg\" /></body></html>";
+            OverlayRefPosWGS.Markers.Add( marker );
+            
             OverlayRefPosMAR.Markers.Clear();
             //OverlayRefPosMAR.Markers.Add( new GMarkerGoogle( new PointLatLng(lat, lng), GMarkerGoogleType.blue_pushpin ) );
-            OverlayRefPosMAR.Markers.Add( new GMarkerGoogle( new PointLatLng( lat, lng ), getPhotoThumb( picGeoRef.Image ) ) );
+            //OverlayRefPosMAR.Markers.Add( new GMarkerGoogle( new PointLatLng( lat, lng ), getPhotoThumb( picGeoRef.Image ) ) );
+            GMarkerGoogle markermar = new GMarkerGoogle( new PointLatLng( lat, lng ), GMarkerGoogleType.orange );
+            markermar.ToolTip = new GMapRoundedToolTip( markermar );
+            markermar.ToolTip.Stroke = Pens.Violet;
+            markermar.ToolTip.Fill = Brushes.Snow;
+            markermar.ToolTipText = "<html><body><img src=\"./P4083508.jpg\" /></body></html>";
+            OverlayRefPosMAR.Markers.Add( markermar );
 
             gMap.Zoom = 12;
 
-            updatePositions();
+            updatePositions( gMap.Overlays[0], true );
         }
 
         private void gMap_OnMapTypeChanged( GMapProvider type )
         {
-            //
             updatePositions();
+        }
+
+        private void chkMapShift_CheckedChanged( object sender, EventArgs e )
+        {
+            updatePositions( true );
         }
     }
 }
