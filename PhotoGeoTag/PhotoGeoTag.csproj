@@ -143,9 +143,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="map-pin-md.png" />
+    <None Include="map-pin-md_32x32.png" />
     <Content Include="PhotoGeoTag_lite.ico" />
-    <None Include="Resources\FolderImage.ico" />
-    <None Include="Resources\FolderImage.png" />
+    <None Include="Resources\PinPhoto.bmp" />
     <None Include="Resources\ImageFolder.png" />
   </ItemGroup>
   <ItemGroup>

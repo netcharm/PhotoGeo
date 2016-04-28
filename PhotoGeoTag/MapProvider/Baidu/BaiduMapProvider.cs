@@ -63,14 +63,14 @@ namespace GMap.NET.GMap.NET.MapProviders.Baidu
             Instance = new BaiduMapProvider();
         }
 
-        public override PureImage GetTileImage(GPoint pos, int zoom)
+        public override PureImage GetTileImage( GPoint pos, int zoom )
         {
             string url = MakeTileImageUrl(pos, zoom, LanguageStr);
 
-            return GetTileImageUsingHttp(url);
+            return GetTileImageUsingHttp( url );
         }
 
-        string MakeTileImageUrl(GPoint pos, int zoom, string language)
+        string MakeTileImageUrl( GPoint pos, int zoom, string language )
         {
             zoom = zoom - 1;
             var offsetX = Math.Pow(2, zoom);
@@ -86,16 +86,17 @@ namespace GMap.NET.GMap.NET.MapProviders.Baidu
 
             //原来：http://q3.baidu.com/it/u=x=721;y=209;z=12;v=014;type=web&fm=44
             //更新：http://online1.map.bdimg.com/tile/?qt=tile&x=23144&y=6686&z=17&styles=pl
-            string url = string.Format(UrlFormat, x, y, zoom);
-            Console.WriteLine("url:" + url);
+            //string url = string.Format(UrlFormat, x, y, zoom);
+            //更新:http://shangetu0.map.bdimg.com/it/u=x=5781;y=1662;z=15;v=009;type=sate&fm=46&udt=20131112
+            string url = string.Format(UrlFormat, num, x, y, zoom, "009", "sate", "46");
+            Console.WriteLine( "url:" + url );
             return url;
         }
 
 
         //static readonly string UrlFormat = "http://online1.map.bdimg.com/tile/?qt=tile&x={0}&y={1}&z={2}&styles=pl";
-        static readonly string UrlFormat = "http://online1.map.bdimg.com/tile/?qt=tile&x={0}&y={1}&z={2}&styles=pl&v=039&udt=20160314";
-
-
+        //static readonly string UrlFormat = "http://online1.map.bdimg.com/tile/?qt=tile&x={0}&y={1}&z={2}&styles=pl&v=039&udt=20160314";
+        static readonly string UrlFormat = "http://shangetu0.map.bdimg.com/it/u=x={1};y={2};z={3};v={4};type={5}&fm={6}";
 
     }
 }

@@ -61,6 +61,10 @@ namespace PhotoGeoTag
         private GMapOverlay OverlayPointsMAR = new GMapOverlay("Points");
         private GMapOverlay OverlayRoutesMAR = new GMapOverlay("Routes");
 
+        List<KeyValuePair<Image, string>> photos = new List<KeyValuePair<Image, string>>();
+        GMarkerGoogle currentMarker;
+        bool mouse_down = false;
+
         private void updatePositions( GMapOverlay overlay, bool force=false )
         {
             if ( MapShift == chkMapShift.Checked && !force ) return;
@@ -228,7 +232,7 @@ namespace PhotoGeoTag
             marker_wgs.ToolTip = new GMapBaloonToolTip( marker_wgs );
             marker_wgs.ToolTip.Stroke = new Pen(Color.Violet);
             marker_wgs.ToolTip.Fill = new SolidBrush(Color.Snow); //new SolidBrush(Color.WhiteSmoke);
-            marker_wgs.ToolTipText = img.Value;
+            marker_wgs.ToolTipText = Path.GetFileName( img.Value );
             OverlayRefPosWGS.Markers.Add( marker_wgs );
 
             OverlayRefPosMAR.Markers.Clear();
@@ -236,7 +240,7 @@ namespace PhotoGeoTag
             marker_mar.ToolTip = new GMapBaloonToolTip( marker_mar );
             marker_mar.ToolTip.Stroke = new Pen(Color.SlateBlue);
             marker_mar.ToolTip.Fill = new SolidBrush( Color.Snow);
-            marker_mar.ToolTipText = img.Value;
+            marker_mar.ToolTipText = Path.GetFileName( img.Value );
             OverlayRefPosMAR.Markers.Add( marker_mar );
 
             updatePositions( OverlayPhotos, true );
@@ -245,6 +249,9 @@ namespace PhotoGeoTag
         public void ShowImage( List<KeyValuePair<Image, string>> imgs )
         {
             PointLatLng pos = gMap.Position;
+
+            photos.Clear();
+            photos.AddRange( imgs );
 
             OverlayPhotosWGS.Markers.Clear();
             OverlayPhotosMAR.Markers.Clear();
@@ -262,19 +269,128 @@ namespace PhotoGeoTag
                 double lat = pos.Lat, lng = pos.Lng;
                 PosShift.Convert2Mars( pos.Lng, pos.Lat, out lng, out lat );
 
-                GMarkerGoogle marker_wgs = new GMarkerGoogle( pos, GMarkerGoogleType.pink_dot );
+                GMarkerGoogle marker_wgs = new GMarkerGoogle( pos, GMarkerGoogleType.green_dot );
                 marker_wgs.ToolTip = new GMapBaloonToolTip( marker_wgs );
                 marker_wgs.ToolTip.Stroke = new Pen( Color.SlateBlue );
                 marker_wgs.ToolTip.Fill = new SolidBrush( Color.Snow );
-                marker_wgs.ToolTipText = img.Value;
+                marker_wgs.ToolTipText = Path.GetFileName(img.Value);
+                //marker_wgs.ToolTipText += img.Key.PropertyItems[];
                 OverlayPhotosWGS.Markers.Add( marker_wgs );
 
-                GMarkerGoogle marker_mar = new GMarkerGoogle( new PointLatLng( lat, lng ), GMarkerGoogleType.pink_dot );
+                GMarkerGoogle marker_mar = new GMarkerGoogle( new PointLatLng( lat, lng ), GMarkerGoogleType.green_dot );
                 marker_mar.ToolTip = new GMapBaloonToolTip( marker_mar );
                 marker_mar.ToolTip.Stroke = new Pen(Color.SlateBlue);
                 marker_mar.ToolTip.Fill = new SolidBrush( Color.Snow);
                 marker_mar.ToolTipText = img.Value;
                 OverlayPhotosMAR.Markers.Add( marker_mar );
+            }
+            updatePositions( OverlayPhotos, true );
+        }
+
+        private ImageCodecInfo GetEncoder( ImageFormat format )
+        {
+
+            ImageCodecInfo[] codecs = ImageCodecInfo.GetImageDecoders();
+
+            foreach ( ImageCodecInfo codec in codecs )
+            {
+                if ( codec.FormatID == format.Guid )
+                {
+                    return codec;
+                }
+            }
+            return null;
+        }
+
+        public void GeoImage( PointLatLng pos )
+        {
+            //PointLatLng pos = gMap.Position;
+            //return;
+
+            OverlayPhotosWGS.Markers.Clear();
+            OverlayPhotosMAR.Markers.Clear();
+            foreach ( KeyValuePair<Image, string> img in photos )
+            {
+                double lat = pos.Lat, lng = pos.Lng;
+                double lat_mar = lat, lng_mar = lng;
+                double lat_wgs = lat, lng_wgs = lng;
+                if(chkMapShift.Checked)
+                {
+                    PosShift.Convert2WGS( pos.Lng, pos.Lat, out lng, out lat );
+                    lat_wgs = lat;
+                    lng_wgs = lng;
+                }
+                else
+                {
+                    PosShift.Convert2Mars( pos.Lng, pos.Lat, out lng, out lat );
+                    lat_mar = lat;
+                    lng_mar = lng;
+                }
+
+                //Image photo = new Bitmap(img.Value);
+                using ( FileStream fs = new FileStream( img.Value, FileMode.Open, FileAccess.Read ) )
+                {
+                    Image photo = Image.FromStream( fs );
+                    photo = ImageGeoTag.Geotag( photo, lat_wgs, lng_wgs );
+                    fs.Close();
+
+                    ImageCodecInfo jpgEncoder = GetEncoder(ImageFormat.Jpeg);
+                    System.Drawing.Imaging.Encoder myEncoder = System.Drawing.Imaging.Encoder.Quality;
+                    EncoderParameters myEncoderParameters = new EncoderParameters(1);
+                    EncoderParameter myEncoderParameter = new EncoderParameter(myEncoder, 92L);
+                    myEncoderParameters.Param[0] = myEncoderParameter;
+
+                    //EncoderParameters parameters = photo.GetEncoderParameterList(JpegBitmapEncoder);
+
+                    photo.Save(img.Value, jpgEncoder, myEncoderParameters);
+
+                    photo.Dispose();
+
+                }
+
+                Dictionary<string, string> properties = (Dictionary<string, string>)img.Key.Tag;
+
+                FileInfo fi = new FileInfo( img.Value );
+                DateTime dt = DateTime.Now;
+
+                if( !string.IsNullOrEmpty( properties["DateTaken"]) )
+                {
+                    dt = DateTime.Parse( properties["DateTaken"] );
+                }
+                else if ( !string.IsNullOrEmpty( properties["DateCreated"] ) )
+                {
+                    dt = DateTime.Parse( properties["DateCreated"] );
+                }
+                else if ( !string.IsNullOrEmpty( properties["DateModified"] ) )
+                {
+                    dt = DateTime.Parse( properties["DateModified"] );
+                }
+                else if ( !string.IsNullOrEmpty( properties["DateAccessed"] ) )
+                {
+                    dt = DateTime.Parse( properties["DateAccessed"] );
+                }
+                fi.LastAccessTimeUtc = dt.ToUniversalTime();
+                fi.LastWriteTimeUtc = dt.ToUniversalTime();
+                fi.CreationTimeUtc = dt.ToUniversalTime();
+
+                GMarkerGoogle marker_wgs = new GMarkerGoogle( new PointLatLng(lat_wgs, lng_wgs), GMarkerGoogleType.orange_dot );
+                marker_wgs.ToolTip = new GMapBaloonToolTip( marker_wgs );
+                marker_wgs.ToolTip.Stroke = new Pen( Color.SlateBlue );
+                marker_wgs.ToolTip.Fill = new SolidBrush( Color.Snow );
+                marker_wgs.ToolTipText = Path.GetFileName( img.Value );
+                //marker_wgs.ToolTipText += img.Key.PropertyItems[];
+                OverlayPhotosWGS.Markers.Add( marker_wgs );
+
+                GMarkerGoogle marker_mar = new GMarkerGoogle( new PointLatLng( lat_mar, lng_mar ), GMarkerGoogleType.orange_dot );
+                marker_mar.ToolTip = new GMapBaloonToolTip( marker_mar );
+                marker_mar.ToolTip.Stroke = new Pen( Color.SlateBlue );
+                marker_mar.ToolTip.Fill = new SolidBrush( Color.Snow );
+                marker_mar.ToolTipText = Path.GetFileName( img.Value );
+                OverlayPhotosMAR.Markers.Add( marker_mar );
+            }
+            if( OverlayRefPos.Markers.Count > 0)
+            {
+                OverlayRefPos.Markers.RemoveAt( OverlayRefPos.Markers.Count - 1 );
             }
             updatePositions( OverlayPhotos, true );
         }
@@ -439,6 +555,8 @@ namespace PhotoGeoTag
 
         private void chkMapShift_CheckedChanged( object sender, EventArgs e )
         {
+            currentMarker = null;
+            mouse_down = false;
             updatePositions( true );
             //updateMarkerOffset( true );
         }
@@ -476,7 +594,7 @@ namespace PhotoGeoTag
             marker_wgs.ToolTip.Stroke = new Pen( Color.Violet );
             marker_wgs.ToolTip.Fill = new SolidBrush( Color.Snow );
             //marker.ToolTipText = "<html><body><img src=\"./P4083508.jpg\" /></body></html>";
-            marker_wgs.ToolTipText = flist[0];
+            marker_wgs.ToolTipText = Path.GetFileName( flist[0] );
             OverlayRefPosWGS.Markers.Add( marker_wgs );
             
             OverlayRefPosMAR.Markers.Clear();
@@ -487,7 +605,7 @@ namespace PhotoGeoTag
             marker_mar.ToolTip.Stroke = new Pen(Color.SlateBlue);
             marker_mar.ToolTip.Fill = new SolidBrush( Color.Snow);
             //markermar.ToolTipText = "<html><body><img src=\"./P4083508.jpg\" /></body></html>";
-            marker_mar.ToolTipText = flist[0];
+            marker_mar.ToolTipText = Path.GetFileName( flist[0] );
             OverlayRefPosMAR.Markers.Add( marker_mar );
 
             //gMap.Zoom = 12;
@@ -496,6 +614,19 @@ namespace PhotoGeoTag
 
             //OverlayRefPos.Markers.Add( marker_wgs );
             //updateMarkerOffset( OverlayRefPos, true );
+        }
+
+        private void btnPinPhoto_Click( object sender, EventArgs e )
+        {
+            if ( photos.Count <= 0 ) return;
+
+            PointLatLng pos = gMap.Position;
+            GMarkerGoogle marker = new GMarkerGoogle( pos, GMarkerGoogleType.yellow );
+            marker.ToolTip = new GMapBaloonToolTip( marker );
+            marker.ToolTip.Stroke = new Pen( Color.SlateBlue );
+            marker.ToolTip.Fill = new SolidBrush( Color.Snow );
+            marker.ToolTipText = "Location you want to place photo(s)";
+            OverlayRefPos.Markers.Add( marker );
         }
 
         private void gMap_OnMapTypeChanged( GMapProvider type )
@@ -540,6 +671,65 @@ namespace PhotoGeoTag
         {
             //tsInfo.Text = $"Load Time: { (ElapsedMilliseconds / 1000F).ToString("F6") } s";               
             //tsProgress.Value = 100;
+        }
+
+        private void gMap_OnMarkerEnter( GMapMarker item )
+        {
+            if ( !mouse_down ) currentMarker = (GMarkerGoogle) item;
+        }
+
+        private void gMap_OnMarkerLeave( GMapMarker item )
+        {
+            if ( !mouse_down ) currentMarker = null;
+        }
+
+        private void gMap_OnMarkerClick( GMapMarker item, MouseEventArgs e )
+        {
+            //
+            if (e.Button == MouseButtons.Left)
+            {
+                //currentMarker = (GMarkerGoogle)item;
+            }
+
+        }
+
+        private void gMap_MouseDown( object sender, MouseEventArgs e )
+        {
+            mouse_down = true;
+        }
+
+        private void gMap_MouseUp( object sender, MouseEventArgs e )
+        {
+            mouse_down = false;
+            if ( currentMarker != null )
+            {
+                if ( MessageBox.Show( this, "Place photo(s) to here?", "Warning", MessageBoxButtons.OKCancel, MessageBoxIcon.Question ) == DialogResult.OK )
+                {
+                    //GeoImage( currentMarker.Position );
+                    GeoImage( gMap.FromLocalToLatLng( e.X, e.Y ) );
+                }
+            }
+        }
+
+        private void gMap_MouseMove( object sender, MouseEventArgs e )
+        {
+            //
+            PointLatLng pos = gMap.FromLocalToLatLng( e.X, e.Y );
+            double lat = pos.Lat;
+            double lng = pos.Lng;
+            if ( MapShift )
+            {
+                PosShift.Convert2WGS( pos.Lng, pos.Lat, out lng, out lat );
+            }
+            string refLat = lat < 0 ? "S" : "N";
+            string refLng = lng < 0 ? "W" : "E";
+            tsInfo.Text = $"Lat: {lat.ToString( "F6" )} {refLat}, Lon: {lng.ToString( "F6" )} {refLng}";
+
+            if ( mouse_down && currentMarker != null )
+            {
+                //currentMarker.Position = new PointLatLng( lat, lng );
+                currentMarker.Position = pos;
+            }
         }
     }
 }

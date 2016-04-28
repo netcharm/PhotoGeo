@@ -34,11 +34,12 @@
             this.tsLat = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsLon = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsZoom = new System.Windows.Forms.ToolStripStatusLabel();
-            this.trackZoom = new System.Windows.Forms.TrackBar();
-            this.picGeoRef = new System.Windows.Forms.PictureBox();
-            this.chkMapShift = new System.Windows.Forms.CheckBox();
-            this.tsProgress = new System.Windows.Forms.ToolStripProgressBar();
             this.tsInfo = new System.Windows.Forms.ToolStripStatusLabel();
+            this.tsProgress = new System.Windows.Forms.ToolStripProgressBar();
+            this.trackZoom = new System.Windows.Forms.TrackBar();
+            this.chkMapShift = new System.Windows.Forms.CheckBox();
+            this.btnPinPhoto = new System.Windows.Forms.Button();
+            this.picGeoRef = new System.Windows.Forms.PictureBox();
             this.status.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackZoom)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picGeoRef)).BeginInit();
@@ -71,11 +72,17 @@
             this.gMap.Size = new System.Drawing.Size(615, 421);
             this.gMap.TabIndex = 0;
             this.gMap.Zoom = 2D;
+            this.gMap.OnMarkerClick += new GMap.NET.WindowsForms.MarkerClick(this.gMap_OnMarkerClick);
+            this.gMap.OnMarkerEnter += new GMap.NET.WindowsForms.MarkerEnter(this.gMap_OnMarkerEnter);
+            this.gMap.OnMarkerLeave += new GMap.NET.WindowsForms.MarkerLeave(this.gMap_OnMarkerLeave);
             this.gMap.OnPositionChanged += new GMap.NET.PositionChanged(this.gMap_OnPositionChanged);
             this.gMap.OnTileLoadComplete += new GMap.NET.TileLoadComplete(this.gMap_OnTileLoadComplete);
             this.gMap.OnTileLoadStart += new GMap.NET.TileLoadStart(this.gMap_OnTileLoadStart);
             this.gMap.OnMapZoomChanged += new GMap.NET.MapZoomChanged(this.gMap_OnMapZoomChanged);
             this.gMap.OnMapTypeChanged += new GMap.NET.MapTypeChanged(this.gMap_OnMapTypeChanged);
+            this.gMap.MouseDown += new System.Windows.Forms.MouseEventHandler(this.gMap_MouseDown);
+            this.gMap.MouseMove += new System.Windows.Forms.MouseEventHandler(this.gMap_MouseMove);
+            this.gMap.MouseUp += new System.Windows.Forms.MouseEventHandler(this.gMap_MouseUp);
             // 
             // cbMapProviders
             // 
@@ -85,13 +92,14 @@
             this.cbMapProviders.FormattingEnabled = true;
             this.cbMapProviders.Location = new System.Drawing.Point(12, 452);
             this.cbMapProviders.Name = "cbMapProviders";
-            this.cbMapProviders.Size = new System.Drawing.Size(160, 20);
+            this.cbMapProviders.Size = new System.Drawing.Size(144, 20);
             this.cbMapProviders.Sorted = true;
             this.cbMapProviders.TabIndex = 1;
             this.cbMapProviders.SelectedIndexChanged += new System.EventHandler(this.cbMapProviders_SelectedIndexChanged);
             // 
             // status
             // 
+            this.status.AutoSize = false;
             this.status.GripStyle = System.Windows.Forms.ToolStripGripStyle.Visible;
             this.status.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsLat,
@@ -142,21 +150,58 @@
             | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
             this.tsZoom.BorderStyle = System.Windows.Forms.Border3DStyle.SunkenInner;
             this.tsZoom.Name = "tsZoom";
-            this.tsZoom.Size = new System.Drawing.Size(96, 17);
+            this.tsZoom.Size = new System.Drawing.Size(56, 17);
             this.tsZoom.Text = "Zoom:";
             this.tsZoom.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
+            // tsInfo
+            // 
+            this.tsInfo.Name = "tsInfo";
+            this.tsInfo.Size = new System.Drawing.Size(227, 17);
+            this.tsInfo.Spring = true;
+            this.tsInfo.Text = "OK";
+            // 
+            // tsProgress
+            // 
+            this.tsProgress.Name = "tsProgress";
+            this.tsProgress.Size = new System.Drawing.Size(100, 16);
+            // 
             // trackZoom
             // 
-            this.trackZoom.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.trackZoom.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.trackZoom.Cursor = System.Windows.Forms.Cursors.Hand;
             this.trackZoom.LargeChange = 2;
-            this.trackZoom.Location = new System.Drawing.Point(178, 441);
+            this.trackZoom.Location = new System.Drawing.Point(156, 441);
             this.trackZoom.Name = "trackZoom";
-            this.trackZoom.Size = new System.Drawing.Size(236, 42);
+            this.trackZoom.Size = new System.Drawing.Size(247, 42);
             this.trackZoom.TabIndex = 4;
             this.trackZoom.TickStyle = System.Windows.Forms.TickStyle.Both;
             this.trackZoom.Scroll += new System.EventHandler(this.trackZoom_Scroll);
+            // 
+            // chkMapShift
+            // 
+            this.chkMapShift.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.chkMapShift.AutoSize = true;
+            this.chkMapShift.Location = new System.Drawing.Point(409, 454);
+            this.chkMapShift.Name = "chkMapShift";
+            this.chkMapShift.Size = new System.Drawing.Size(108, 16);
+            this.chkMapShift.TabIndex = 6;
+            this.chkMapShift.Text = "Map Need Shift";
+            this.chkMapShift.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.chkMapShift.UseVisualStyleBackColor = true;
+            this.chkMapShift.CheckedChanged += new System.EventHandler(this.chkMapShift_CheckedChanged);
+            // 
+            // btnPinPhoto
+            // 
+            this.btnPinPhoto.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnPinPhoto.Image = global::PhotoGeoTag.Properties.Resources.map_pin_md_32x32;
+            this.btnPinPhoto.Location = new System.Drawing.Point(526, 441);
+            this.btnPinPhoto.Name = "btnPinPhoto";
+            this.btnPinPhoto.Size = new System.Drawing.Size(37, 42);
+            this.btnPinPhoto.TabIndex = 7;
+            this.btnPinPhoto.UseVisualStyleBackColor = true;
+            this.btnPinPhoto.Click += new System.EventHandler(this.btnPinPhoto_Click);
             // 
             // picGeoRef
             // 
@@ -171,37 +216,13 @@
             this.picGeoRef.DragDrop += new System.Windows.Forms.DragEventHandler(this.picGeoRef_DragDrop);
             this.picGeoRef.DragEnter += new System.Windows.Forms.DragEventHandler(this.picGeoRef_DragEnter);
             // 
-            // chkMapShift
-            // 
-            this.chkMapShift.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.chkMapShift.AutoSize = true;
-            this.chkMapShift.Location = new System.Drawing.Point(424, 454);
-            this.chkMapShift.Name = "chkMapShift";
-            this.chkMapShift.Size = new System.Drawing.Size(108, 16);
-            this.chkMapShift.TabIndex = 6;
-            this.chkMapShift.Text = "Map Need Shift";
-            this.chkMapShift.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.chkMapShift.UseVisualStyleBackColor = true;
-            this.chkMapShift.CheckedChanged += new System.EventHandler(this.chkMapShift_CheckedChanged);
-            // 
-            // tsProgress
-            // 
-            this.tsProgress.Name = "tsProgress";
-            this.tsProgress.Size = new System.Drawing.Size(100, 16);
-            // 
-            // tsInfo
-            // 
-            this.tsInfo.Name = "tsInfo";
-            this.tsInfo.Size = new System.Drawing.Size(156, 17);
-            this.tsInfo.Spring = true;
-            this.tsInfo.Text = "OK";
-            // 
-            // MainForm
+            // FormMap
             // 
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(640, 509);
+            this.Controls.Add(this.btnPinPhoto);
             this.Controls.Add(this.chkMapShift);
             this.Controls.Add(this.picGeoRef);
             this.Controls.Add(this.trackZoom);
@@ -209,7 +230,7 @@
             this.Controls.Add(this.cbMapProviders);
             this.Controls.Add(this.gMap);
             this.DoubleBuffered = true;
-            this.Name = "MainForm";
+            this.Name = "FormMap";
             this.Text = "Maps";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormMap_FormClosing);
             this.Load += new System.EventHandler(this.FormMap_Load);
@@ -235,6 +256,7 @@
         private System.Windows.Forms.CheckBox chkMapShift;
         private System.Windows.Forms.ToolStripStatusLabel tsInfo;
         private System.Windows.Forms.ToolStripProgressBar tsProgress;
+        private System.Windows.Forms.Button btnPinPhoto;
     }
 }
 
