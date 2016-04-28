@@ -16,6 +16,7 @@ namespace PhotoGeoTag
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault( false );
+            //Application.Run( new FormMap() );
             Application.Run( new MainForm() );
         }
     }

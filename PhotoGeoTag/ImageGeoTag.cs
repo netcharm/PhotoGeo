@@ -84,7 +84,7 @@ namespace PhotoGeoTag
 
         public static double GetLatitude(Image img, double Latitude=0.0)
         {
-            double lat = Latitude;
+            double lat = Double.NaN;
 
             foreach ( PropertyItem metaItem in img.PropertyItems )
             {
@@ -107,7 +107,7 @@ namespace PhotoGeoTag
 
         public static double GetLongitude( Image img, double Longitude=0.0)
         {
-            double lng = Longitude;
+            double lng = double.NaN;
 
             foreach ( PropertyItem metaItem in img.PropertyItems )
             {
