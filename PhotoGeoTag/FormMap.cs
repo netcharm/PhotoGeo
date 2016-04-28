@@ -65,37 +65,66 @@ namespace PhotoGeoTag
         GMarkerGoogle currentMarker;
         bool mouse_down = false;
 
-        private void updatePositions( GMapOverlay overlay, bool force=false )
+        private void updatePositions( GMapOverlay overlay, bool force = false )
         {
             if ( MapShift == chkMapShift.Checked && !force ) return;
 
             string mapName = gMap.MapProvider.Name;
 
+            double lat_min=double.PositiveInfinity, lat_max=double.NegativeInfinity, lng_min=double.PositiveInfinity, lng_max=double.NegativeInfinity;
+
             MapShift = chkMapShift.Checked;
             //if ( mapName.StartsWith( "GoogleChina" ) || mapName.StartsWith( "BingMap" ) )
-            if(MapShift)
+            if ( MapShift )
             {
                 //MapShift = true;
                 overlay.Markers.Clear();
                 if ( string.Equals( overlay.Id, "RefPos", StringComparison.CurrentCultureIgnoreCase ) )
                 {
                     foreach ( GMarkerGoogle marker in OverlayRefPosMAR.Markers )
+                    {
                         overlay.Markers.Add( marker );
+                        if ( marker.Position.Lat < lat_min ) lat_min = marker.Position.Lat;
+                        if ( marker.Position.Lng < lng_min ) lng_min = marker.Position.Lng;
+                        if ( marker.Position.Lat > lat_max ) lat_max = marker.Position.Lat;
+                        if ( marker.Position.Lng > lng_max ) lng_max = marker.Position.Lng;
+                    }
                 }
                 else if ( string.Equals( overlay.Id, "Photos", StringComparison.CurrentCultureIgnoreCase ) )
                 {
                     foreach ( GMarkerGoogle marker in OverlayPhotosMAR.Markers )
+                    {
                         overlay.Markers.Add( marker );
+                        if ( marker.Position.Lat < lat_min ) lat_min = marker.Position.Lat;
+                        if ( marker.Position.Lng < lng_min ) lng_min = marker.Position.Lng;
+                        if ( marker.Position.Lat > lat_max ) lat_max = marker.Position.Lat;
+                        if ( marker.Position.Lng > lng_max ) lng_max = marker.Position.Lng;
+                    }
                 }
                 else if ( string.Equals( overlay.Id, "Points", StringComparison.CurrentCultureIgnoreCase ) )
                 {
                     foreach ( GMarkerGoogle marker in OverlayPointsMAR.Markers )
+                    {
                         overlay.Markers.Add( marker );
+                        if ( marker.Position.Lat < lat_min ) lat_min = marker.Position.Lat;
+                        if ( marker.Position.Lng < lng_min ) lng_min = marker.Position.Lng;
+                        if ( marker.Position.Lat > lat_max ) lat_max = marker.Position.Lat;
+                        if ( marker.Position.Lng > lng_max ) lng_max = marker.Position.Lng;
+                    }
                 }
                 else if ( string.Equals( overlay.Id, "Routes", StringComparison.CurrentCultureIgnoreCase ) )
                 {
                     foreach ( GMapRoute route in OverlayRoutesMAR.Routes )
+                    {
                         overlay.Routes.Add( route );
+                        foreach ( PointLatLng point in route.Points )
+                        {
+                            if ( point.Lat < lat_min ) lat_min = point.Lat;
+                            if ( point.Lng < lng_min ) lng_min = point.Lng;
+                            if ( point.Lat > lat_max ) lat_max = point.Lat;
+                            if ( point.Lng > lng_max ) lng_max = point.Lng;
+                        }
+                    }
                 }
             }
             else
@@ -105,24 +134,63 @@ namespace PhotoGeoTag
                 if ( string.Equals( overlay.Id, "RefPos", StringComparison.CurrentCultureIgnoreCase ) )
                 {
                     foreach ( GMarkerGoogle marker in OverlayRefPosWGS.Markers )
+                    {
                         overlay.Markers.Add( marker );
+                        if ( marker.Position.Lat < lat_min ) lat_min = marker.Position.Lat;
+                        if ( marker.Position.Lng < lng_min ) lng_min = marker.Position.Lng;
+                        if ( marker.Position.Lat > lat_max ) lat_max = marker.Position.Lat;
+                        if ( marker.Position.Lng > lng_max ) lng_max = marker.Position.Lng;
+                    }
                 }
                 else if ( string.Equals( overlay.Id, "Photos", StringComparison.CurrentCultureIgnoreCase ) )
                 {
                     foreach ( GMarkerGoogle marker in OverlayPhotosWGS.Markers )
+                    {
                         overlay.Markers.Add( marker );
+                        if ( marker.Position.Lat < lat_min ) lat_min = marker.Position.Lat;
+                        if ( marker.Position.Lng < lng_min ) lng_min = marker.Position.Lng;
+                        if ( marker.Position.Lat > lat_max ) lat_max = marker.Position.Lat;
+                        if ( marker.Position.Lng > lng_max ) lng_max = marker.Position.Lng;
+                    }
                 }
                 else if ( string.Equals( overlay.Id, "Points", StringComparison.CurrentCultureIgnoreCase ) )
                 {
                     foreach ( GMarkerGoogle marker in OverlayPointsWGS.Markers )
+                    {
                         overlay.Markers.Add( marker );
+                        if ( marker.Position.Lat < lat_min ) lat_min = marker.Position.Lat;
+                        if ( marker.Position.Lng < lng_min ) lng_min = marker.Position.Lng;
+                        if ( marker.Position.Lat > lat_max ) lat_max = marker.Position.Lat;
+                        if ( marker.Position.Lng > lng_max ) lng_max = marker.Position.Lng;
+                    }
                 }
                 else if ( string.Equals( overlay.Id, "Routes", StringComparison.CurrentCultureIgnoreCase ) )
                 {
                     foreach ( GMapRoute route in OverlayRoutesWGS.Routes )
+                    {
                         overlay.Routes.Add( route );
+                        foreach ( PointLatLng point in route.Points )
+                        {
+                            if ( point.Lat < lat_min ) lat_min = point.Lat;
+                            if ( point.Lng < lng_min ) lng_min = point.Lng;
+                            if ( point.Lat > lat_max ) lat_max = point.Lat;
+                            if ( point.Lng > lng_max ) lng_max = point.Lng;
+                        }
+                    }
                 }
-
+            }
+            if ( !double.IsInfinity( lat_min ) && !double.IsInfinity( lat_max ) &&
+                !double.IsInfinity( lng_min ) && !double.IsInfinity( lng_max ) )
+            {
+                if ( lng_max - lng_min == 0 || lat_max - lat_min == 0 )
+                {
+                    gMap.SetZoomToFitRect( new RectLatLng( ( lat_min + lat_max ) / 2F - 0.01, ( lng_min + lng_max ) / 2F - 0.01, lng_max - lng_min + 0.02, lat_max - lat_min + 0.02 ) );
+                }
+                else
+                {
+                    gMap.SetZoomToFitRect( new RectLatLng( lat_min, lng_min, lng_max - lng_min, lat_max - lat_min ) );
+                }
+                gMap.Position = new PointLatLng( ( lat_min + lat_max ) / 2F, ( lng_min + lng_max ) / 2F );
             }
         }
 
@@ -131,65 +199,6 @@ namespace PhotoGeoTag
             foreach ( GMapOverlay overlay in gMap.Overlays )
             {
                 updatePositions( overlay, force );
-            }
-        }
-
-        private void updateMarkerOffset( GMapOverlay overlay, bool force = false )
-        {
-            double lng_wgs = 0, lat_wgs = 0;
-            double lng_mar = 0, lat_mar = 0;
-
-            if ( MapShift == chkMapShift.Checked && !force ) return;
-
-            string mapName = gMap.MapProvider.Name;
-
-            MapShift = chkMapShift.Checked;
-
-            foreach ( GMarkerGoogle marker in overlay.Markers )
-            {
-                double offset_x = 0, offset_y = 0;
-                if ( MapShift )
-                {
-                    lng_wgs = marker.Position.Lng;
-                    lat_wgs = marker.Position.Lat;
-
-                    PosShift.Convert2Mars( lng_wgs, lat_wgs, out lng_mar, out lat_mar );
-
-                    GPoint pixel_wgs = gMap.MapProvider.Projection.FromLatLngToPixel(lat_wgs, lng_wgs, (int)gMap.Zoom);
-                    GPoint pixel_mar = gMap.MapProvider.Projection.FromLatLngToPixel(lat_mar, lng_mar, (int)gMap.Zoom);
-
-                    double res = gMap.MapProvider.Projection.GetGroundResolution( (int)gMap.Zoom, lat_wgs );
-
-                    offset_x = pixel_mar.X - pixel_wgs.X;
-                    offset_y = pixel_mar.Y - pixel_wgs.Y;
-                }
-                marker.Offset = new Point( (int) offset_x, (int) offset_y );
-            }
-
-            //double offset_x = 0, offset_y = 0;
-            //if ( MapShift )
-            //{
-            //    lng_wgs = gMap.Position.Lng;
-            //    lat_wgs = gMap.Position.Lat;
-
-            //    PosShift.Convert2Mars( lng_wgs, lat_wgs, out lng_mar, out lat_mar );
-
-            //    GPoint pixel_wgs = gMap.MapProvider.Projection.FromLatLngToPixel(lat_wgs, lng_wgs, (int)gMap.Zoom);
-            //    GPoint pixel_mar = gMap.MapProvider.Projection.FromLatLngToPixel(lat_mar, lng_mar, (int)gMap.Zoom);
-
-            //    double res = gMap.MapProvider.Projection.GetGroundResolution( (int)gMap.Zoom, lat_wgs );
-
-            //    offset_x = pixel_mar.X - pixel_wgs.X;
-            //    offset_y = pixel_mar.Y - pixel_wgs.Y;
-            //}
-            //gMap.Offset( (int) offset_x, (int) offset_y );
-        }
-
-        private void updateMarkerOffset( bool force = false )
-        {
-            foreach ( GMapOverlay overlay in gMap.Overlays )
-            {
-                updateMarkerOffset( overlay, force );
             }
         }
 
@@ -302,7 +311,7 @@ namespace PhotoGeoTag
             return null;
         }
 
-        public void GeoImage( PointLatLng pos )
+        public void SetImageGeoTag( PointLatLng pos )
         {
             //PointLatLng pos = gMap.Position;
             //return;
@@ -558,7 +567,6 @@ namespace PhotoGeoTag
             currentMarker = null;
             mouse_down = false;
             updatePositions( true );
-            //updateMarkerOffset( true );
         }
 
         private void trackZoom_Scroll( object sender, EventArgs e )
@@ -611,9 +619,6 @@ namespace PhotoGeoTag
             //gMap.Zoom = 12;
 
             updatePositions( OverlayRefPos, true );
-
-            //OverlayRefPos.Markers.Add( marker_wgs );
-            //updateMarkerOffset( OverlayRefPos, true );
         }
 
         private void btnPinPhoto_Click( object sender, EventArgs e )
@@ -635,7 +640,6 @@ namespace PhotoGeoTag
             Geo = gMap.MapProvider as GeocodingProvider;
 
             updatePositions();
-            //updateMarkerOffset();
         }
 
         private void gMap_OnMapZoomChanged()
@@ -643,8 +647,6 @@ namespace PhotoGeoTag
             trackZoom.Value = (int) gMap.Zoom;
             tsZoom.Text = $"Zoom: {gMap.Zoom.ToString()}";
             tsZoom.ToolTipText = tsZoom.Text;
-
-            // updateMarkerOffset( OverlayRefPos, true );
         }
 
         private void gMap_OnPositionChanged( PointLatLng point )
@@ -706,7 +708,7 @@ namespace PhotoGeoTag
                 if ( MessageBox.Show( this, "Place photo(s) to here?", "Warning", MessageBoxButtons.OKCancel, MessageBoxIcon.Question ) == DialogResult.OK )
                 {
                     //GeoImage( currentMarker.Position );
-                    GeoImage( gMap.FromLocalToLatLng( e.X, e.Y ) );
+                    SetImageGeoTag( gMap.FromLocalToLatLng( e.X, e.Y ) );
                 }
             }
         }
@@ -714,6 +716,10 @@ namespace PhotoGeoTag
         private void gMap_MouseMove( object sender, MouseEventArgs e )
         {
             //
+            if(!Focused)
+            {
+                return;
+            }
             PointLatLng pos = gMap.FromLocalToLatLng( e.X, e.Y );
             double lat = pos.Lat;
             double lng = pos.Lng;
