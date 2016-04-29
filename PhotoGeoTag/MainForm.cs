@@ -98,7 +98,7 @@ namespace PhotoGeoTag
         {
             Configuration config = ConfigurationManager.OpenExeConfiguration(Application.ExecutablePath);
 
-            foreach(string key in config.AppSettings.Settings.AllKeys)
+            foreach ( string key in config.AppSettings.Settings.AllKeys )
             {
                 if ( appSettings.ContainsKey( key ) )
                     appSettings[key] = config.AppSettings.Settings[key].Value.ToString();
@@ -144,7 +144,7 @@ namespace PhotoGeoTag
 
             Configuration config = ConfigurationManager.OpenExeConfiguration(Application.ExecutablePath);
 
-            foreach ( string k in appSettings.Keys)
+            foreach ( string k in appSettings.Keys )
             {
                 if ( config.AppSettings.Settings.AllKeys.Contains( k ) )
                     config.AppSettings.Settings[k].Value = appSettings[k].ToString();
@@ -182,7 +182,7 @@ namespace PhotoGeoTag
 
             tscbViewMode.Items.Clear();
             tscbViewMode.Items.AddRange( Enum.GetNames( typeof( Manina.Windows.Forms.View ) ) );
-            tscbViewMode.SelectedIndex = (int)Manina.Windows.Forms.View.Thumbnails;
+            tscbViewMode.SelectedIndex = (int) Manina.Windows.Forms.View.Thumbnails;
 
             //
             lvImage.AllowCheckBoxClick = false;
@@ -265,9 +265,9 @@ namespace PhotoGeoTag
 
         private void explorerTree_PathChanged( object sender, EventArgs e )
         {
-                PopulateListView( new DirectoryInfo( explorerTree.SelectedPath ) );
-                tsProgress.Maximum = lvImage.Items.Count;
-                updateLastVisited();
+            PopulateListView( new DirectoryInfo( explorerTree.SelectedPath ) );
+            tsProgress.Maximum = lvImage.Items.Count;
+            updateLastVisited();
         }
 
         private void tsbtnMapView_Click( object sender, EventArgs e )
@@ -275,7 +275,7 @@ namespace PhotoGeoTag
             //FormMap fm = (FormMap)Application.OpenForms[MapViewer.Text];
             try
             {
-                if ( MapViewer == null) { MapViewer = new FormMap();  }
+                if ( MapViewer == null ) { MapViewer = new FormMap(); }
                 else if ( MapViewer.Visible ) { MapViewer.Activate(); }
                 else { MapViewer = new FormMap(); }
             }
@@ -355,7 +355,7 @@ namespace PhotoGeoTag
                     properties.Add( "StarRating", item.StarRating.ToString() );
                     properties.Add( "UserComment", item.UserComment == null ? "" : item.UserComment.Trim() );
                     thumb.Tag = properties;
-                    if ( item.Tag != null)
+                    if ( item.Tag != null )
                     {
                         foreach ( PropertyItem propitem in (PropertyItem[]) item.Tag )
                         {
@@ -367,7 +367,10 @@ namespace PhotoGeoTag
                 }
                 else
                 {
-                    item.Selected = false;
+                    if ( lvImage.SelectedItems.Count > 1 )
+                    {
+                        item.Selected = false;
+                    }
                 }
             }
             try
@@ -380,5 +383,36 @@ namespace PhotoGeoTag
             catch { }
         }
 
+        private void lvImage_KeyPress( object sender, KeyPressEventArgs e )
+        {
+        }
+
+        private void lvImage_KeyUp( object sender, KeyEventArgs e )
+        {
+            if ( e.Control && e.KeyCode == Keys.A )
+            {
+                lvImage.SelectAll();
+            }
+            else if ( e.KeyCode == Keys.Enter )
+            {
+                foreach ( ImageListViewItem item in lvImage.SelectedItems )
+                {
+                    string d = item.FileName;
+                    if ( File.GetAttributes( d ).HasFlag( FileAttributes.Directory ) )
+                    {
+                        explorerTree.Go( d );
+                        //explorerTree.setCurrentPath( d );
+                        break;
+                    }
+                }
+            }
+            else if ( e.KeyCode == Keys.Back || e.KeyCode == Keys.BrowserBack )
+            {
+                string target = Path.GetDirectoryName( explorerTree.SelectedPath );
+                //if ( lastVisitedFolders.Count > 1 ) target = lastVisitedFolders[1];
+                //explorerTree.setCurrentPath( target );
+                explorerTree.Go( target );
+            }
+        }
     }
 }

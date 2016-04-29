@@ -164,6 +164,8 @@
             this.lvImage.ItemHover += new Manina.Windows.Forms.ItemHoverEventHandler(this.lvImage_ItemHover);
             this.lvImage.ItemDoubleClick += new Manina.Windows.Forms.ItemDoubleClickEventHandler(this.lvImage_ItemDoubleClick);
             this.lvImage.SelectionChanged += new System.EventHandler(this.lvImage_SelectionChanged);
+            this.lvImage.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.lvImage_KeyPress);
+            this.lvImage.KeyUp += new System.Windows.Forms.KeyEventHandler(this.lvImage_KeyUp);
             // 
             // menuMain
             // 
