@@ -113,14 +113,14 @@
             // splitMain.Panel1
             // 
             this.splitMain.Panel1.Controls.Add(this.explorerTree);
-            this.splitMain.Panel1MinSize = 240;
+            this.splitMain.Panel1MinSize = 232;
             // 
             // splitMain.Panel2
             // 
             this.splitMain.Panel2.Controls.Add(this.lvImage);
             this.splitMain.Size = new System.Drawing.Size(792, 526);
-            this.splitMain.SplitterDistance = 240;
-            this.splitMain.SplitterWidth = 2;
+            this.splitMain.SplitterDistance = 232;
+            this.splitMain.SplitterWidth = 1;
             this.splitMain.TabIndex = 2;
             // 
             // explorerTree
@@ -139,7 +139,7 @@
             this.explorerTree.ShowMyNetwork = true;
             this.explorerTree.ShowNodeTooltip = false;
             this.explorerTree.ShowToolbar = false;
-            this.explorerTree.Size = new System.Drawing.Size(236, 522);
+            this.explorerTree.Size = new System.Drawing.Size(228, 522);
             this.explorerTree.TabIndex = 1;
             this.explorerTree.TargetPath = "D:\\Develop\\MS\\VS2015\\Common7\\IDE";
             this.explorerTree.PathChanged += new WindowsExplorer.ExplorerTree.PathChangedEventHandler(this.explorerTree_PathChanged);
@@ -158,7 +158,7 @@
             this.lvImage.PersistentCacheSize = ((long)(100));
             this.lvImage.ShowCheckBoxes = true;
             this.lvImage.ShowFileIcons = true;
-            this.lvImage.Size = new System.Drawing.Size(546, 522);
+            this.lvImage.Size = new System.Drawing.Size(555, 522);
             this.lvImage.TabIndex = 0;
             this.lvImage.ThumbnailSize = new System.Drawing.Size(120, 120);
             this.lvImage.ItemHover += new Manina.Windows.Forms.ItemHoverEventHandler(this.lvImage_ItemHover);

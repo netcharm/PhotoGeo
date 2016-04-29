@@ -62,6 +62,8 @@ namespace PhotoGeoTag
                             pos_Lat = ImageGeoTag.GetLatitude( photo );
                             pos_Lng = ImageGeoTag.GetLongitude( photo );
 
+                            item.Tag = photo.PropertyItems;
+
                             photo.Dispose();
                         }
                         fs.Close();
@@ -328,33 +330,33 @@ namespace PhotoGeoTag
                 if ( !File.GetAttributes( d ).HasFlag( FileAttributes.Directory ) )
                 {
                     Image thumb = item.GetCachedImage( CachedImageType.Thumbnail );
-                    if (item.Tag != null)
+                    Dictionary<string, string> properties = new Dictionary<string, string>();
+                    properties.Add( "Artist", item.Artist == null ? "" : item.Artist.Trim() );
+                    properties.Add( "Copyright", item.Copyright == null ? "" : item.Copyright.Trim() );
+                    properties.Add( "DateAccessed", item.DateAccessed == null ? "" : item.DateAccessed.ToString() );
+                    properties.Add( "DateCreated", item.DateCreated == null ? "" : item.DateCreated.ToString() );
+                    properties.Add( "DateModified", item.DateModified == null ? "" : item.DateModified.ToString() );
+                    properties.Add( "DateTaken", item.DateTaken == null ? "" : item.DateTaken.ToString() );
+                    properties.Add( "Dimensions", item.Dimensions == null ? "" : item.Dimensions.ToString() );
+                    properties.Add( "EquipmentModel", item.EquipmentModel == null ? "" : item.EquipmentModel.Trim() );
+                    properties.Add( "ExposureTime", item.ExposureTime.ToString() );
+                    properties.Add( "FileName", item.FileName == null ? "" : item.FileName.Trim() );
+                    properties.Add( "FilePath", item.FilePath == null ? "" : item.FilePath.Trim() );
+                    properties.Add( "FileSize", item.FileSize.ToString() );
+                    properties.Add( "FileType", item.FileType == null ? "" : item.FileType.Trim() );
+                    properties.Add( "FNumber", item.FNumber.ToString() );
+                    properties.Add( "FocalLength", item.FocalLength.ToString() );
+                    properties.Add( "FolderName", item.FolderName == null ? "" : item.FolderName.Trim() );
+                    properties.Add( "ImageDescription", item.ImageDescription == null ? "" : item.ImageDescription.Trim() );
+                    properties.Add( "ISOSpeed", item.ISOSpeed.ToString() );
+                    properties.Add( "Rating", item.Rating.ToString() );
+                    properties.Add( "Resolution", item.Resolution == null ? "" : item.Resolution.ToString() );
+                    properties.Add( "Software", item.Software == null ? "" : item.Software.Trim() );
+                    properties.Add( "StarRating", item.StarRating.ToString() );
+                    properties.Add( "UserComment", item.UserComment == null ? "" : item.UserComment.Trim() );
+                    thumb.Tag = properties;
+                    if ( item.Tag != null)
                     {
-                        Dictionary<string, string> properties = new Dictionary<string, string>();
-                        properties.Add( "Artist"          , item.Artist == null ? "" : item.Artist.Trim() );
-                        properties.Add( "Copyright"       , item.Copyright == null ? "" : item.Copyright.Trim() );
-                        properties.Add( "DateAccessed"    , item.DateAccessed == null ? "" : item.DateAccessed.ToString() );
-                        properties.Add( "DateCreated"     , item.DateCreated == null ? "" : item.DateCreated.ToString() );
-                        properties.Add( "DateModified"    , item.DateModified == null ? "" : item.DateModified.ToString() );
-                        properties.Add( "DateTaken"       , item.DateTaken == null ? "" : item.DateTaken.ToString() );
-                        properties.Add( "Dimensions"      , item.Dimensions == null ? "" : item.Dimensions.ToString() );
-                        properties.Add( "EquipmentModel"  , item.EquipmentModel == null ? "" : item.EquipmentModel.Trim() );
-                        properties.Add( "ExposureTime"    , item.ExposureTime.ToString() );
-                        properties.Add( "FileName"        , item.FileName == null ? "" : item.FileName.Trim() );
-                        properties.Add( "FilePath"        , item.FilePath == null ? "" : item.FilePath.Trim() );
-                        properties.Add( "FileSize"        , item.FileSize.ToString() );
-                        properties.Add( "FileType"        , item.FileType == null ? "" : item.FileType.Trim() );
-                        properties.Add( "FNumber"         , item.FNumber.ToString() );
-                        properties.Add( "FocalLength"     , item.FocalLength.ToString() );
-                        properties.Add( "FolderName"      , item.FolderName == null ? "" : item.FolderName.Trim() );
-                        properties.Add( "ImageDescription", item.ImageDescription == null ? "" : item.ImageDescription.Trim() );
-                        properties.Add( "ISOSpeed"        , item.ISOSpeed.ToString() );
-                        properties.Add( "Rating"          , item.Rating.ToString() );
-                        properties.Add( "Resolution"      , item.Resolution == null ? "" : item.Resolution.ToString() );
-                        properties.Add( "Software"        , item.Software == null ? "" : item.Software.Trim() );
-                        properties.Add( "StarRating"      , item.StarRating.ToString() );
-                        properties.Add( "UserComment"     , item.UserComment == null ? "" : item.UserComment.Trim() );
-                        thumb.Tag = properties;
                         foreach ( PropertyItem propitem in (PropertyItem[]) item.Tag )
                         {
                             thumb.SetPropertyItem( propitem );

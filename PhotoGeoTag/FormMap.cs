@@ -349,45 +349,42 @@ namespace PhotoGeoTag
                     EncoderParameter myEncoderParameter = new EncoderParameter(myEncoder, 92L);
                     myEncoderParameters.Param[0] = myEncoderParameter;
 
-                    //EncoderParameters parameters = photo.GetEncoderParameterList(JpegBitmapEncoder);
-
                     photo.Save(img.Value, jpgEncoder, myEncoderParameters);
-
                     photo.Dispose();
-
                 }
 
                 Dictionary<string, string> properties = (Dictionary<string, string>)img.Key.Tag;
+                if(properties != null)
+                {
+                    FileInfo fi = new FileInfo( img.Value );
+                    DateTime dt = DateTime.Now;
 
-                FileInfo fi = new FileInfo( img.Value );
-                DateTime dt = DateTime.Now;
-
-                if( !string.IsNullOrEmpty( properties["DateTaken"]) )
-                {
-                    dt = DateTime.Parse( properties["DateTaken"] );
+                    if ( !string.IsNullOrEmpty( properties["DateTaken"] ) )
+                    {
+                        dt = DateTime.Parse( properties["DateTaken"] );
+                    }
+                    else if ( !string.IsNullOrEmpty( properties["DateCreated"] ) )
+                    {
+                        dt = DateTime.Parse( properties["DateCreated"] );
+                    }
+                    else if ( !string.IsNullOrEmpty( properties["DateModified"] ) )
+                    {
+                        dt = DateTime.Parse( properties["DateModified"] );
+                    }
+                    else if ( !string.IsNullOrEmpty( properties["DateAccessed"] ) )
+                    {
+                        dt = DateTime.Parse( properties["DateAccessed"] );
+                    }
+                    fi.LastAccessTimeUtc = dt.ToUniversalTime();
+                    fi.LastWriteTimeUtc = dt.ToUniversalTime();
+                    fi.CreationTimeUtc = dt.ToUniversalTime();
                 }
-                else if ( !string.IsNullOrEmpty( properties["DateCreated"] ) )
-                {
-                    dt = DateTime.Parse( properties["DateCreated"] );
-                }
-                else if ( !string.IsNullOrEmpty( properties["DateModified"] ) )
-                {
-                    dt = DateTime.Parse( properties["DateModified"] );
-                }
-                else if ( !string.IsNullOrEmpty( properties["DateAccessed"] ) )
-                {
-                    dt = DateTime.Parse( properties["DateAccessed"] );
-                }
-                fi.LastAccessTimeUtc = dt.ToUniversalTime();
-                fi.LastWriteTimeUtc = dt.ToUniversalTime();
-                fi.CreationTimeUtc = dt.ToUniversalTime();
 
                 GMarkerGoogle marker_wgs = new GMarkerGoogle( new PointLatLng(lat_wgs, lng_wgs), GMarkerGoogleType.orange_dot );
                 marker_wgs.ToolTip = new GMapBaloonToolTip( marker_wgs );
                 marker_wgs.ToolTip.Stroke = new Pen( Color.SlateBlue );
                 marker_wgs.ToolTip.Fill = new SolidBrush( Color.Snow );
                 marker_wgs.ToolTipText = Path.GetFileName( img.Value );
-                //marker_wgs.ToolTipText += img.Key.PropertyItems[];
                 OverlayPhotosWGS.Markers.Add( marker_wgs );
 
                 GMarkerGoogle marker_mar = new GMarkerGoogle( new PointLatLng( lat_mar, lng_mar ), GMarkerGoogleType.orange_dot );
