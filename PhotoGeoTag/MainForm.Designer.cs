@@ -41,8 +41,10 @@
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolMain = new System.Windows.Forms.ToolStrip();
             this.tsbtnMapView = new System.Windows.Forms.ToolStripButton();
+            this.tsSep1 = new System.Windows.Forms.ToolStripSeparator();
             this.tscbViewMode = new System.Windows.Forms.ToolStripComboBox();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsSep2 = new System.Windows.Forms.ToolStripSeparator();
+            this.tscbVistedFolder = new System.Windows.Forms.ToolStripComboBox();
             this.status.SuspendLayout();
             this.toolContainer.ContentPanel.SuspendLayout();
             this.toolContainer.TopToolStripPanel.SuspendLayout();
@@ -129,7 +131,7 @@
             this.explorerTree.HideSelection = false;
             this.explorerTree.Location = new System.Drawing.Point(0, 0);
             this.explorerTree.Name = "explorerTree";
-            this.explorerTree.SelectedPath = "D:\\Develop\\MS\\VS2015\\Common7\\IDE";
+            this.explorerTree.SelectedPath = "Desktop";
             this.explorerTree.ShowAddressbar = false;
             this.explorerTree.ShowLines = true;
             this.explorerTree.ShowMyDocuments = true;
@@ -139,6 +141,7 @@
             this.explorerTree.ShowToolbar = false;
             this.explorerTree.Size = new System.Drawing.Size(236, 522);
             this.explorerTree.TabIndex = 1;
+            this.explorerTree.TargetPath = "D:\\Develop\\MS\\VS2015\\Common7\\IDE";
             this.explorerTree.PathChanged += new WindowsExplorer.ExplorerTree.PathChangedEventHandler(this.explorerTree_PathChanged);
             // 
             // lvImage
@@ -188,12 +191,14 @@
             this.toolMain.Dock = System.Windows.Forms.DockStyle.None;
             this.toolMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsbtnMapView,
-            this.toolStripSeparator1,
-            this.tscbViewMode});
+            this.tsSep1,
+            this.tscbViewMode,
+            this.tsSep2,
+            this.tscbVistedFolder});
             this.toolMain.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
             this.toolMain.Location = new System.Drawing.Point(3, 0);
             this.toolMain.Name = "toolMain";
-            this.toolMain.Size = new System.Drawing.Size(196, 25);
+            this.toolMain.Size = new System.Drawing.Size(524, 25);
             this.toolMain.TabIndex = 1;
             this.toolMain.Text = "MainToolBar";
             // 
@@ -207,6 +212,11 @@
             this.tsbtnMapView.Text = "View Map";
             this.tsbtnMapView.Click += new System.EventHandler(this.tsbtnMapView_Click);
             // 
+            // tsSep1
+            // 
+            this.tsSep1.Name = "tsSep1";
+            this.tsSep1.Size = new System.Drawing.Size(6, 25);
+            // 
             // tscbViewMode
             // 
             this.tscbViewMode.AutoToolTip = true;
@@ -215,10 +225,18 @@
             this.tscbViewMode.Size = new System.Drawing.Size(121, 25);
             this.tscbViewMode.SelectedIndexChanged += new System.EventHandler(this.tscbViewMode_SelectedIndexChanged);
             // 
-            // toolStripSeparator1
+            // tsSep2
             // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
+            this.tsSep2.Name = "tsSep2";
+            this.tsSep2.Size = new System.Drawing.Size(6, 25);
+            // 
+            // tscbVistedFolder
+            // 
+            this.tscbVistedFolder.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.tscbVistedFolder.AutoToolTip = true;
+            this.tscbVistedFolder.DropDownWidth = 480;
+            this.tscbVistedFolder.Name = "tscbVistedFolder";
+            this.tscbVistedFolder.Size = new System.Drawing.Size(320, 25);
             // 
             // MainForm
             // 
@@ -231,6 +249,7 @@
             this.MinimumSize = new System.Drawing.Size(800, 600);
             this.Name = "MainForm";
             this.Text = "Photo Manager";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.status.ResumeLayout(false);
             this.status.PerformLayout();
@@ -267,6 +286,8 @@
         private System.Windows.Forms.ToolStripStatusLabel tsInfo;
         private System.Windows.Forms.ToolStripProgressBar tsProgress;
         private System.Windows.Forms.ToolStripComboBox tscbViewMode;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripSeparator tsSep1;
+        private System.Windows.Forms.ToolStripComboBox tscbVistedFolder;
+        private System.Windows.Forms.ToolStripSeparator tsSep2;
     }
 }

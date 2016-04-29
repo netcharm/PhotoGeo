@@ -715,11 +715,6 @@ namespace PhotoGeoTag
 
         private void gMap_MouseMove( object sender, MouseEventArgs e )
         {
-            //
-            if(!Focused)
-            {
-                return;
-            }
             PointLatLng pos = gMap.FromLocalToLatLng( e.X, e.Y );
             double lat = pos.Lat;
             double lng = pos.Lng;

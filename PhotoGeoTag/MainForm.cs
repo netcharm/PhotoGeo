@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -18,6 +19,8 @@ namespace PhotoGeoTag
     {
         string AppFolder = Path.GetDirectoryName(Application.ExecutablePath);
         string CacheFolder = "";
+        List<string> lastVisitedFolders = new List<string>();
+        Dictionary<string, string> appSettings = new Dictionary<string, string>();
 
         FormMap MapViewer;//= new FormMap();
 
@@ -50,14 +53,19 @@ namespace PhotoGeoTag
                     ImageListViewItem item = lvImage.Items[lvImage.Items.Count - 1];
                     item.Checked = false;
 
-                    Image photo = new Bitmap(p.FullName);
-                    item.Tag = photo.PropertyItems;
-
+                    //Image photo = new Bitmap(p.FullName);
                     double pos_Lat = double.NaN, pos_Lng = double.NaN;
-                    pos_Lat = ImageGeoTag.GetLatitude( photo );
-                    pos_Lng = ImageGeoTag.GetLongitude( photo );
+                    using ( FileStream fs = new FileStream( p.FullName, FileMode.Open, FileAccess.Read ) )
+                    {
+                        using ( Image photo = Image.FromStream( fs ) )
+                        {
+                            pos_Lat = ImageGeoTag.GetLatitude( photo );
+                            pos_Lng = ImageGeoTag.GetLongitude( photo );
 
-                    photo.Dispose();
+                            photo.Dispose();
+                        }
+                        fs.Close();
+                    }
 
                     if ( double.IsNaN( pos_Lat ) || double.IsNaN( pos_Lng ) ) continue;
 
@@ -69,9 +77,88 @@ namespace PhotoGeoTag
             lvImage.ResumeLayout();
         }
 
-        private void drawOverlay(Graphics g, Rectangle bounds)
+        private void configUpdate()
         {
+            Configuration config = ConfigurationManager.OpenExeConfiguration(Application.ExecutablePath);
 
+            KeyValueConfigurationElement element = new KeyValueConfigurationElement("lastVisitedFolder", tscbVistedFolder.Text);
+            config.AppSettings.Settings.Add( element );
+
+            //foreach ( SettingsProperty property in Properties.Settings.Default.Properties)
+            //{
+            //    KeyValueConfigurationElement element = new KeyValueConfigurationElement(property.Name, tscbVistedFolder.Text);
+            //    config.AppSettings.Settings.Add( property.Name, property.DefaultValue.ToString() );
+            //}
+            config.Save();
+        }
+
+        private void configLoad()
+        {
+            Configuration config = ConfigurationManager.OpenExeConfiguration(Application.ExecutablePath);
+
+            foreach(string key in config.AppSettings.Settings.AllKeys)
+            {
+                if ( appSettings.ContainsKey( key ) )
+                    appSettings[key] = config.AppSettings.Settings[key].Value.ToString();
+                else
+                    appSettings.Add( key, config.AppSettings.Settings[key].Value.ToString() );
+            }
+            if ( appSettings.ContainsKey( "lastVisitedFolder" ) )
+                tscbVistedFolder.Text = appSettings["lastVisitedFolder"].ToString();
+            else appSettings.Add( "lastVisitedFolder", AppFolder );
+
+            tscbVistedFolder.Items.Clear();
+            if ( appSettings.ContainsKey( "folderHistory" ) )
+            {
+                string historyFolder = appSettings["folderHistory"].ToString();
+                tscbVistedFolder.Items.AddRange( historyFolder.Split( Path.PathSeparator ) );
+            }
+            else
+            {
+                appSettings.Add( "folderHistory", "" );
+            }
+
+        }
+
+        private void configSave()
+        {
+            if ( appSettings.ContainsKey( "lastVisitedFolder" ) )
+                appSettings["lastVisitedFolder"] = tscbVistedFolder.Text;
+            else appSettings.Add( "lastVisitedFolder", AppFolder );
+
+            List<string> folders = new List<string>();
+            int count = 0;
+            foreach ( string folder in tscbVistedFolder.Items )
+            {
+                if ( folders.Contains( folder ) ) continue;
+                if ( count > 24 ) break;
+                folders.Add( folder );
+                count++;
+            }
+            string historyFolder = string.Join( $"{Path.PathSeparator}", folders);
+            if ( appSettings.ContainsKey( "folderHistory" ) )
+                appSettings["folderHistory"] = historyFolder;
+            else appSettings.Add( "folderHistory", "" );
+
+            Configuration config = ConfigurationManager.OpenExeConfiguration(Application.ExecutablePath);
+
+            foreach ( string k in appSettings.Keys)
+            {
+                if ( config.AppSettings.Settings.AllKeys.Contains( k ) )
+                    config.AppSettings.Settings[k].Value = appSettings[k].ToString();
+                else
+                    config.AppSettings.Settings.Add( k, appSettings[k].ToString() );
+            }
+
+            config.Save();
+        }
+
+        private void updateLastVisited()
+        {
+            lastVisitedFolders.Insert( 0, explorerTree.SelectedPath );
+            tscbVistedFolder.Items.Clear();
+            tscbVistedFolder.Items.AddRange( lastVisitedFolders.ToArray() );
+            tscbVistedFolder.Text = explorerTree.SelectedPath;
         }
 
         public MainForm()
@@ -93,10 +180,6 @@ namespace PhotoGeoTag
 
             tscbViewMode.Items.Clear();
             tscbViewMode.Items.AddRange( Enum.GetNames( typeof( Manina.Windows.Forms.View ) ) );
-            //foreach ( int viewmode in Enum.GetValues( typeof( Manina.Windows.Forms.View ) ) )
-            //{
-            //    tscbViewMode.Items.Add( (Manina.Windows.Forms.View) Enum.Parse( typeof( Manina.Windows.Forms.View ), viewmode.ToString() ) );
-            //}
             tscbViewMode.SelectedIndex = (int)Manina.Windows.Forms.View.Thumbnails;
 
             //
@@ -124,7 +207,6 @@ namespace PhotoGeoTag
             // zoom factor to 50%
             lvImage.SetRenderer( new ImageListViewRenderers.ZoomingRenderer( 0.5f ) );
             ImageListViewRenderers.ZoomingRenderer render = new ImageListViewRenderers.ZoomingRenderer( 0.5f );
-            //render.DrawOverlay += drawOverlay;
             lvImage.Colors = ImageListViewColor.Mandarin;
 
             // Displays the control with a dark theme.
@@ -151,16 +233,39 @@ namespace PhotoGeoTag
             lvImage.Columns.Add( ColumnType.Custom ); // Geo Tag: Latitude
 
             //
-            PopulateListView( new DirectoryInfo( AppFolder ) );
+            configLoad();
 
-            //
-            explorerTree.Go( AppFolder );
+            //string lastVisited = Properties.Settings.Default.lastVisitedFolder;
+            string lastVisited = appSettings["lastVisitedFolder"];
+            if ( string.IsNullOrEmpty( lastVisited ) ) lastVisited = AppFolder;
+            //explorerTree.setCurrentPath( lastVisited );
+            //PopulateListView( lastVisited );
+            explorerTree.Go( lastVisited );
+
+            lastVisitedFolders.Clear();
+            tscbVistedFolder.Items.Clear();
+            if ( appSettings.ContainsKey( "folderHistory" ) )
+            {
+                string historyFolder = appSettings["folderHistory"].ToString();
+                lastVisitedFolders.AddRange( historyFolder.Split( Path.PathSeparator ) );
+                tscbVistedFolder.Items.AddRange( historyFolder.Split( Path.PathSeparator ) );
+            }
+            else
+            {
+                appSettings.Add( "folderHistory", "" );
+            }
+        }
+
+        private void MainForm_FormClosing( object sender, FormClosingEventArgs e )
+        {
+            configSave();
         }
 
         private void explorerTree_PathChanged( object sender, EventArgs e )
         {
-            PopulateListView( new DirectoryInfo( explorerTree.SelectedPath ) );
-            tsProgress.Maximum = lvImage.Items.Count;
+                PopulateListView( new DirectoryInfo( explorerTree.SelectedPath ) );
+                tsProgress.Maximum = lvImage.Items.Count;
+                updateLastVisited();
         }
 
         private void tsbtnMapView_Click( object sender, EventArgs e )
@@ -187,19 +292,6 @@ namespace PhotoGeoTag
             }
         }
 
-        private void lvImage_ItemDoubleClick( object sender, ItemClickEventArgs e )
-        {
-            //File.GetAttributes( e.FullName ).HasFlag( FileAttributes.Directory )
-            if ( e.Item != null )
-            {
-                string d = e.Item.FileName;
-                if ( File.GetAttributes( d ).HasFlag( FileAttributes.Directory ) )
-                {
-                    explorerTree.Go( d );
-                }
-            }
-        }
-
         private void lvImage_ItemHover( object sender, ItemHoverEventArgs e )
         {
             if ( e.Item != null )
@@ -210,6 +302,19 @@ namespace PhotoGeoTag
                     //return e.Item.;
                     e.Item.Selected = false;
                     return;
+                }
+            }
+        }
+
+        private void lvImage_ItemDoubleClick( object sender, ItemClickEventArgs e )
+        {
+            //File.GetAttributes( e.FullName ).HasFlag( FileAttributes.Directory )
+            if ( e.Item != null )
+            {
+                string d = e.Item.FileName;
+                if ( File.GetAttributes( d ).HasFlag( FileAttributes.Directory ) )
+                {
+                    explorerTree.Go( d );
                 }
             }
         }
