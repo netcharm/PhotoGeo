@@ -290,6 +290,43 @@ namespace PhotoGeoTagShell
             MapViewer.Show();
         }
 
+        private void tscbVistedFolder_KeyPress( object sender, KeyPressEventArgs e )
+        {
+            if ( e.KeyChar == Convert.ToChar( Keys.Enter ) )
+            {
+                tsbtnGo.PerformClick();
+            }
+        }
+
+        private void tsbtnGo_Click( object sender, EventArgs e )
+        {
+            if ( lastVisitedFolders.Count > 0 && !tscbVistedFolder.Text.Equals( lastVisitedFolders[0], StringComparison.CurrentCultureIgnoreCase ) )
+            {
+                string target = tscbVistedFolder.Text;
+                if ( !File.GetAttributes( target ).HasFlag( FileAttributes.Directory ) )
+                {
+                    target = Path.GetDirectoryName( target );
+                }
+                explorerTree.Go( target );
+            }
+        }
+
+        private void tsmiTouch_Click( object sender, EventArgs e )
+        {
+            //
+            string folder = tscbVistedFolder.Text;
+            List<string> files = new List<string>();
+            //Directory.GetFiles(folder, "*.jpg;*.jpeg;*.tif;*.tiff", SearchOption.TopDirectoryOnly);
+            files.AddRange( Directory.GetFiles( folder, "*.jpg", SearchOption.TopDirectoryOnly ) );
+            files.AddRange( Directory.GetFiles( folder, "*.jpeg", SearchOption.TopDirectoryOnly ) );
+            files.AddRange( Directory.GetFiles( folder, "*.tif", SearchOption.TopDirectoryOnly ) );
+            files.AddRange( Directory.GetFiles( folder, "*.tiff", SearchOption.TopDirectoryOnly ) );
+            foreach ( string file in files )
+            {
+                ImageGeoTag.TouchPhoto( file );
+            }
+        }
+
         private void tscbViewMode_SelectedIndexChanged( object sender, EventArgs e )
         {
             if ( tscbViewMode.SelectedIndex >= 0 )
@@ -417,5 +454,6 @@ namespace PhotoGeoTagShell
                 explorerTree.Go( target );
             }
         }
+
     }
 }

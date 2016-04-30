@@ -45,6 +45,8 @@
             this.tscbViewMode = new System.Windows.Forms.ToolStripComboBox();
             this.tsSep2 = new System.Windows.Forms.ToolStripSeparator();
             this.tscbVistedFolder = new System.Windows.Forms.ToolStripComboBox();
+            this.tsbtnGo = new System.Windows.Forms.ToolStripSplitButton();
+            this.tsmiTouch = new System.Windows.Forms.ToolStripMenuItem();
             this.status.SuspendLayout();
             this.toolContainer.ContentPanel.SuspendLayout();
             this.toolContainer.TopToolStripPanel.SuspendLayout();
@@ -131,7 +133,7 @@
             this.explorerTree.HideSelection = false;
             this.explorerTree.Location = new System.Drawing.Point(0, 0);
             this.explorerTree.Name = "explorerTree";
-            this.explorerTree.SelectedPath = "Desktop";
+            this.explorerTree.SelectedPath = "D:\\Develop\\MS\\VS2015\\Common7\\IDE";
             this.explorerTree.ShowAddressbar = false;
             this.explorerTree.ShowLines = true;
             this.explorerTree.ShowMyDocuments = true;
@@ -196,11 +198,13 @@
             this.tsSep1,
             this.tscbViewMode,
             this.tsSep2,
-            this.tscbVistedFolder});
+            this.tscbVistedFolder,
+            this.tsbtnGo});
             this.toolMain.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
-            this.toolMain.Location = new System.Drawing.Point(3, 0);
+            this.toolMain.Location = new System.Drawing.Point(0, 0);
             this.toolMain.Name = "toolMain";
-            this.toolMain.Size = new System.Drawing.Size(524, 25);
+            this.toolMain.Size = new System.Drawing.Size(792, 25);
+            this.toolMain.Stretch = true;
             this.toolMain.TabIndex = 1;
             this.toolMain.Text = "MainToolBar";
             // 
@@ -234,11 +238,30 @@
             // 
             // tscbVistedFolder
             // 
-            this.tscbVistedFolder.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
             this.tscbVistedFolder.AutoToolTip = true;
             this.tscbVistedFolder.DropDownWidth = 480;
             this.tscbVistedFolder.Name = "tscbVistedFolder";
-            this.tscbVistedFolder.Size = new System.Drawing.Size(320, 25);
+            this.tscbVistedFolder.Size = new System.Drawing.Size(500, 25);
+            this.tscbVistedFolder.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.tscbVistedFolder_KeyPress);
+            // 
+            // tsbtnGo
+            // 
+            this.tsbtnGo.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsbtnGo.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiTouch});
+            this.tsbtnGo.Image = ((System.Drawing.Image)(resources.GetObject("tsbtnGo.Image")));
+            this.tsbtnGo.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbtnGo.Name = "tsbtnGo";
+            this.tsbtnGo.Size = new System.Drawing.Size(33, 22);
+            this.tsbtnGo.Text = "GO";
+            this.tsbtnGo.Click += new System.EventHandler(this.tsbtnGo_Click);
+            // 
+            // tsmiTouch
+            // 
+            this.tsmiTouch.Name = "tsmiTouch";
+            this.tsmiTouch.Size = new System.Drawing.Size(152, 22);
+            this.tsmiTouch.Text = "Touch!";
+            this.tsmiTouch.Click += new System.EventHandler(this.tsmiTouch_Click);
             // 
             // MainForm
             // 
@@ -291,5 +314,7 @@
         private System.Windows.Forms.ToolStripSeparator tsSep1;
         private System.Windows.Forms.ToolStripComboBox tscbVistedFolder;
         private System.Windows.Forms.ToolStripSeparator tsSep2;
+        private System.Windows.Forms.ToolStripSplitButton tsbtnGo;
+        private System.Windows.Forms.ToolStripMenuItem tsmiTouch;
     }
 }
