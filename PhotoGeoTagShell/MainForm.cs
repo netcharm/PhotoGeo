@@ -380,6 +380,22 @@ namespace PhotoGeoTagShell
             }
         }
 
+        private void tsmiTouch_Click( object sender, EventArgs e )
+        {
+            //
+            string folder = tscbVistedFolder.Text;
+            List<string> files = new List<string>();
+            //Directory.GetFiles(folder, "*.jpg;*.jpeg;*.tif;*.tiff", SearchOption.TopDirectoryOnly);
+            files.AddRange( Directory.GetFiles( folder, "*.jpg" , SearchOption.TopDirectoryOnly ) );
+            files.AddRange( Directory.GetFiles( folder, "*.jpeg", SearchOption.TopDirectoryOnly ) );
+            files.AddRange( Directory.GetFiles( folder, "*.tif" , SearchOption.TopDirectoryOnly ) );
+            files.AddRange( Directory.GetFiles( folder, "*.tiff", SearchOption.TopDirectoryOnly ) );
+            foreach ( string file in files )
+            {
+                ImageGeoTag.TouchPhoto( file );
+            }
+        }
+
         private void explorerBrowser_NavigationComplete( object sender, NavigationCompleteEventArgs e )
         {
             BeginInvoke( new MethodInvoker( delegate ()

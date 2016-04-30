@@ -310,7 +310,7 @@ namespace PhotoGeoTagShell
                 //Image photo = new Bitmap(img.Value);
                 using ( FileStream fs = new FileStream( img.Value, FileMode.Open, FileAccess.Read ) )
                 {
-                    Image photo = Image.FromStream( fs );
+                    Image photo = Image.FromStream( fs, true, true );
                     photo = ImageGeoTag.Geotag( photo, lat_wgs, lng_wgs );
                     fs.Close();
 
