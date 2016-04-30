@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Manina.Windows.Forms;
 
-namespace PhotoGeoTag
+namespace PhotoGeoTagShell
 {
     public partial class MainForm : Form
     {

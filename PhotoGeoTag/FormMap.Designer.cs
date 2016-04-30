@@ -1,4 +1,4 @@
-﻿namespace PhotoGeoTag
+﻿namespace PhotoGeoTagShell
 {
     partial class FormMap
     {
@@ -195,7 +195,7 @@
             // btnPinPhoto
             // 
             this.btnPinPhoto.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnPinPhoto.Image = global::PhotoGeoTag.Properties.Resources.map_pin_md_32x32;
+            this.btnPinPhoto.Image = global::PhotoGeoTagShell.Properties.Resources.map_pin_md_32x32;
             this.btnPinPhoto.Location = new System.Drawing.Point(526, 441);
             this.btnPinPhoto.Name = "btnPinPhoto";
             this.btnPinPhoto.Size = new System.Drawing.Size(37, 42);

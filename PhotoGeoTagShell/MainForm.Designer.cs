@@ -1,4 +1,4 @@
-﻿namespace PhotoGeoTag
+﻿namespace PhotoGeoTagShell
 {
     partial class MainForm
     {
@@ -40,9 +40,9 @@
             this.toolMain = new System.Windows.Forms.ToolStrip();
             this.tsbtnMapView = new System.Windows.Forms.ToolStripButton();
             this.tsSep1 = new System.Windows.Forms.ToolStripSeparator();
+            this.tscbKnownFolder = new System.Windows.Forms.ToolStripComboBox();
             this.tsSep2 = new System.Windows.Forms.ToolStripSeparator();
             this.tscbVistedFolder = new System.Windows.Forms.ToolStripComboBox();
-            this.tscbKnownFolder = new System.Windows.Forms.ToolStripComboBox();
             this.status.SuspendLayout();
             this.toolContainer.ContentPanel.SuspendLayout();
             this.toolContainer.TopToolStripPanel.SuspendLayout();
@@ -140,7 +140,7 @@
             this.toolMain.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
             this.toolMain.Location = new System.Drawing.Point(3, 0);
             this.toolMain.Name = "toolMain";
-            this.toolMain.Size = new System.Drawing.Size(555, 25);
+            this.toolMain.Size = new System.Drawing.Size(785, 25);
             this.toolMain.TabIndex = 1;
             this.toolMain.Text = "MainToolBar";
             // 
@@ -159,6 +159,13 @@
             this.tsSep1.Name = "tsSep1";
             this.tsSep1.Size = new System.Drawing.Size(6, 25);
             // 
+            // tscbKnownFolder
+            // 
+            this.tscbKnownFolder.DropDownWidth = 240;
+            this.tscbKnownFolder.Name = "tscbKnownFolder";
+            this.tscbKnownFolder.Size = new System.Drawing.Size(121, 25);
+            this.tscbKnownFolder.SelectedIndexChanged += new System.EventHandler(this.tscbKnownFolder_SelectedIndexChanged);
+            // 
             // tsSep2
             // 
             this.tsSep2.Name = "tsSep2";
@@ -168,16 +175,10 @@
             // 
             this.tscbVistedFolder.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
             this.tscbVistedFolder.AutoToolTip = true;
-            this.tscbVistedFolder.DropDownWidth = 480;
+            this.tscbVistedFolder.DropDownWidth = 600;
             this.tscbVistedFolder.Name = "tscbVistedFolder";
-            this.tscbVistedFolder.Size = new System.Drawing.Size(320, 25);
+            this.tscbVistedFolder.Size = new System.Drawing.Size(550, 25);
             this.tscbVistedFolder.SelectedIndexChanged += new System.EventHandler(this.tscbVistedFolder_SelectedIndexChanged);
-            // 
-            // tscbKnownFolder
-            // 
-            this.tscbKnownFolder.Name = "tscbKnownFolder";
-            this.tscbKnownFolder.Size = new System.Drawing.Size(121, 25);
-            this.tscbKnownFolder.SelectedIndexChanged += new System.EventHandler(this.tscbKnownFolder_SelectedIndexChanged);
             // 
             // MainForm
             // 

@@ -7,8 +7,8 @@
     <ProjectGuid>{CEBC171E-3CD3-4E52-874D-27AF0A9D9A99}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PhotoGeoTag</RootNamespace>
-    <AssemblyName>PhotoGeoTag</AssemblyName>
+    <RootNamespace>PhotoGeoTagShell</RootNamespace>
+    <AssemblyName>PhotoGeoTagShell</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <PublishUrl>publish\</PublishUrl>
