@@ -58,14 +58,14 @@
             this.tsProgress});
             this.status.Location = new System.Drawing.Point(0, 551);
             this.status.Name = "status";
-            this.status.Size = new System.Drawing.Size(792, 22);
+            this.status.Size = new System.Drawing.Size(802, 22);
             this.status.TabIndex = 0;
             this.status.Text = "status";
             // 
             // tsInfo
             // 
             this.tsInfo.Name = "tsInfo";
-            this.tsInfo.Size = new System.Drawing.Size(675, 17);
+            this.tsInfo.Size = new System.Drawing.Size(685, 17);
             this.tsInfo.Spring = true;
             this.tsInfo.Text = "Ok";
             this.tsInfo.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -83,11 +83,11 @@
             // toolContainer.ContentPanel
             // 
             this.toolContainer.ContentPanel.Controls.Add(this.explorerBrowser);
-            this.toolContainer.ContentPanel.Size = new System.Drawing.Size(792, 526);
+            this.toolContainer.ContentPanel.Size = new System.Drawing.Size(802, 526);
             this.toolContainer.Dock = System.Windows.Forms.DockStyle.Fill;
             this.toolContainer.Location = new System.Drawing.Point(0, 0);
             this.toolContainer.Name = "toolContainer";
-            this.toolContainer.Size = new System.Drawing.Size(792, 551);
+            this.toolContainer.Size = new System.Drawing.Size(802, 551);
             this.toolContainer.TabIndex = 2;
             this.toolContainer.Text = "toolStripContainer1";
             // 
@@ -102,7 +102,7 @@
             this.explorerBrowser.Location = new System.Drawing.Point(0, 0);
             this.explorerBrowser.Name = "explorerBrowser";
             this.explorerBrowser.PropertyBagName = "Microsoft.WindowsAPICodePack.Controls.WindowsForms.ExplorerBrowser";
-            this.explorerBrowser.Size = new System.Drawing.Size(792, 526);
+            this.explorerBrowser.Size = new System.Drawing.Size(802, 526);
             this.explorerBrowser.TabIndex = 3;
             this.explorerBrowser.SelectionChanged += new System.EventHandler(this.explorerBrowser_SelectionChanged);
             this.explorerBrowser.NavigationComplete += new System.EventHandler<Microsoft.WindowsAPICodePack.Controls.NavigationCompleteEventArgs>(this.explorerBrowser_NavigationComplete);
@@ -140,7 +140,7 @@
             this.toolMain.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
             this.toolMain.Location = new System.Drawing.Point(3, 0);
             this.toolMain.Name = "toolMain";
-            this.toolMain.Size = new System.Drawing.Size(785, 25);
+            this.toolMain.Size = new System.Drawing.Size(754, 25);
             this.toolMain.TabIndex = 1;
             this.toolMain.Text = "MainToolBar";
             // 
@@ -184,11 +184,11 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(792, 573);
+            this.ClientSize = new System.Drawing.Size(802, 573);
             this.Controls.Add(this.toolContainer);
             this.Controls.Add(this.status);
             this.MainMenuStrip = this.menuMain;
-            this.MinimumSize = new System.Drawing.Size(800, 600);
+            this.MinimumSize = new System.Drawing.Size(810, 600);
             this.Name = "MainForm";
             this.Text = "Photo Manager";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
