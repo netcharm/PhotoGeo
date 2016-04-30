@@ -107,133 +107,9 @@ namespace PhotoGeoTagShell
             config.Save();
         }
 
-        public MainForm()
+        private void ShowSelectedImage(bool force=false)
         {
-            InitializeComponent();
-            Application.EnableVisualStyles();
-            Icon = Icon.ExtractAssociatedIcon( Application.ExecutablePath );
-        }
-
-        private void MainForm_Load( object sender, EventArgs e )
-        {
-            //string CacheFolder = Path.Combine(
-            //    Path.GetDirectoryName(new Uri(Assembly.GetAssembly(typeof(ImageListView)).GetName().CodeBase).LocalPath),
-            //    "Cache"
-            //    );
-            CacheFolder = AppFolder + Path.DirectorySeparatorChar + "Cache";
-            if ( !Directory.Exists( CacheFolder ) )
-                Directory.CreateDirectory( CacheFolder );
-
-            //
-            configLoad();
-
-            //string lastVisited = Properties.Settings.Default.lastVisitedFolder;
-            string lastVisited = appSettings["lastVisitedFolder"];
-            if ( string.IsNullOrEmpty( lastVisited ) ) lastVisited = AppFolder;
-
-            // setting KnownFolder
-            List<string> knownFolderList = new List<string>();
-            foreach ( IKnownFolder folder in KnownFolders.All )
-            {
-                knownFolderList.Add( folder.CanonicalName );
-                //knownFolderList.Add( string.IsNullOrEmpty(folder.LocalizedName) ? folder.CanonicalName : folder.LocalizedName );
-            }
-            knownFolderList.Sort();
-            tscbKnownFolder.Items.AddRange( knownFolderList.ToArray() );
-
-            // setting explorerBrowser
-            explorerBrowser.ContentOptions.AutoArrange = true;
-            explorerBrowser.ContentOptions.FullRowSelect = true;
-            explorerBrowser.ContentOptions.NoSubfolders = false;
-            explorerBrowser.ContentOptions.ExtendedTiles = true;
-            explorerBrowser.NavigationOptions.AlwaysNavigate = true;
-
-            explorerBrowser.NavigationOptions.PaneVisibility.AdvancedQuery = PaneVisibilityState.Show;
-            explorerBrowser.NavigationOptions.PaneVisibility.Query = PaneVisibilityState.Show;
-
-            //explorerBrowser.Navigate( (ShellObject) KnownFolders.Desktop );
-            explorerBrowser.Navigate( ShellFileSystemFolder.FromFolderPath( lastVisited ) );
-            
-
-            lastVisitedFolders.Clear();
-            tscbVistedFolder.Items.Clear();
-            if ( appSettings.ContainsKey( "folderHistory" ) )
-            {
-                string historyFolder = appSettings["folderHistory"].ToString();
-                lastVisitedFolders.AddRange( historyFolder.Split( Path.PathSeparator ) );
-                tscbVistedFolder.Items.AddRange( historyFolder.Split( Path.PathSeparator ) );
-            }
-            else
-            {
-                appSettings.Add( "folderHistory", "" );
-            }
-        }
-
-        private void MainForm_FormClosing( object sender, FormClosingEventArgs e )
-        {
-            configSave();
-        }
-
-        private void tsbtnMapView_Click( object sender, EventArgs e )
-        {
-            //FormMap fm = (FormMap)Application.OpenForms[MapViewer.Text];
-            try
-            {
-                if ( MapViewer == null ) { MapViewer = new FormMap(); }
-                else if ( MapViewer.Visible ) { MapViewer.Activate(); }
-                else { MapViewer = new FormMap(); }
-            }
-            catch
-            {
-                MapViewer = new FormMap();
-            }
-            MapViewer.Show();
-        }
-
-        private void tscbVistedFolder_SelectedIndexChanged( object sender, EventArgs e )
-        {
-            // navigating to specific index in navigation log
-            explorerBrowser.NavigateLogLocation( tscbVistedFolder.Items.Count - tscbVistedFolder.SelectedIndex - 1 );
-        }
-
-        private void tscbKnownFolder_SelectedIndexChanged( object sender, EventArgs e )
-        {
-            try
-            {
-                // Navigate to a known folder
-                string cName = tscbKnownFolder.Items[tscbKnownFolder.SelectedIndex].ToString();
-                IKnownFolder kf = KnownFolderHelper.FromCanonicalName( cName );
-                //IKnownFolder kf = KnownFolderHelper.FromParsingName(cName);
-
-                explorerBrowser.Navigate( (ShellObject) kf );
-            }
-            catch ( COMException )
-            {
-                MessageBox.Show( "Navigation not possible." );
-            }
-        }
-
-        private void explorerBrowser_NavigationComplete( object sender, NavigationCompleteEventArgs e )
-        {
-            BeginInvoke( new MethodInvoker( delegate ()
-            {
-                //lastVisitedFolders.Insert(0, e.NewLocation.ParsingName );
-                lastVisitedFolders.Clear();
-                foreach ( ShellObject location in explorerBrowser.NavigationLog.Locations )
-                {
-                    lastVisitedFolders.Add( location.ParsingName );
-                }
-                lastVisitedFolders.Reverse();
-
-                tscbVistedFolder.Items.Clear();
-                tscbVistedFolder.Items.AddRange( lastVisitedFolders.ToArray() );
-                tscbVistedFolder.Text = explorerBrowser.NavigationLog.CurrentLocation.ParsingName;
-            } ) );
-        }
-
-        private void explorerBrowser_SelectionChanged( object sender, EventArgs e )
-        {
-            if ( lastSelections.Count == explorerBrowser.SelectedItems.Count )
+            if ( !force && lastSelections.Count == explorerBrowser.SelectedItems.Count )
             {
                 bool diff = false;
                 foreach ( ShellObject item in explorerBrowser.SelectedItems )
@@ -258,7 +134,7 @@ namespace PhotoGeoTagShell
             BeginInvoke( new MethodInvoker( delegate ()
             {
                 #region get properties to
-                if ( !selection_changed ) return;
+                if ( !force && !selection_changed ) return;
                 selection_changed = false;
 
                 List<KeyValuePair<Image, string>> imgs = new List<KeyValuePair<Image, string>>();
@@ -374,6 +250,136 @@ namespace PhotoGeoTagShell
                 catch { };
                 #endregion
             } ) );
+        }
+
+        public MainForm()
+        {
+            InitializeComponent();
+            Application.EnableVisualStyles();
+            Icon = Icon.ExtractAssociatedIcon( Application.ExecutablePath );
+        }
+
+        private void MainForm_Load( object sender, EventArgs e )
+        {
+            //string CacheFolder = Path.Combine(
+            //    Path.GetDirectoryName(new Uri(Assembly.GetAssembly(typeof(ImageListView)).GetName().CodeBase).LocalPath),
+            //    "Cache"
+            //    );
+            CacheFolder = AppFolder + Path.DirectorySeparatorChar + "Cache";
+            if ( !Directory.Exists( CacheFolder ) )
+                Directory.CreateDirectory( CacheFolder );
+
+            //
+            configLoad();
+
+            //string lastVisited = Properties.Settings.Default.lastVisitedFolder;
+            string lastVisited = appSettings["lastVisitedFolder"];
+            if ( string.IsNullOrEmpty( lastVisited ) ) lastVisited = AppFolder;
+
+            // setting KnownFolder
+            List<string> knownFolderList = new List<string>();
+            foreach ( IKnownFolder folder in KnownFolders.All )
+            {
+                knownFolderList.Add( folder.CanonicalName );
+                //knownFolderList.Add( string.IsNullOrEmpty(folder.LocalizedName) ? folder.CanonicalName : folder.LocalizedName );
+            }
+            knownFolderList.Sort();
+            tscbKnownFolder.Items.AddRange( knownFolderList.ToArray() );
+
+            // setting explorerBrowser
+            explorerBrowser.ContentOptions.AutoArrange = true;
+            explorerBrowser.ContentOptions.FullRowSelect = true;
+            explorerBrowser.ContentOptions.NoSubfolders = false;
+            explorerBrowser.ContentOptions.ExtendedTiles = true;
+            explorerBrowser.NavigationOptions.AlwaysNavigate = true;
+
+            explorerBrowser.NavigationOptions.PaneVisibility.AdvancedQuery = PaneVisibilityState.Show;
+            explorerBrowser.NavigationOptions.PaneVisibility.Query = PaneVisibilityState.Show;
+
+            //explorerBrowser.Navigate( (ShellObject) KnownFolders.Desktop );
+            explorerBrowser.Navigate( ShellFileSystemFolder.FromFolderPath( lastVisited ) );
+            
+
+            lastVisitedFolders.Clear();
+            tscbVistedFolder.Items.Clear();
+            if ( appSettings.ContainsKey( "folderHistory" ) )
+            {
+                string historyFolder = appSettings["folderHistory"].ToString();
+                lastVisitedFolders.AddRange( historyFolder.Split( Path.PathSeparator ) );
+                tscbVistedFolder.Items.AddRange( historyFolder.Split( Path.PathSeparator ) );
+            }
+            else
+            {
+                appSettings.Add( "folderHistory", "" );
+            }
+        }
+
+        private void MainForm_FormClosing( object sender, FormClosingEventArgs e )
+        {
+            configSave();
+        }
+
+        private void tsbtnMapView_Click( object sender, EventArgs e )
+        {
+            //FormMap fm = (FormMap)Application.OpenForms[MapViewer.Text];
+            try
+            {
+                if ( MapViewer == null ) { MapViewer = new FormMap(); }
+                else if ( MapViewer.Visible ) { MapViewer.Activate(); }
+                else { MapViewer = new FormMap(); }
+            }
+            catch
+            {
+                MapViewer = new FormMap();
+            }
+            MapViewer.Show();
+            ShowSelectedImage(true);
+        }
+
+        private void tscbVistedFolder_SelectedIndexChanged( object sender, EventArgs e )
+        {
+            // navigating to specific index in navigation log
+            explorerBrowser.NavigateLogLocation( tscbVistedFolder.Items.Count - tscbVistedFolder.SelectedIndex - 1 );
+        }
+
+        private void tscbKnownFolder_SelectedIndexChanged( object sender, EventArgs e )
+        {
+            try
+            {
+                // Navigate to a known folder
+                string cName = tscbKnownFolder.Items[tscbKnownFolder.SelectedIndex].ToString();
+                IKnownFolder kf = KnownFolderHelper.FromCanonicalName( cName );
+                //IKnownFolder kf = KnownFolderHelper.FromParsingName(cName);
+
+                explorerBrowser.Navigate( (ShellObject) kf );
+            }
+            catch ( COMException )
+            {
+                MessageBox.Show( "Navigation not possible." );
+            }
+        }
+
+        private void explorerBrowser_NavigationComplete( object sender, NavigationCompleteEventArgs e )
+        {
+            BeginInvoke( new MethodInvoker( delegate ()
+            {
+                //lastVisitedFolders.Insert(0, e.NewLocation.ParsingName );
+                lastVisitedFolders.Clear();
+                foreach ( ShellObject location in explorerBrowser.NavigationLog.Locations )
+                {
+                    lastVisitedFolders.Add( location.ParsingName );
+                }
+                lastVisitedFolders.Reverse();
+
+                tscbVistedFolder.Items.Clear();
+                tscbVistedFolder.Items.AddRange( lastVisitedFolders.ToArray() );
+                tscbVistedFolder.Text = explorerBrowser.NavigationLog.CurrentLocation.ParsingName;
+            } ) );
+        }
+
+        private void explorerBrowser_SelectionChanged( object sender, EventArgs e )
+        {
+            ShowSelectedImage();
         }    
 
     }

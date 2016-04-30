@@ -182,7 +182,12 @@ namespace PhotoGeoTagShell
 
             if ( fit )
             {
-                if ( overlay.Markers.Count == 1 && overlay.Routes.Count == 0 && overlay.Polygons.Count == 0 )
+                HashSet<PointLatLng> hash = new HashSet<PointLatLng>();
+                foreach( GMarkerGoogle marker in overlay.Markers)
+                {
+                    hash.Add( marker.Position );
+                }
+                if ( hash.Count == 1 && overlay.Routes.Count == 0 && overlay.Polygons.Count == 0 )
                 {
                     gMap.Position = overlay.Markers[0].Position;
                     gMap.Zoom = 14;
