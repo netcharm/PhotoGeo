@@ -226,11 +226,15 @@ namespace PhotoGeoTag
             lvImage.Columns.Add( ColumnType.ExposureTime );
             lvImage.Columns.Add( ColumnType.ISOSpeed );
             lvImage.Columns.Add( ColumnType.FocalLength );
+            lvImage.Columns.Add( ColumnType.Resolution );
             lvImage.Columns.Add( ColumnType.ImageDescription );
             lvImage.Columns.Add( ColumnType.Artist );
             lvImage.Columns.Add( ColumnType.Copyright );
             lvImage.Columns.Add( ColumnType.UserComment );
             lvImage.Columns.Add( ColumnType.Software );
+            lvImage.Columns.Add( ColumnType.FileName );
+            lvImage.Columns.Add( ColumnType.FileType );
+            lvImage.Columns.Add( ColumnType.FilePath );
             lvImage.Columns.Add( ColumnType.Custom ); // Geo Tag: Longitude
             lvImage.Columns.Add( ColumnType.Custom ); // Geo Tag: Latitude
 
@@ -326,8 +330,7 @@ namespace PhotoGeoTag
             List<KeyValuePair<Image, string>> imgs = new List<KeyValuePair<Image, string>>();
             foreach ( ImageListViewItem item in lvImage.SelectedItems )
             {
-                string d = item.FileName;
-                if ( !File.GetAttributes( d ).HasFlag( FileAttributes.Directory ) )
+                if ( !File.GetAttributes( item.FileName ).HasFlag( FileAttributes.Directory ) )
                 {
                     Image thumb = item.GetCachedImage( CachedImageType.Thumbnail );
                     Dictionary<string, string> properties = new Dictionary<string, string>();
