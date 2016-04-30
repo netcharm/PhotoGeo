@@ -253,6 +253,7 @@ namespace PhotoGeoTagShell
                     return;
                 }
             }
+            else selection_changed = true;
 
             BeginInvoke( new MethodInvoker( delegate ()
             {
