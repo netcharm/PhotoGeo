@@ -148,6 +148,7 @@ namespace PhotoGeoTagShell
             #region zoom fit map
             if ( fit )
             {
+                gMap.ZoomAndCenterMarkers( overlay.Id );
                 HashSet<PointLatLng> hash = new HashSet<PointLatLng>();
                 foreach( GMarkerGoogle marker in overlay.Markers)
                 {
@@ -158,11 +159,8 @@ namespace PhotoGeoTagShell
                 }
                 if ( hash.Count == 1 && overlay.Routes.Count == 0 && overlay.Polygons.Count == 0 )
                 {
-                    gMap.Position = overlay.Markers[0].Position;
                     gMap.Zoom = 14;
                 }
-                else
-                    gMap.ZoomAndCenterMarkers( overlay.Id );
             }
             #endregion
         }

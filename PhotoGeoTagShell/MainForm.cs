@@ -336,12 +336,6 @@ namespace PhotoGeoTagShell
             ShowSelectedImage(true);
         }
 
-        private void tscbVistedFolder_SelectedIndexChanged( object sender, EventArgs e )
-        {
-            // navigating to specific index in navigation log
-            explorerBrowser.NavigateLogLocation( tscbVistedFolder.Items.Count - tscbVistedFolder.SelectedIndex - 1 );
-        }
-
         private void tscbKnownFolder_SelectedIndexChanged( object sender, EventArgs e )
         {
             try
@@ -356,6 +350,33 @@ namespace PhotoGeoTagShell
             catch ( COMException )
             {
                 MessageBox.Show( "Navigation not possible." );
+            }
+        }
+
+        private void tscbVistedFolder_SelectedIndexChanged( object sender, EventArgs e )
+        {
+            // navigating to specific index in navigation log
+            explorerBrowser.NavigateLogLocation( tscbVistedFolder.Items.Count - tscbVistedFolder.SelectedIndex - 1 );
+        }
+
+        private void tscbVistedFolder_KeyPress( object sender, KeyPressEventArgs e )
+        {
+            if ( e.KeyChar == Convert.ToChar( Keys.Enter ) )
+            {
+                tsbtnGo.PerformClick();
+            }
+        }
+
+        private void tsbtnGo_Click( object sender, EventArgs e )
+        {
+            if ( lastVisitedFolders.Count > 0 && !tscbVistedFolder.Text.Equals( lastVisitedFolders[0], StringComparison.CurrentCultureIgnoreCase ) )
+            {
+                string target = tscbVistedFolder.Text;
+                if ( !File.GetAttributes( target ).HasFlag( FileAttributes.Directory ) )
+                {
+                    target = Path.GetDirectoryName( target );
+                }
+                explorerBrowser.Navigate( ShellFileSystemFolder.FromFolderPath( target ) );
             }
         }
 
@@ -380,7 +401,7 @@ namespace PhotoGeoTagShell
         private void explorerBrowser_SelectionChanged( object sender, EventArgs e )
         {
             ShowSelectedImage();
-        }    
+        }
 
     }
 }
