@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GMap.NET.GMap.NET.MapProviders.AMap
+namespace GMap.NET.MapProviders.AMap
 {
     public class AMapSateliteProvider : AMapProviderBase
     {

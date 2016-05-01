@@ -2,7 +2,7 @@
 using GMap.NET.MapProviders;
 using GMap.NET.Projections;
 
-namespace GMap.NET.GMap.NET.MapProviders.AMap
+namespace GMap.NET.MapProviders.AMap
 {
     public abstract class AMapProviderBase : GMapProvider
     {

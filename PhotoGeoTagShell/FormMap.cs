@@ -15,10 +15,10 @@ using GMap.NET.WindowsForms;
 using GMap.NET.MapProviders;
 using GMap.NET.WindowsForms.Markers;
 using GMap.NET.WindowsForms.ToolTips;
-using GMap.NET.GMap.NET.MapProviders.AMap;
-using GMap.NET.GMap.NET.MapProviders.Baidu;
-using GMap.NET.GMap.NET.MapProviders.Sohu;
-using GMap.NET.GMap.NET.MapProviders.Soso;
+using GMap.NET.MapProviders.AMap;
+using GMap.NET.MapProviders.Baidu;
+using GMap.NET.MapProviders.Sohu;
+using GMap.NET.MapProviders.Soso;
 
 namespace PhotoGeoTagShell
 {
@@ -462,7 +462,7 @@ namespace PhotoGeoTagShell
 //            GMapsProvider.TimeoutMs = 10000;
 
             GMaps.Instance.Mode = AccessMode.ServerAndCache;
-            gMap.SetPositionByKeywords( "Sanya,China" );
+            gMap.SetPositionByKeywords( "beijing" );
 
             gMap.MapProvider.MaxZoom = gMap.MaxZoom;
             gMap.MapProvider.MinZoom = gMap.MinZoom;
