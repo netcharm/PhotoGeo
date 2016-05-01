@@ -2,9 +2,8 @@
 using GMap.NET.MapProviders;
 using GMap.NET.Projections;
 
-namespace GMap.NET.GMap.NET.MapProviders.Soso
-{
-    
+namespace GMap.NET.MapProviders.Soso
+{    
     public class SosoSateliteMapProvider: SosoMapProviderBase
     {
         public static readonly SosoSateliteMapProvider Instance;

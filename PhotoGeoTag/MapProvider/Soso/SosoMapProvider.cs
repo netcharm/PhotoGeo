@@ -2,7 +2,7 @@
 using GMap.NET.MapProviders;
 using GMap.NET.Projections;
 
-namespace GMap.NET.GMap.NET.MapProviders.Soso
+namespace GMap.NET.MapProviders.Soso
 {
     public abstract class SosoMapProviderBase : GMapProvider
     {

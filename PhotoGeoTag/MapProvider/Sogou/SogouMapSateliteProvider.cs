@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace GMap.NET.GMap.NET.MapProviders.Sohu
+namespace GMap.NET.MapProviders.Sohu
 {
     public class SogouSateliteMapProvider : SogouMapProviderBase
     {

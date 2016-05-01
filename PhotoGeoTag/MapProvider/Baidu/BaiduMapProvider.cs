@@ -8,7 +8,7 @@ using GMap.NET.Internals;
 using GMap.NET.MapProviders;
 using GMap.NET.Projections;
 
-namespace GMap.NET.GMap.NET.MapProviders.Baidu
+namespace GMap.NET.MapProviders.Baidu
 {
     public abstract class BaiduMapProviderBase : GMapProvider
     {
