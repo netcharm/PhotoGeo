@@ -1,21 +1,14 @@
 ﻿using System;
-using System.Configuration;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
+using System.Configuration;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using Microsoft.WindowsAPICodePack.Shell;
-using Microsoft.WindowsAPICodePack.Controls;
-using Microsoft.WindowsAPICodePack.Controls.WindowsForms;
-using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
 using System.Runtime.InteropServices;
+using System.Windows.Forms;
+using Microsoft.WindowsAPICodePack.Controls;
+using Microsoft.WindowsAPICodePack.Shell;
+using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
 
 namespace PhotoGeoTagShell
 {
@@ -154,20 +147,20 @@ namespace PhotoGeoTagShell
                         {
                             if ( dp.EndsWith( ".jpg", StringComparison.OrdinalIgnoreCase ) ||
                                  dp.EndsWith( ".jpeg", StringComparison.OrdinalIgnoreCase ) ||
-                                 dp.EndsWith( ".png", StringComparison.OrdinalIgnoreCase ) ||
-                                 dp.EndsWith( ".bmp", StringComparison.OrdinalIgnoreCase ) ||
-                                 dp.EndsWith( ".ico", StringComparison.OrdinalIgnoreCase ) ||
-                                 dp.EndsWith( ".cur", StringComparison.OrdinalIgnoreCase ) ||
-                                 dp.EndsWith( ".emf", StringComparison.OrdinalIgnoreCase ) ||
-                                 dp.EndsWith( ".wmf", StringComparison.OrdinalIgnoreCase ) ||
+                                 //dp.EndsWith( ".gif", StringComparison.OrdinalIgnoreCase ) || 
+                                 //dp.EndsWith( ".png", StringComparison.OrdinalIgnoreCase ) ||
+                                 //dp.EndsWith( ".bmp", StringComparison.OrdinalIgnoreCase ) ||
+                                 //dp.EndsWith( ".ico", StringComparison.OrdinalIgnoreCase ) ||
+                                 //dp.EndsWith( ".cur", StringComparison.OrdinalIgnoreCase ) ||
+                                 //dp.EndsWith( ".emf", StringComparison.OrdinalIgnoreCase ) ||
+                                 //dp.EndsWith( ".wmf", StringComparison.OrdinalIgnoreCase ) ||
                                  dp.EndsWith( ".tif", StringComparison.OrdinalIgnoreCase ) ||
-                                 dp.EndsWith( ".tiff", StringComparison.OrdinalIgnoreCase ) ||
-                                 dp.EndsWith( ".gif", StringComparison.OrdinalIgnoreCase ) )
+                                 dp.EndsWith( ".tiff", StringComparison.OrdinalIgnoreCase ) )
                             {
 
                                 Image thumb = new Bitmap(item.Thumbnail.MediumBitmap);
                                 ShellPropertyCollection props = item.Properties.DefaultPropertyCollection;
-
+                                
                                 Dictionary<string, string> properties = new Dictionary<string, string>();
                                 for ( int i = 0; i < props.Count; i++ )
                                 {

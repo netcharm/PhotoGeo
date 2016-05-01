@@ -73,6 +73,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\_refs\Microsoft.WindowsAPICodePack.Shell.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack.ShellExtensions">
+      <HintPath>..\..\_refs\Microsoft.WindowsAPICodePack.ShellExtensions.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -110,6 +113,15 @@
     <Compile Include="MapProvider\Soso\SosoMapSateliteProvider.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ShellApi\FilterByExtension.cs" />
+    <Compile Include="ShellApi\IFolderFilter.cs" />
+    <Compile Include="ShellApi\IFolderFilterSite.cs" />
+    <Compile Include="ShellApi\IMalloc.cs" />
+    <Compile Include="ShellApi\IShellFolder.cs" />
+    <Compile Include="ShellApi\ShellApi.cs" />
+    <Compile Include="ShellApi\ShellBrowseForFolderDialog.cs" />
+    <Compile Include="ShellApi\ShellFunctions.cs" />
+    <Compile Include="ShellApi\ShellGUIDs.cs" />
     <EmbeddedResource Include="FormMap.resx">
       <DependentUpon>FormMap.cs</DependentUpon>
     </EmbeddedResource>
