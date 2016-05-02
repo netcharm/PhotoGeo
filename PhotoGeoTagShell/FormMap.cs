@@ -64,11 +64,15 @@ namespace PhotoGeoTagShell
 
         List<KeyValuePair<Image, string>> photos = new List<KeyValuePair<Image, string>>();
         GMarkerGoogle currentMarker;
+        PointLatLng currentMarker_orig;
+        GMarkerGoogle pinMarker;
         bool mouse_down = false;
 
         private void updatePositions( GMapOverlay overlay, bool force = false, bool fit = true )
         {
             if ( MapShift == chkMapShift.Checked && !force ) return;
+
+            if ( currentMarker != null && currentMarker_orig != null) currentMarker.Position = currentMarker_orig;
 
             string mapName = gMap.MapProvider.Name;
 
@@ -82,14 +86,28 @@ namespace PhotoGeoTagShell
                     foreach ( GMarkerGoogle marker in OverlayRefPosMAR.Markers )
                     {
                         overlay.Markers.Add( marker );
+                        PointLatLng posTag = (PointLatLng) marker.Tag;
+                        if ( posTag.Lat != marker.Position.Lat || posTag.Lng != marker.Position.Lng )
+                        {
+                            marker.Position = new PointLatLng( posTag.Lat, posTag.Lng );
+                        }
                     }
                 }
                 else if ( string.Equals( overlay.Id, "Photos", StringComparison.CurrentCultureIgnoreCase ) )
                 {
+                    //for(int i = 0;i< OverlayPhotosMAR.Markers.Count; i++)
+                    //{
+                    //    overlay.Markers[i].Position = OverlayPhotosMAR.Markers[i].Position;
+                    //}
                     overlay.Markers.Clear();
                     foreach ( GMarkerGoogle marker in OverlayPhotosMAR.Markers )
                     {
                         overlay.Markers.Add( marker );
+                        PointLatLng posTag = (PointLatLng) marker.Tag;
+                        if ( posTag.Lat != marker.Position.Lat || posTag.Lng != marker.Position.Lng )
+                        {
+                            marker.Position = new PointLatLng( posTag.Lat, posTag.Lng );
+                        }
                     }
                 }
                 else if ( string.Equals( overlay.Id, "Points", StringComparison.CurrentCultureIgnoreCase ) )
@@ -98,6 +116,11 @@ namespace PhotoGeoTagShell
                     foreach ( GMarkerGoogle marker in OverlayPointsMAR.Markers )
                     {
                         overlay.Markers.Add( marker );
+                        PointLatLng posTag = (PointLatLng) marker.Tag;
+                        if ( posTag.Lat != marker.Position.Lat || posTag.Lng != marker.Position.Lng )
+                        {
+                            marker.Position = new PointLatLng( posTag.Lat, posTag.Lng );
+                        }
                     }
                 }
                 else if ( string.Equals( overlay.Id, "Routes", StringComparison.CurrentCultureIgnoreCase ) )
@@ -117,14 +140,28 @@ namespace PhotoGeoTagShell
                     foreach ( GMarkerGoogle marker in OverlayRefPosWGS.Markers )
                     {
                         overlay.Markers.Add( marker );
+                        PointLatLng posTag = (PointLatLng) marker.Tag;
+                        if ( posTag.Lat != marker.Position.Lat || posTag.Lng != marker.Position.Lng )
+                        {
+                            marker.Position = new PointLatLng( posTag.Lat, posTag.Lng );
+                        }
                     }
                 }
                 else if ( string.Equals( overlay.Id, "Photos", StringComparison.CurrentCultureIgnoreCase ) )
                 {
+                    //for ( int i = 0; i < OverlayPhotosWGS.Markers.Count; i++ )
+                    //{
+                    //    overlay.Markers[i].Position = OverlayPhotosWGS.Markers[i].Position;
+                    //}
                     overlay.Markers.Clear();
                     foreach ( GMarkerGoogle marker in OverlayPhotosWGS.Markers )
                     {
                         overlay.Markers.Add( marker );
+                        PointLatLng posTag = (PointLatLng) marker.Tag;
+                        if ( posTag.Lat != marker.Position.Lat || posTag.Lng != marker.Position.Lng )
+                        {
+                            marker.Position = new PointLatLng( posTag.Lat, posTag.Lng );
+                        }
                     }
                 }
                 else if ( string.Equals( overlay.Id, "Points", StringComparison.CurrentCultureIgnoreCase ) )
@@ -133,6 +170,11 @@ namespace PhotoGeoTagShell
                     foreach ( GMarkerGoogle marker in OverlayPointsWGS.Markers )
                     {
                         overlay.Markers.Add( marker );
+                        PointLatLng posTag = (PointLatLng) marker.Tag;
+                        if ( posTag.Lat != marker.Position.Lat || posTag.Lng != marker.Position.Lng )
+                        {
+                            marker.Position = new PointLatLng( posTag.Lat, posTag.Lng );
+                        }
                     }
                 }
                 else if ( string.Equals( overlay.Id, "Routes", StringComparison.CurrentCultureIgnoreCase ) )
@@ -164,6 +206,7 @@ namespace PhotoGeoTagShell
                 }
             }
             #endregion
+            pinMarker = null;
         }
 
         private void updatePositions( bool force = false )
@@ -254,26 +297,28 @@ namespace PhotoGeoTagShell
                 //marker_wgs.ToolTip = new GMapBaloonToolTip( marker_wgs );
                 GMapImageToolTip tooltip_wgs = new GMapImageToolTip( marker_wgs );
                 tooltip_wgs.Image = img.Key;
-                tooltip_wgs.Offset = new Point( 0, -4 );
+                tooltip_wgs.Offset = new Point( 0, -12 );
                 tooltip_wgs.Font = new Font( "Segoe UI", 8 );
                 tooltip_wgs.Stroke = new Pen( Color.LightCoral, 2 );
                 tooltip_wgs.Fill = new SolidBrush( Color.Snow );
                 marker_wgs.ToolTip = tooltip_wgs;
                 marker_wgs.ToolTipText = Path.GetFileName( img.Value );
                 //marker_wgs.ToolTipMode = MarkerTooltipMode.Always;
+                marker_wgs.Tag = pos;
                 OverlayPhotosWGS.Markers.Add( marker_wgs );
 
                 GMarkerGoogle marker_mar = new GMarkerGoogle( new PointLatLng( lat, lng ), GMarkerGoogleType.green_dot );
                 //marker_mar.ToolTip = new GMapBaloonToolTip( marker_mar );
                 GMapImageToolTip tooltip_mar = new GMapImageToolTip( marker_mar );
                 tooltip_mar.Image = img.Key;
-                tooltip_mar.Offset = new Point( 0, -4 );
+                tooltip_mar.Offset = new Point( 0, -12 );
                 tooltip_mar.Font = new Font( "Segoe UI", 8 );
                 tooltip_mar.Stroke = new Pen( Color.SlateBlue, 2 );
                 tooltip_mar.Fill = new SolidBrush( Color.Snow );
                 marker_mar.ToolTip = tooltip_mar;
                 marker_mar.ToolTipText = Path.GetFileName( img.Value );
                 //marker_mar.ToolTipMode = MarkerTooltipMode.Always;
+                marker_mar.Tag = new PointLatLng( lat, lng );
                 OverlayPhotosMAR.Markers.Add( marker_mar );
             }
             updatePositions( OverlayPhotos, true );
@@ -397,6 +442,7 @@ namespace PhotoGeoTagShell
 
             CacheFolder = AppFolder + Path.DirectorySeparatorChar + "Cache";
 
+            #region setup MapProvider
             cbMapProviders.Items.Clear();
             cbMapProviders.BeginUpdate();
             foreach ( GMapProvider map in GMapProviders.List )
@@ -440,12 +486,15 @@ namespace PhotoGeoTagShell
             {
                 Directory.CreateDirectory( CacheFolder );
             }
+            #endregion
+
             trackZoom.Minimum = 2;
             trackZoom.Maximum = 20;
             trackZoom.Value = 12;
 
             picGeoRef.AllowDrop = true;
 
+            #region setup GMap
             gMap.Manager.BoostCacheEngine = true;
             gMap.Manager.CacheOnIdleRead = true;
             gMap.Manager.UseDirectionsCache = true;
@@ -480,10 +529,11 @@ namespace PhotoGeoTagShell
             gMap.MapProvider.MaxZoom = gMap.MaxZoom;
             gMap.MapProvider.MinZoom = gMap.MinZoom;
 
-            gMap.Overlays.Add( OverlayRefPos );
             gMap.Overlays.Add( OverlayRoutes );
             gMap.Overlays.Add( OverlayPoints );
             gMap.Overlays.Add( OverlayPhotos );
+            gMap.Overlays.Add( OverlayRefPos );
+            #endregion
         }
 
         private void FormMap_FormClosing( object sender, FormClosingEventArgs e )
@@ -553,8 +603,8 @@ namespace PhotoGeoTagShell
 
         private void chkMapShift_CheckedChanged( object sender, EventArgs e )
         {
-            currentMarker = null;
             mouse_down = false;
+            currentMarker = null;
             updatePositions( true );
         }
 
@@ -620,7 +670,9 @@ namespace PhotoGeoTagShell
             marker.ToolTip.Stroke = new Pen( Color.SlateBlue );
             marker.ToolTip.Fill = new SolidBrush( Color.Snow );
             marker.ToolTipText = "Location you want to place photo(s)";
+
             OverlayRefPos.Markers.Add( marker );
+            pinMarker = marker;
         }
 
         private void gMap_OnMapTypeChanged( GMapProvider type )
@@ -666,7 +718,11 @@ namespace PhotoGeoTagShell
 
         private void gMap_OnMarkerEnter( GMapMarker item )
         {
-            if ( !mouse_down ) currentMarker = (GMarkerGoogle) item;
+            if ( !mouse_down )
+            {
+                if(pinMarker != null) currentMarker = (GMarkerGoogle) pinMarker;
+                else currentMarker = (GMarkerGoogle) item;
+            }
         }
 
         private void gMap_OnMarkerLeave( GMapMarker item )
@@ -698,6 +754,8 @@ namespace PhotoGeoTagShell
                 {
                     //GeoImage( currentMarker.Position );
                     SetImageGeoTag( gMap.FromLocalToLatLng( e.X, e.Y ) );
+                    currentMarker_orig = new PointLatLng( e.X, e.Y );
+                    currentMarker = null;
                 }
             }
         }
