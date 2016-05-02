@@ -23,6 +23,7 @@ namespace PhotoGeoTagShell
         Dictionary<string, string> appSettings = new Dictionary<string, string>();
 
         FormMap MapViewer;//= new FormMap();
+        string lastMapProvider = "GoogleChinaHybridMap";
 
         private void PopulateListView( DirectoryInfo path )
         {
@@ -120,6 +121,9 @@ namespace PhotoGeoTagShell
                 appSettings.Add( "folderHistory", "" );
             }
 
+            if ( appSettings.ContainsKey( "lastMapProvider" ) )
+                lastMapProvider = appSettings["lastMapProvider"].ToString();
+            else appSettings.Add( "lastMapProvider", "GoogleChinaHybridMap" );
         }
 
         private void configSave()
@@ -127,6 +131,11 @@ namespace PhotoGeoTagShell
             if ( appSettings.ContainsKey( "lastVisitedFolder" ) )
                 appSettings["lastVisitedFolder"] = tscbVistedFolder.Text;
             else appSettings.Add( "lastVisitedFolder", AppFolder );
+
+            if ( MapViewer != null && MapViewer.Tag != null) lastMapProvider = (string)MapViewer.Tag;
+            if ( appSettings.ContainsKey( "lastMapProvider" ) )
+                appSettings["lastMapProvider"] = lastMapProvider;
+            else appSettings.Add( "lastMapProvider", "GoogleChinaHybridMap" );
 
             List<string> folders = new List<string>();
             int count = 0;
@@ -287,6 +296,7 @@ namespace PhotoGeoTagShell
             {
                 MapViewer = new FormMap();
             }
+            MapViewer.Tag = lastMapProvider;
             MapViewer.Show();
         }
 
