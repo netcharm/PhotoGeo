@@ -24,7 +24,7 @@ namespace PhotoGeoTagShell
         private bool selection_changed = true;
         List<string> lastSelections = new List<string>();
 
-        string lastMapProvider = "";
+        string lastMapProvider = "GoogleChinaHybridMap";
 
         private void configUpdate()
         {
