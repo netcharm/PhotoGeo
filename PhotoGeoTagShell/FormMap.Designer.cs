@@ -93,11 +93,12 @@
             // 
             this.cbMapProviders.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.cbMapProviders.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbMapProviders.DropDownWidth = 200;
             this.cbMapProviders.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.cbMapProviders.FormattingEnabled = true;
             this.cbMapProviders.Location = new System.Drawing.Point(12, 452);
             this.cbMapProviders.Name = "cbMapProviders";
-            this.cbMapProviders.Size = new System.Drawing.Size(110, 20);
+            this.cbMapProviders.Size = new System.Drawing.Size(107, 20);
             this.cbMapProviders.Sorted = true;
             this.cbMapProviders.TabIndex = 1;
             this.cbMapProviders.SelectedIndexChanged += new System.EventHandler(this.cbMapProviders_SelectedIndexChanged);
@@ -180,7 +181,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.trackZoom.Cursor = System.Windows.Forms.Cursors.Hand;
             this.trackZoom.LargeChange = 2;
-            this.trackZoom.Location = new System.Drawing.Point(119, 441);
+            this.trackZoom.Location = new System.Drawing.Point(125, 441);
             this.trackZoom.Name = "trackZoom";
             this.trackZoom.Size = new System.Drawing.Size(159, 42);
             this.trackZoom.TabIndex = 4;
@@ -204,9 +205,9 @@
             // 
             this.btnPinPhoto.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnPinPhoto.Image = global::PhotoGeoTagShell.Properties.Resources.map_pin_md_32x32;
-            this.btnPinPhoto.Location = new System.Drawing.Point(526, 441);
+            this.btnPinPhoto.Location = new System.Drawing.Point(533, 441);
             this.btnPinPhoto.Name = "btnPinPhoto";
-            this.btnPinPhoto.Size = new System.Drawing.Size(37, 42);
+            this.btnPinPhoto.Size = new System.Drawing.Size(35, 42);
             this.btnPinPhoto.TabIndex = 7;
             this.btnPinPhoto.UseVisualStyleBackColor = true;
             this.btnPinPhoto.Click += new System.EventHandler(this.btnPinPhoto_Click);
@@ -253,11 +254,13 @@
             // 
             // edQuery
             // 
-            this.edQuery.ImeMode = System.Windows.Forms.ImeMode.On;
-            this.edQuery.Location = new System.Drawing.Point(277, 452);
+            this.edQuery.HideSelection = false;
+            this.edQuery.ImeMode = System.Windows.Forms.ImeMode.Alpha;
+            this.edQuery.Location = new System.Drawing.Point(286, 452);
             this.edQuery.Name = "edQuery";
             this.edQuery.Size = new System.Drawing.Size(240, 21);
             this.edQuery.TabIndex = 8;
+            this.edQuery.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.edQuery.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.edQuery_KeyPress);
             // 
             // FormMap
