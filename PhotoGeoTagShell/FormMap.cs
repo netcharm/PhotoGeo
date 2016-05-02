@@ -101,6 +101,7 @@ namespace PhotoGeoTagShell
                     foreach ( GMarkerGoogle marker in OverlayPhotosMAR.Markers )
                     {
                         overlay.Markers.Add( marker );
+                        if ( marker.Tag == null ) continue;
                         PointLatLng posTag = (PointLatLng) marker.Tag;
                         if ( posTag.Lat != marker.Position.Lat || posTag.Lng != marker.Position.Lng )
                         {
@@ -279,12 +280,13 @@ namespace PhotoGeoTagShell
             OverlayPhotosMAR.Markers.Clear();
             foreach ( KeyValuePair<Image, string> img in imgs)
             {
-                Image photo = new Bitmap(img.Value);
+                using ( Image photo = new Bitmap( img.Value ) )
+                {
+                    pos.Lat = ImageGeoTag.GetLatitude( photo );
+                    pos.Lng = ImageGeoTag.GetLongitude( photo );
 
-                pos.Lat = ImageGeoTag.GetLatitude( photo );
-                pos.Lng = ImageGeoTag.GetLongitude( photo );
-
-                photo.Dispose();
+                    photo.Dispose();
+                }
 
                 if ( double.IsNaN( pos.Lat ) || double.IsNaN( pos.Lng ) ) continue;
 
@@ -407,17 +409,27 @@ namespace PhotoGeoTagShell
                 }
 
                 GMarkerGoogle marker_wgs = new GMarkerGoogle( new PointLatLng(lat_wgs, lng_wgs), GMarkerGoogleType.orange_dot );
-                marker_wgs.ToolTip = new GMapBaloonToolTip( marker_wgs );
-                marker_wgs.ToolTip.Stroke = new Pen( Color.SlateBlue );
-                marker_wgs.ToolTip.Fill = new SolidBrush( Color.Snow );
+                GMapImageToolTip tooltip_wgs = new GMapImageToolTip( marker_wgs );
+                tooltip_wgs.Image = img.Key;
+                tooltip_wgs.Offset = new Point( 0, -12 );
+                tooltip_wgs.Font = new Font( "Segoe UI", 8 );
+                tooltip_wgs.Stroke = new Pen( Color.SlateBlue, 2 );
+                tooltip_wgs.Fill = new SolidBrush( Color.Snow );
+                marker_wgs.ToolTip = tooltip_wgs;
                 marker_wgs.ToolTipText = Path.GetFileName( img.Value );
+                marker_wgs.Tag = new PointLatLng( lat_wgs, lng_wgs );
                 OverlayPhotosWGS.Markers.Add( marker_wgs );
 
                 GMarkerGoogle marker_mar = new GMarkerGoogle( new PointLatLng( lat_mar, lng_mar ), GMarkerGoogleType.orange_dot );
-                marker_mar.ToolTip = new GMapBaloonToolTip( marker_mar );
-                marker_mar.ToolTip.Stroke = new Pen( Color.SlateBlue );
-                marker_mar.ToolTip.Fill = new SolidBrush( Color.Snow );
+                GMapImageToolTip tooltip_mar = new GMapImageToolTip( marker_mar );
+                tooltip_mar.Image = img.Key;
+                tooltip_mar.Offset = new Point( 0, -12 );
+                tooltip_mar.Font = new Font( "Segoe UI", 8 );
+                tooltip_mar.Stroke = new Pen( Color.SlateBlue, 2 );
+                tooltip_mar.Fill = new SolidBrush( Color.Snow );
+                marker_mar.ToolTip = tooltip_mar;
                 marker_mar.ToolTipText = Path.GetFileName( img.Value );
+                marker_mar.Tag = new PointLatLng( lat_mar, lng_mar );
                 OverlayPhotosMAR.Markers.Add( marker_mar );
             }
             if( OverlayRefPos.Markers.Count > 0)
@@ -753,9 +765,8 @@ namespace PhotoGeoTagShell
             {
                 if ( MessageBox.Show( this, "Place photo(s) to here?", "Warning", MessageBoxButtons.OKCancel, MessageBoxIcon.Question ) == DialogResult.OK )
                 {
-                    //GeoImage( currentMarker.Position );
-                    SetImageGeoTag( gMap.FromLocalToLatLng( e.X, e.Y ) );
                     currentMarker.Tag = new PointLatLng( e.X, e.Y );
+                    SetImageGeoTag( gMap.FromLocalToLatLng( e.X, e.Y ) );
                     currentMarker = null;
                 }
             }
