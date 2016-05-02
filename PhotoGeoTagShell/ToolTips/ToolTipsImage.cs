@@ -99,13 +99,17 @@ namespace GMap.NET.WindowsForms.ToolTips
             }
 
 #if !PocketPC
+            float tX = rect.X + rect.Width  / 2f;
+            float tY = rect.Y + si.Height + padFactor_Y * TextPadding.Height + 4;
+            float tL = st.Width > si.Width ? rect.X + Radius / 2 : tX - si.Width / 2f+ Radius;
             RectangleF sr = new RectangleF(
-                rect.X + Radius / 2,
-                rect.Y + si.Height + padFactor_Y * TextPadding.Height + 4,
+                tL,
+                tY,
                 st.Width + TextPadding.Width,
                 st.Height
                 );
             g.DrawString( Marker.ToolTipText, Font, Foreground, sr, Format );
+            //g.DrawString( Marker.ToolTipText, Font, Foreground, rect.X + ( rect.Width + st.Width ) / 2f, rect.Y + si.Height + padFactor_Y * TextPadding.Height + 4, Format );
             //g.DrawString( Marker.ToolTipText, Font, Foreground, rect.X + Radius, rect.Y + si.Height + padFactor_Y * TextPadding.Height, Format );
 #else
             g.DrawString(ToolTipText, ToolTipFont, TooltipForeground, rect.X, rect.Y + si.Height + padFactor_Y * TextPadding.Height, ToolTipFormat);
