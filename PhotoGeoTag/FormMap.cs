@@ -250,18 +250,29 @@ namespace PhotoGeoTagShell
                 PosShift.Convert2Mars( pos.Lng, pos.Lat, out lng, out lat );
 
                 GMarkerGoogle marker_wgs = new GMarkerGoogle( pos, GMarkerGoogleType.green_dot );
-                marker_wgs.ToolTip = new GMapBaloonToolTip( marker_wgs );
-                marker_wgs.ToolTip.Stroke = new Pen( Color.SlateBlue );
-                marker_wgs.ToolTip.Fill = new SolidBrush( Color.Snow );
-                marker_wgs.ToolTipText = Path.GetFileName(img.Value);
-                //marker_wgs.ToolTipText += img.Key.PropertyItems[];
+                //marker_wgs.ToolTip = new GMapBaloonToolTip( marker_wgs );
+                GMapImageToolTip tooltip_wgs = new GMapImageToolTip( marker_wgs );
+                tooltip_wgs.Image = img.Key;
+                tooltip_wgs.Offset = new Point( 0, -4 );
+                tooltip_wgs.Font = new Font( "Segoe UI", 8 );
+                tooltip_wgs.Stroke = new Pen( Color.LightCoral, 2 );
+                tooltip_wgs.Fill = new SolidBrush( Color.Snow );
+                marker_wgs.ToolTip = tooltip_wgs;
+                marker_wgs.ToolTipText = Path.GetFileName( img.Value );
+                //marker_wgs.ToolTipMode = MarkerTooltipMode.Always;
                 OverlayPhotosWGS.Markers.Add( marker_wgs );
 
                 GMarkerGoogle marker_mar = new GMarkerGoogle( new PointLatLng( lat, lng ), GMarkerGoogleType.green_dot );
-                marker_mar.ToolTip = new GMapBaloonToolTip( marker_mar );
-                marker_mar.ToolTip.Stroke = new Pen(Color.SlateBlue);
-                marker_mar.ToolTip.Fill = new SolidBrush( Color.Snow);
-                marker_mar.ToolTipText = img.Value;
+                //marker_mar.ToolTip = new GMapBaloonToolTip( marker_mar );
+                GMapImageToolTip tooltip_mar = new GMapImageToolTip( marker_mar );
+                tooltip_mar.Image = img.Key;
+                tooltip_mar.Offset = new Point( 0, -4 );
+                tooltip_mar.Font = new Font( "Segoe UI", 8 );
+                tooltip_mar.Stroke = new Pen( Color.SlateBlue, 2 );
+                tooltip_mar.Fill = new SolidBrush( Color.Snow );
+                marker_mar.ToolTip = tooltip_mar;
+                marker_mar.ToolTipText = Path.GetFileName( img.Value );
+                //marker_mar.ToolTipMode = MarkerTooltipMode.Always;
                 OverlayPhotosMAR.Markers.Add( marker_mar );
             }
             updatePositions( OverlayPhotos, true );
@@ -462,15 +473,15 @@ namespace PhotoGeoTagShell
 //            GMapsProvider.TimeoutMs = 10000;
 
             GMaps.Instance.Mode = AccessMode.ServerAndCache;
-            gMap.SetPositionByKeywords( "Sanya,China" );
+            gMap.SetPositionByKeywords( "beijing" );
 
             gMap.MapProvider.MaxZoom = gMap.MaxZoom;
             gMap.MapProvider.MinZoom = gMap.MinZoom;
 
             gMap.Overlays.Add( OverlayRefPos );
-            gMap.Overlays.Add( OverlayPhotos );
-            gMap.Overlays.Add( OverlayPoints );
             gMap.Overlays.Add( OverlayRoutes );
+            gMap.Overlays.Add( OverlayPoints );
+            gMap.Overlays.Add( OverlayPhotos );
         }
 
         private void FormMap_FormClosing( object sender, FormClosingEventArgs e )

@@ -101,8 +101,8 @@
             // 
             // toolContainer.TopToolStripPanel
             // 
-            this.toolContainer.TopToolStripPanel.Controls.Add(this.menuMain);
             this.toolContainer.TopToolStripPanel.Controls.Add(this.toolMain);
+            this.toolContainer.TopToolStripPanel.Controls.Add(this.menuMain);
             // 
             // splitMain
             // 
@@ -259,7 +259,7 @@
             // tsmiTouch
             // 
             this.tsmiTouch.Name = "tsmiTouch";
-            this.tsmiTouch.Size = new System.Drawing.Size(152, 22);
+            this.tsmiTouch.Size = new System.Drawing.Size(106, 22);
             this.tsmiTouch.Text = "Touch!";
             this.tsmiTouch.Click += new System.EventHandler(this.tsmiTouch_Click);
             // 
@@ -273,7 +273,7 @@
             this.MainMenuStrip = this.menuMain;
             this.MinimumSize = new System.Drawing.Size(800, 600);
             this.Name = "MainForm";
-            this.Text = "Photo Manager";
+            this.Text = "Photo GeoInfo Tag Tool";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.status.ResumeLayout(false);
