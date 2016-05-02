@@ -74,7 +74,7 @@ namespace PhotoGeoTagShell
 
             string mapName = gMap.MapProvider.Name;
 
-            MapShift = chkMapShift.Checked;
+            //MapShift = chkMapShift.Checked;
             #region update marker position
             if ( MapShift )
             {
@@ -596,6 +596,8 @@ namespace PhotoGeoTagShell
             if(mapName.StartsWith("Open", StringComparison.CurrentCultureIgnoreCase))
                 chkMapShift.Checked = false;
             else chkMapShift.Checked = true;
+            tsmiShiftMap.Checked = chkMapShift.Checked;
+            MapShift = chkMapShift.Checked;
             //gMap.BoundsOfMap = latlng;
         }
 
@@ -603,6 +605,7 @@ namespace PhotoGeoTagShell
         {
             mouse_down = false;
             currentMarker = null;
+            MapShift = chkMapShift.Checked;
             updatePositions( true );
         }
 
@@ -775,6 +778,37 @@ namespace PhotoGeoTagShell
             {
                 //currentMarker.Position = new PointLatLng( lat, lng );
                 currentMarker.Position = pos;
+            }
+        }
+
+        private void tsmiResetMap_Click( object sender, EventArgs e )
+        {
+            updatePositions( true );
+        }
+
+        private void tsmiShiftMap_Click( object sender, EventArgs e )
+        {
+            tsmiShiftMap.Checked = !tsmiShiftMap.Checked;
+            chkMapShift.Checked = tsmiShiftMap.Checked;
+            MapShift = tsmiShiftMap.Checked;
+            mouse_down = false;
+            currentMarker = null;
+            updatePositions( true );
+        }
+
+        private void edQuery_KeyPress( object sender, KeyPressEventArgs e )
+        {
+            if ( e.KeyChar == Convert.ToChar( Keys.Enter ) )
+            {
+                PointLatLng pos = gMap.Position;
+                tsProgress.Visible = true;
+                tsProgress.Value = 50;
+                if (gMap.SetPositionByKeywords( edQuery.Text ) != GeoCoderStatusCode.G_GEO_SUCCESS)
+                {
+                    gMap.Position = pos;
+                }
+                else trackZoom.Value = (int)gMap.Zoom;
+                tsProgress.Visible = false;
             }
         }
     }
