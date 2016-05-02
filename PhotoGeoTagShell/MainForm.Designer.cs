@@ -40,9 +40,9 @@
             this.toolMain = new System.Windows.Forms.ToolStrip();
             this.tsbtnMapView = new System.Windows.Forms.ToolStripButton();
             this.tsSep1 = new System.Windows.Forms.ToolStripSeparator();
+            this.tscbVistedFolder = new System.Windows.Forms.ToolStripComboBox();
             this.tscbKnownFolder = new System.Windows.Forms.ToolStripComboBox();
             this.tsSep2 = new System.Windows.Forms.ToolStripSeparator();
-            this.tscbVistedFolder = new System.Windows.Forms.ToolStripComboBox();
             this.tsbtnGo = new System.Windows.Forms.ToolStripSplitButton();
             this.tsmiTouch = new System.Windows.Forms.ToolStripMenuItem();
             this.status.SuspendLayout();
@@ -95,8 +95,8 @@
             // 
             // toolContainer.TopToolStripPanel
             // 
-            this.toolContainer.TopToolStripPanel.Controls.Add(this.menuMain);
             this.toolContainer.TopToolStripPanel.Controls.Add(this.toolMain);
+            this.toolContainer.TopToolStripPanel.Controls.Add(this.menuMain);
             // 
             // explorerBrowser
             // 
@@ -132,6 +132,7 @@
             // toolMain
             // 
             this.toolMain.AllowItemReorder = true;
+            this.toolMain.Dock = System.Windows.Forms.DockStyle.None;
             this.toolMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsbtnMapView,
             this.tsSep1,
@@ -163,6 +164,17 @@
             this.tsSep1.Name = "tsSep1";
             this.tsSep1.Size = new System.Drawing.Size(6, 25);
             // 
+            // tscbVistedFolder
+            // 
+            this.tscbVistedFolder.AutoToolTip = true;
+            this.tscbVistedFolder.DropDownWidth = 600;
+            this.tscbVistedFolder.Margin = new System.Windows.Forms.Padding(2, 0, 1, 0);
+            this.tscbVistedFolder.Name = "tscbVistedFolder";
+            this.tscbVistedFolder.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
+            this.tscbVistedFolder.Size = new System.Drawing.Size(535, 25);
+            this.tscbVistedFolder.SelectedIndexChanged += new System.EventHandler(this.tscbVistedFolder_SelectedIndexChanged);
+            this.tscbVistedFolder.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.tscbVistedFolder_KeyPress);
+            // 
             // tscbKnownFolder
             // 
             this.tscbKnownFolder.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
@@ -176,17 +188,6 @@
             // 
             this.tsSep2.Name = "tsSep2";
             this.tsSep2.Size = new System.Drawing.Size(6, 25);
-            // 
-            // tscbVistedFolder
-            // 
-            this.tscbVistedFolder.AutoToolTip = true;
-            this.tscbVistedFolder.DropDownWidth = 600;
-            this.tscbVistedFolder.Margin = new System.Windows.Forms.Padding(2, 0, 1, 0);
-            this.tscbVistedFolder.Name = "tscbVistedFolder";
-            this.tscbVistedFolder.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
-            this.tscbVistedFolder.Size = new System.Drawing.Size(535, 25);
-            this.tscbVistedFolder.SelectedIndexChanged += new System.EventHandler(this.tscbVistedFolder_SelectedIndexChanged);
-            this.tscbVistedFolder.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.tscbVistedFolder_KeyPress);
             // 
             // tsbtnGo
             // 
@@ -205,7 +206,7 @@
             // tsmiTouch
             // 
             this.tsmiTouch.Name = "tsmiTouch";
-            this.tsmiTouch.Size = new System.Drawing.Size(152, 22);
+            this.tsmiTouch.Size = new System.Drawing.Size(106, 22);
             this.tsmiTouch.Text = "Touch!";
             this.tsmiTouch.Click += new System.EventHandler(this.tsmiTouch_Click);
             // 
@@ -219,7 +220,7 @@
             this.MainMenuStrip = this.menuMain;
             this.MinimumSize = new System.Drawing.Size(810, 600);
             this.Name = "MainForm";
-            this.Text = "Photo Manager";
+            this.Text = "Photo GeoInfo Tag Tool";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.status.ResumeLayout(false);
