@@ -64,15 +64,13 @@ namespace PhotoGeoTagShell
 
         List<KeyValuePair<Image, string>> photos = new List<KeyValuePair<Image, string>>();
         GMarkerGoogle currentMarker;
-        PointLatLng currentMarker_orig;
         GMarkerGoogle pinMarker;
+
         bool mouse_down = false;
 
         private void updatePositions( GMapOverlay overlay, bool force = false, bool fit = true )
         {
             if ( MapShift == chkMapShift.Checked && !force ) return;
-
-            if ( currentMarker != null && currentMarker_orig != null) currentMarker.Position = currentMarker_orig;
 
             string mapName = gMap.MapProvider.Name;
 
@@ -754,7 +752,7 @@ namespace PhotoGeoTagShell
                 {
                     //GeoImage( currentMarker.Position );
                     SetImageGeoTag( gMap.FromLocalToLatLng( e.X, e.Y ) );
-                    currentMarker_orig = new PointLatLng( e.X, e.Y );
+                    currentMarker.Tag = new PointLatLng( e.X, e.Y );
                     currentMarker = null;
                 }
             }
