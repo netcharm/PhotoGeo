@@ -31,6 +31,7 @@ namespace PhotoGeoTagShell
 
         MarsWGS PosShift = new MarsWGS();
         bool MapShift = false;
+        string lastMapProvider = "GoogleChinaHybridMap";
 
         private GeocodingProvider Geo;
 
@@ -392,6 +393,8 @@ namespace PhotoGeoTagShell
 
         private void FormMap_Load( object sender, EventArgs e )
         {
+            if(Tag != null) lastMapProvider = (string) Tag;
+
             CacheFolder = AppFolder + Path.DirectorySeparatorChar + "Cache";
 
             cbMapProviders.Items.Clear();
@@ -431,8 +434,9 @@ namespace PhotoGeoTagShell
             mapSource.Add( SosoSateliteMap.Name, SosoSateliteMap.Id );
 
             cbMapProviders.EndUpdate();
-            cbMapProviders.SelectedIndex = cbMapProviders.Items.IndexOf( "GoogleChinaHybridMap" );
-            if(Directory.Exists( CacheFolder ))
+            //cbMapProviders.SelectedIndex = cbMapProviders.Items.IndexOf( "GoogleChinaHybridMap" );
+            cbMapProviders.SelectedIndex = cbMapProviders.Items.IndexOf( lastMapProvider );
+            if (Directory.Exists( CacheFolder ))
             {
                 Directory.CreateDirectory( CacheFolder );
             }
@@ -467,10 +471,8 @@ namespace PhotoGeoTagShell
             gMap.ForceDoubleBuffer = false;
 
             gMap.CacheLocation = CacheFolder;
-            gMap.MapProvider = GMapProviders.TryGetProvider( mapSource["GoogleChinaHybridMap"] );
-            //gMap.MapProvider = GoogleChinaHybridMapProvider.Instance;
+            //gMap.MapProvider = GMapProviders.TryGetProvider( mapSource[lastMapProvider] );
             string refurl = gMap.MapProvider.RefererUrl;
-//            GMapsProvider.TimeoutMs = 10000;
 
             GMaps.Instance.Mode = AccessMode.ServerAndCache;
             gMap.SetPositionByKeywords( "beijing" );
@@ -489,6 +491,7 @@ namespace PhotoGeoTagShell
             //gMap.MapProvider = EmptyProvider.Instance;
             //gMap.MapProvider.BypassCache = true;
             gMap.Manager.CancelTileCaching();
+            Tag = lastMapProvider;
         }
 
         private void cbMapProviders_SelectedIndexChanged( object sender, EventArgs e )
@@ -539,6 +542,7 @@ namespace PhotoGeoTagShell
             {
                 gMap.MapProvider = GMapProviders.TryGetProvider( mapSource[mapName] );
             }
+            lastMapProvider = gMap.MapProvider.Name;
             //gMap.BoundsOfMap = latlng;
         }
 

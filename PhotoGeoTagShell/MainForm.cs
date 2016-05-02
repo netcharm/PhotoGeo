@@ -24,6 +24,8 @@ namespace PhotoGeoTagShell
         private bool selection_changed = true;
         List<string> lastSelections = new List<string>();
 
+        string lastMapProvider = "";
+
         private void configUpdate()
         {
             Configuration config = ConfigurationManager.OpenExeConfiguration(Application.ExecutablePath);
@@ -53,7 +55,7 @@ namespace PhotoGeoTagShell
             if ( appSettings.ContainsKey( "lastVisitedFolder" ) )
                 tscbVistedFolder.Text = appSettings["lastVisitedFolder"].ToString();
             else appSettings.Add( "lastVisitedFolder", AppFolder );
-
+        
             tscbVistedFolder.Items.Clear();
             if ( appSettings.ContainsKey( "folderHistory" ) )
             {
@@ -65,6 +67,9 @@ namespace PhotoGeoTagShell
                 appSettings.Add( "folderHistory", "" );
             }
 
+            if ( appSettings.ContainsKey( "lastMapProvider" ) )
+                lastMapProvider = appSettings["lastMapProvider"].ToString();
+            else appSettings.Add( "lastMapProvider", "GoogleChinaHybridMap" );
         }
 
         private void configSave()
@@ -72,6 +77,11 @@ namespace PhotoGeoTagShell
             if ( appSettings.ContainsKey( "lastVisitedFolder" ) )
                 appSettings["lastVisitedFolder"] = tscbVistedFolder.Text;
             else appSettings.Add( "lastVisitedFolder", AppFolder );
+
+            if ( MapViewer != null && MapViewer.Tag != null) lastMapProvider = (string)MapViewer.Tag;
+            if ( appSettings.ContainsKey( "lastMapProvider" ) )
+                appSettings["lastMapProvider"] = lastMapProvider;
+            else appSettings.Add( "lastMapProvider", "GoogleChinaHybridMap" );
 
             List<string> folders = new List<string>();
             int count = 0;
@@ -325,6 +335,7 @@ namespace PhotoGeoTagShell
             {
                 MapViewer = new FormMap();
             }
+            MapViewer.Tag = lastMapProvider;
             MapViewer.Show();
             ShowSelectedImage(true);
         }
