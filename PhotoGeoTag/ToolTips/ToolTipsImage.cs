@@ -101,7 +101,7 @@ namespace GMap.NET.WindowsForms.ToolTips
 #if !PocketPC
             float tX = rect.X + rect.Width  / 2f;
             float tY = rect.Y + si.Height + padFactor_Y * TextPadding.Height + 4;
-            float tL = st.Width > si.Width ? rect.X + Radius / 2 : tX - si.Width / 2f+ Radius;
+            float tL = st.Width+TextPadding.Width >= si.Width ? rect.X + Radius / 2 : tX - si.Width / 2f+ Radius;
             RectangleF sr = new RectangleF(
                 tL,
                 tY,
