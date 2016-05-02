@@ -543,6 +543,7 @@ namespace PhotoGeoTagShell
                 gMap.MapProvider = GMapProviders.TryGetProvider( mapSource[mapName] );
             }
             lastMapProvider = gMap.MapProvider.Name;
+            Tag = lastMapProvider;
             //gMap.BoundsOfMap = latlng;
         }
 
