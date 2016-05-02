@@ -123,7 +123,7 @@
             this.tsLat.BorderStyle = System.Windows.Forms.Border3DStyle.SunkenInner;
             this.tsLat.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.tsLat.Name = "tsLat";
-            this.tsLat.Size = new System.Drawing.Size(120, 17);
+            this.tsLat.Size = new System.Drawing.Size(110, 17);
             this.tsLat.Text = "Lat:";
             this.tsLat.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
@@ -137,7 +137,7 @@
             this.tsLon.BorderStyle = System.Windows.Forms.Border3DStyle.SunkenInner;
             this.tsLon.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.tsLon.Name = "tsLon";
-            this.tsLon.Size = new System.Drawing.Size(120, 17);
+            this.tsLon.Size = new System.Drawing.Size(110, 17);
             this.tsLon.Text = "Lon:";
             this.tsLon.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
@@ -150,14 +150,14 @@
             | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
             this.tsZoom.BorderStyle = System.Windows.Forms.Border3DStyle.SunkenInner;
             this.tsZoom.Name = "tsZoom";
-            this.tsZoom.Size = new System.Drawing.Size(56, 17);
+            this.tsZoom.Size = new System.Drawing.Size(60, 17);
             this.tsZoom.Text = "Zoom:";
             this.tsZoom.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // tsInfo
             // 
             this.tsInfo.Name = "tsInfo";
-            this.tsInfo.Size = new System.Drawing.Size(227, 17);
+            this.tsInfo.Size = new System.Drawing.Size(212, 17);
             this.tsInfo.Spring = true;
             this.tsInfo.Text = "OK";
             // 

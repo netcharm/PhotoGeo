@@ -544,6 +544,10 @@ namespace PhotoGeoTagShell
             }
             lastMapProvider = gMap.MapProvider.Name;
             Tag = lastMapProvider;
+
+            if(mapName.StartsWith("Open", StringComparison.CurrentCultureIgnoreCase))
+                chkMapShift.Checked = false;
+            else chkMapShift.Checked = true;
             //gMap.BoundsOfMap = latlng;
         }
 
