@@ -15,7 +15,7 @@ namespace GMap.NET.MapProviders.Soso
             get { return id; }
         }
 
-        readonly string name = "SosoMapSatelite";
+        readonly string name = "SoSoSateliteMap";
         public override string Name
         {
             get

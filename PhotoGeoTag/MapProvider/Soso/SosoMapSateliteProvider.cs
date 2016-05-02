@@ -3,7 +3,8 @@ using GMap.NET.MapProviders;
 using GMap.NET.Projections;
 
 namespace GMap.NET.MapProviders.Soso
-{    
+{
+    
     public class SosoSateliteMapProvider: SosoMapProviderBase
     {
         public static readonly SosoSateliteMapProvider Instance;
@@ -14,7 +15,7 @@ namespace GMap.NET.MapProviders.Soso
             get { return id; }
         }
 
-        readonly string name = "SosoMapSatelite";
+        readonly string name = "SoSoSateliteMap";
         public override string Name
         {
             get
