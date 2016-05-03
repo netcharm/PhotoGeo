@@ -12,8 +12,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Manina.Windows.Forms;
+using NetCharm;
 
-namespace PhotoGeoTagShell
+namespace PhotoGeoTag
 {
     public partial class MainForm : Form
     {

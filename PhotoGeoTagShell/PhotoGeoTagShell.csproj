@@ -100,10 +100,10 @@
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Common\NetCharm\ImageGeoTag.cs" />
-    <Compile Include="FormMap.cs">
+    <Compile Include="Common\NetCharm\FormMap.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FormMap.Designer.cs">
+    <Compile Include="Common\NetCharm\FormMap.Designer.cs">
       <DependentUpon>FormMap.cs</DependentUpon>
     </Compile>
     <Compile Include="GMap\MapProvider\Baidu\BaiduMapProvider.cs" />
@@ -125,7 +125,7 @@
     <Compile Include="Common\ShellApi\ShellBrowseForFolderDialog.cs" />
     <Compile Include="Common\ShellApi\ShellFunctions.cs" />
     <Compile Include="Common\ShellApi\ShellGUIDs.cs" />
-    <EmbeddedResource Include="FormMap.resx">
+    <EmbeddedResource Include="Common\NetCharm\FormMap.resx">
       <DependentUpon>FormMap.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">

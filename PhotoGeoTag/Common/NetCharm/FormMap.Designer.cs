@@ -1,4 +1,4 @@
-﻿namespace PhotoGeoTagShell
+﻿namespace NetCharm
 {
     partial class FormMap
     {
@@ -37,13 +37,13 @@
             this.tsZoom = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsInfo = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsProgress = new System.Windows.Forms.ToolStripProgressBar();
+            this.tsbtnShift = new System.Windows.Forms.ToolStripSplitButton();
+            this.tsmiResetMap = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiShiftMap = new System.Windows.Forms.ToolStripMenuItem();
             this.trackZoom = new System.Windows.Forms.TrackBar();
             this.chkMapShift = new System.Windows.Forms.CheckBox();
             this.btnPinPhoto = new System.Windows.Forms.Button();
             this.picGeoRef = new System.Windows.Forms.PictureBox();
-            this.tsbtnShift = new System.Windows.Forms.ToolStripSplitButton();
-            this.tsmiShiftMap = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiResetMap = new System.Windows.Forms.ToolStripMenuItem();
             this.edQuery = new System.Windows.Forms.TextBox();
             this.status.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackZoom)).BeginInit();
@@ -164,7 +164,7 @@
             // tsInfo
             // 
             this.tsInfo.Name = "tsInfo";
-            this.tsInfo.Size = new System.Drawing.Size(212, 17);
+            this.tsInfo.Size = new System.Drawing.Size(294, 17);
             this.tsInfo.Spring = true;
             this.tsInfo.Text = "OK";
             // 
@@ -174,6 +174,33 @@
             this.tsProgress.Size = new System.Drawing.Size(80, 16);
             this.tsProgress.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
             this.tsProgress.Visible = false;
+            // 
+            // tsbtnShift
+            // 
+            this.tsbtnShift.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsbtnShift.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiResetMap,
+            this.tsmiShiftMap});
+            this.tsbtnShift.Image = ((System.Drawing.Image)(resources.GetObject("tsbtnShift.Image")));
+            this.tsbtnShift.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbtnShift.Name = "tsbtnShift";
+            this.tsbtnShift.Size = new System.Drawing.Size(51, 20);
+            this.tsbtnShift.Text = "Shift";
+            this.tsbtnShift.ToolTipText = "Shift Map";
+            // 
+            // tsmiResetMap
+            // 
+            this.tsmiResetMap.Name = "tsmiResetMap";
+            this.tsmiResetMap.Size = new System.Drawing.Size(124, 22);
+            this.tsmiResetMap.Text = "Reset Map";
+            this.tsmiResetMap.Click += new System.EventHandler(this.tsmiResetMap_Click);
+            // 
+            // tsmiShiftMap
+            // 
+            this.tsmiShiftMap.Name = "tsmiShiftMap";
+            this.tsmiShiftMap.Size = new System.Drawing.Size(124, 22);
+            this.tsmiShiftMap.Text = "Shift Map";
+            this.tsmiShiftMap.Click += new System.EventHandler(this.tsmiShiftMap_Click);
             // 
             // trackZoom
             // 
@@ -203,7 +230,7 @@
             // btnPinPhoto
             // 
             this.btnPinPhoto.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnPinPhoto.Image = global::PhotoGeoTagShell.Properties.Resources.map_pin_md_32x32;
+            this.btnPinPhoto.Image = ((System.Drawing.Image)(resources.GetObject("btnPinPhoto.Image")));
             this.btnPinPhoto.Location = new System.Drawing.Point(533, 441);
             this.btnPinPhoto.Name = "btnPinPhoto";
             this.btnPinPhoto.Size = new System.Drawing.Size(35, 42);
@@ -223,33 +250,6 @@
             this.picGeoRef.TabStop = false;
             this.picGeoRef.DragDrop += new System.Windows.Forms.DragEventHandler(this.picGeoRef_DragDrop);
             this.picGeoRef.DragEnter += new System.Windows.Forms.DragEventHandler(this.picGeoRef_DragEnter);
-            // 
-            // tsbtnShift
-            // 
-            this.tsbtnShift.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.tsbtnShift.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsmiResetMap,
-            this.tsmiShiftMap});
-            this.tsbtnShift.Image = ((System.Drawing.Image)(resources.GetObject("tsbtnShift.Image")));
-            this.tsbtnShift.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbtnShift.Name = "tsbtnShift";
-            this.tsbtnShift.Size = new System.Drawing.Size(51, 20);
-            this.tsbtnShift.Text = "Shift";
-            this.tsbtnShift.ToolTipText = "Shift Map";
-            // 
-            // tsmiShiftMap
-            // 
-            this.tsmiShiftMap.Name = "tsmiShiftMap";
-            this.tsmiShiftMap.Size = new System.Drawing.Size(152, 22);
-            this.tsmiShiftMap.Text = "Shift Map";
-            this.tsmiShiftMap.Click += new System.EventHandler(this.tsmiShiftMap_Click);
-            // 
-            // tsmiResetMap
-            // 
-            this.tsmiResetMap.Name = "tsmiResetMap";
-            this.tsmiResetMap.Size = new System.Drawing.Size(152, 22);
-            this.tsmiResetMap.Text = "Reset Map";
-            this.tsmiResetMap.Click += new System.EventHandler(this.tsmiResetMap_Click);
             // 
             // edQuery
             // 

@@ -20,7 +20,7 @@ using GMap.NET.MapProviders.Baidu;
 using GMap.NET.MapProviders.Sohu;
 using GMap.NET.MapProviders.Soso;
 
-namespace PhotoGeoTagShell
+namespace NetCharm
 {
     public partial class FormMap : Form
     {

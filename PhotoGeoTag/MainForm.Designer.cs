@@ -1,4 +1,4 @@
-﻿namespace PhotoGeoTagShell
+﻿namespace PhotoGeoTag
 {
     partial class MainForm
     {

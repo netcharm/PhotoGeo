@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace PhotoGeoTagShell.Properties {
+namespace PhotoGeoTag.Properties {
     using System;
     
     
