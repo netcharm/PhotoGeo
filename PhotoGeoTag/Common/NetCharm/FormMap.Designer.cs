@@ -253,6 +253,8 @@
             // 
             // edQuery
             // 
+            this.edQuery.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.edQuery.HideSelection = false;
             this.edQuery.ImeMode = System.Windows.Forms.ImeMode.Alpha;
             this.edQuery.Location = new System.Drawing.Point(286, 452);

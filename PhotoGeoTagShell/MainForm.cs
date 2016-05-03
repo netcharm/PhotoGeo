@@ -280,11 +280,23 @@ namespace PhotoGeoTagShell
             if ( !Directory.Exists( CacheFolder ) )
                 Directory.CreateDirectory( CacheFolder );
 
-            string[] args = NetCharm.Common.ParseCommandLine( Environment.CommandLine );
-
             //string lastVisited = Properties.Settings.Default.lastVisitedFolder;
             string lastVisited = appSettings["lastVisitedFolder"];
             if ( string.IsNullOrEmpty( lastVisited ) ) lastVisited = AppFolder;
+
+            string[] args = Common.ParseCommandLine( Environment.CommandLine );
+            if ( args.Length > 0 )
+            {
+                if ( Directory.Exists( args[0] ) )
+                {
+                    lastVisited = args[0];
+                }
+                else if ( File.Exists( args[0] ) )
+                {
+                    lastVisited = Path.GetDirectoryName(args[0]);
+                }
+            }
+            lastVisited = Path.GetFullPath( lastVisited );
 
             // setting KnownFolder
             List<string> knownFolderList = new List<string>();

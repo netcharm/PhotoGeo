@@ -201,7 +201,7 @@ namespace NetCharm
                 }
                 if ( hash.Count == 1 && overlay.Routes.Count == 0 && overlay.Polygons.Count == 0 )
                 {
-                    gMap.Zoom = 14;
+                    gMap.Zoom = 17;
                 }
             }
             #endregion
@@ -516,7 +516,7 @@ namespace NetCharm
             gMap.CanDragMap = true;
             gMap.DragButton = MouseButtons.Left;
             gMap.FillEmptyTiles = true;
-            gMap.MapScaleInfoEnabled = true;
+            gMap.MapScaleInfoEnabled = false;
             gMap.Manager.Mode = AccessMode.ServerAndCache;
             gMap.MaxZoom = trackZoom.Maximum;
             gMap.MinZoom = trackZoom.Minimum;
@@ -765,7 +765,8 @@ namespace NetCharm
             {
                 if ( MessageBox.Show( this, "Place photo(s) to here?", "Warning", MessageBoxButtons.OKCancel, MessageBoxIcon.Question ) == DialogResult.OK )
                 {
-                    currentMarker.Tag = new PointLatLng( e.X, e.Y );
+                    //currentMarker.Tag = new PointLatLng( e.X, e.Y );
+                    currentMarker.Tag = currentMarker.Position;
                     SetImageGeoTag( gMap.FromLocalToLatLng( e.X, e.Y ) );
                     currentMarker = null;
                 }
