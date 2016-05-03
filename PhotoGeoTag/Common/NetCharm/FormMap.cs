@@ -19,6 +19,7 @@ using GMap.NET.MapProviders.AMap;
 using GMap.NET.MapProviders.Baidu;
 using GMap.NET.MapProviders.Sohu;
 using GMap.NET.MapProviders.Soso;
+using System.Globalization;
 
 namespace NetCharm
 {
@@ -67,6 +68,71 @@ namespace NetCharm
         GMarkerGoogle pinMarker;
 
         bool mouse_down = false;
+
+        private void changeMapProvider(string mapName)
+        {
+            if ( mapName.StartsWith( "AMap" ) ||
+                 mapName.StartsWith( "Baidu" ) ||
+                 mapName.StartsWith( "Sohu" ) ||
+                 mapName.StartsWith( "SoSo" )
+                 )
+            {
+                if ( mapName.Equals( "AMap", StringComparison.CurrentCultureIgnoreCase ) )
+                {
+                    gMap.MapProvider = AMap;
+                }
+                else if ( mapName.Equals( "AMapSatelite", StringComparison.CurrentCultureIgnoreCase ) )
+                {
+                    gMap.MapProvider = AMapSatelite;
+                }
+                else if ( mapName.Equals( "BaiduMap", StringComparison.CurrentCultureIgnoreCase ) )
+                {
+                    gMap.MapProvider = BaiduMap;
+                }
+                else if ( mapName.Equals( "BaiduSateliteMap", StringComparison.CurrentCultureIgnoreCase ) )
+                {
+                    gMap.MapProvider = BaiduSateliteMap;
+                }
+                else if ( mapName.Equals( "SohuMap", StringComparison.CurrentCultureIgnoreCase ) )
+                {
+                    gMap.MapProvider = SogouMap;
+                }
+                else if ( mapName.Equals( "SohuSateliteMap", StringComparison.CurrentCultureIgnoreCase ) )
+                {
+                    gMap.MapProvider = SogouSateliteMap;
+                }
+                else if ( mapName.Equals( "SosoMap", StringComparison.CurrentCultureIgnoreCase ) )
+                {
+                    gMap.MapProvider = SosoMap;
+                }
+                else if ( mapName.Equals( "SoSoSateliteMap", StringComparison.CurrentCultureIgnoreCase ) )
+                {
+                    gMap.MapProvider = SosoSateliteMap;
+                }
+                gMap.MapProvider.MaxZoom = 18;
+                gMap.MaxZoom = 18;
+                trackZoom.Maximum = gMap.MaxZoom;
+            }
+            else
+            {
+                gMap.MapProvider = GMapProviders.TryGetProvider( mapSource[mapName] );
+                gMap.MapProvider.MaxZoom = 20;
+                gMap.MaxZoom = 20;
+            }
+
+            trackZoom.Maximum = gMap.MaxZoom;
+            if ( gMap.Zoom > gMap.MaxZoom ) gMap.Zoom = gMap.MaxZoom;
+
+            lastMapProvider = gMap.MapProvider.Name;
+            Tag = lastMapProvider;
+
+            if ( mapName.StartsWith( "Open", StringComparison.CurrentCultureIgnoreCase ) )
+                chkMapShift.Checked = false;
+            else chkMapShift.Checked = true;
+            tsmiShiftMap.Checked = chkMapShift.Checked;
+            MapShift = chkMapShift.Checked;
+            //gMap.BoundsOfMap = latlng;
+        }
 
         private void updatePositions( GMapOverlay overlay, bool force = false, bool fit = true )
         {
@@ -195,14 +261,15 @@ namespace NetCharm
                 foreach( GMarkerGoogle marker in overlay.Markers)
                 {
                     //hash.Add( marker.Position );
-                    PointLatLng pos = new PointLatLng(Math.Round(marker.Position.Lat, 1),
-                                                      Math.Round(marker.Position.Lng, 1));
+                    PointLatLng pos = new PointLatLng(Math.Round(marker.Position.Lat, 5),
+                                                      Math.Round(marker.Position.Lng, 5));
                     hash.Add( pos );
                 }
                 if ( hash.Count == 1 && overlay.Routes.Count == 0 && overlay.Polygons.Count == 0 )
                 {
                     gMap.Zoom = 17;
                 }
+                if ( gMap.Zoom == 20 ) gMap.Zoom = 19;
             }
             #endregion
             pinMarker = null;
@@ -294,7 +361,6 @@ namespace NetCharm
                 PosShift.Convert2Mars( pos.Lng, pos.Lat, out lng, out lat );
 
                 GMarkerGoogle marker_wgs = new GMarkerGoogle( pos, GMarkerGoogleType.green_dot );
-                //marker_wgs.ToolTip = new GMapBaloonToolTip( marker_wgs );
                 GMapImageToolTip tooltip_wgs = new GMapImageToolTip( marker_wgs );
                 tooltip_wgs.Image = img.Key;
                 tooltip_wgs.Offset = new Point( 0, -12 );
@@ -303,12 +369,10 @@ namespace NetCharm
                 tooltip_wgs.Fill = new SolidBrush( Color.Snow );
                 marker_wgs.ToolTip = tooltip_wgs;
                 marker_wgs.ToolTipText = Path.GetFileName( img.Value );
-                //marker_wgs.ToolTipMode = MarkerTooltipMode.Always;
                 marker_wgs.Tag = pos;
                 OverlayPhotosWGS.Markers.Add( marker_wgs );
 
                 GMarkerGoogle marker_mar = new GMarkerGoogle( new PointLatLng( lat, lng ), GMarkerGoogleType.green_dot );
-                //marker_mar.ToolTip = new GMapBaloonToolTip( marker_mar );
                 GMapImageToolTip tooltip_mar = new GMapImageToolTip( marker_mar );
                 tooltip_mar.Image = img.Key;
                 tooltip_mar.Offset = new Point( 0, -12 );
@@ -317,7 +381,6 @@ namespace NetCharm
                 tooltip_mar.Fill = new SolidBrush( Color.Snow );
                 marker_mar.ToolTip = tooltip_mar;
                 marker_mar.ToolTipText = Path.GetFileName( img.Value );
-                //marker_mar.ToolTipMode = MarkerTooltipMode.Always;
                 marker_mar.Tag = new PointLatLng( lat, lng );
                 OverlayPhotosMAR.Markers.Add( marker_mar );
             }
@@ -339,6 +402,59 @@ namespace NetCharm
             return null;
         }
 
+        public void SetImageGeoTag( PointLatLng pos, string image )
+        {
+            double lat = pos.Lat, lng = pos.Lng;
+            double lat_mar = lat, lng_mar = lng;
+            double lat_wgs = lat, lng_wgs = lng;
+            if ( chkMapShift.Checked )
+            {
+                PosShift.Convert2WGS( pos.Lng, pos.Lat, out lng, out lat );
+                lat_wgs = lat;
+                lng_wgs = lng;
+            }
+            else
+            {
+                PosShift.Convert2Mars( pos.Lng, pos.Lat, out lng, out lat );
+                lat_mar = lat;
+                lng_mar = lng;
+            }
+
+            FileInfo fi = new FileInfo( image );
+            DateTime dt = DateTime.Now;
+
+            using ( FileStream fs = new FileStream( image, FileMode.Open, FileAccess.Read ) )
+            {
+                Image photo = Image.FromStream( fs, true, true );
+                photo = ImageGeoTag.Geotag( photo, lat_wgs, lng_wgs );
+                fs.Close();
+
+                PropertyItem DTOrig = photo.GetPropertyItem(ImageGeoTag.PropertyTagExifDTOrig);
+
+                ASCIIEncoding enc = new ASCIIEncoding();
+                string dateTakenText = enc.GetString( DTOrig.Value, 0, DTOrig.Len - 1 );
+
+                if ( !string.IsNullOrEmpty( dateTakenText ) )
+                {
+                    if ( !DateTime.TryParseExact( dateTakenText, "yyyy:MM:dd HH:mm:ss", CultureInfo.CurrentCulture, DateTimeStyles.None, out dt ) )
+                    {
+                    }
+                }
+
+                ImageCodecInfo jpgEncoder = GetEncoder(ImageFormat.Jpeg);
+                System.Drawing.Imaging.Encoder myEncoder = System.Drawing.Imaging.Encoder.Quality;
+                EncoderParameters myEncoderParameters = new EncoderParameters(1);
+                EncoderParameter myEncoderParameter = new EncoderParameter(myEncoder, 92L);
+                myEncoderParameters.Param[0] = myEncoderParameter;
+
+                photo.Save( image, jpgEncoder, myEncoderParameters );
+                photo.Dispose();
+            }
+            fi.LastAccessTimeUtc = dt.ToUniversalTime();
+            fi.LastWriteTimeUtc = dt.ToUniversalTime();
+            fi.CreationTimeUtc = dt.ToUniversalTime();
+        }
+
         public void SetImageGeoTag( PointLatLng pos )
         {
             //PointLatLng pos = gMap.Position;
@@ -348,6 +464,7 @@ namespace NetCharm
             OverlayPhotosMAR.Markers.Clear();
             foreach ( KeyValuePair<Image, string> img in photos )
             {
+                #region calc position
                 double lat = pos.Lat, lng = pos.Lng;
                 double lat_mar = lat, lng_mar = lng;
                 double lat_wgs = lat, lng_wgs = lng;
@@ -363,7 +480,9 @@ namespace NetCharm
                     lat_mar = lat;
                     lng_mar = lng;
                 }
+                #endregion
 
+                #region touch photo
                 //Image photo = new Bitmap(img.Value);
                 using ( FileStream fs = new FileStream( img.Value, FileMode.Open, FileAccess.Read ) )
                 {
@@ -407,7 +526,9 @@ namespace NetCharm
                     fi.LastWriteTimeUtc = dt.ToUniversalTime();
                     fi.CreationTimeUtc = dt.ToUniversalTime();
                 }
+                #endregion
 
+                #region create new marker for moved marker
                 GMarkerGoogle marker_wgs = new GMarkerGoogle( new PointLatLng(lat_wgs, lng_wgs), GMarkerGoogleType.orange_dot );
                 GMapImageToolTip tooltip_wgs = new GMapImageToolTip( marker_wgs );
                 tooltip_wgs.Image = img.Key;
@@ -431,6 +552,7 @@ namespace NetCharm
                 marker_mar.ToolTipText = Path.GetFileName( img.Value );
                 marker_mar.Tag = new PointLatLng( lat_mar, lng_mar );
                 OverlayPhotosMAR.Markers.Add( marker_mar );
+                #endregion
             }
             if( OverlayRefPos.Markers.Count > 0)
             {
@@ -451,6 +573,10 @@ namespace NetCharm
             if(Tag != null) lastMapProvider = (string) Tag;
 
             CacheFolder = AppFolder + Path.DirectorySeparatorChar + "Cache";
+
+            trackZoom.Minimum = 2;
+            trackZoom.Maximum = 20;
+            trackZoom.Value = 12;
 
             #region setup MapProvider
             cbMapProviders.Items.Clear();
@@ -498,10 +624,6 @@ namespace NetCharm
             }
             #endregion
 
-            trackZoom.Minimum = 2;
-            trackZoom.Maximum = 20;
-            trackZoom.Value = 12;
-
             picGeoRef.AllowDrop = true;
 
             #region setup GMap
@@ -533,7 +655,6 @@ namespace NetCharm
             //gMap.MapProvider = GMapProviders.TryGetProvider( mapSource[lastMapProvider] );
             string refurl = gMap.MapProvider.RefererUrl;
 
-            GMaps.Instance.Mode = AccessMode.ServerAndCache;
             gMap.SetPositionByKeywords( "beijing" );
 
             gMap.MapProvider.MaxZoom = gMap.MaxZoom;
@@ -543,6 +664,8 @@ namespace NetCharm
             gMap.Overlays.Add( OverlayPoints );
             gMap.Overlays.Add( OverlayPhotos );
             gMap.Overlays.Add( OverlayRefPos );
+
+            GMaps.Instance.Mode = AccessMode.ServerAndCache;
             #endregion
         }
 
@@ -559,58 +682,7 @@ namespace NetCharm
             //RectLatLng? latlng = gMap.BoundsOfMap;
             PointLatLng CurrentPos = gMap.Position;
             string mapName = cbMapProviders.SelectedItem.ToString();
-            if ( mapName.StartsWith("AMap") ||
-                 mapName.StartsWith( "Baidu" ) ||
-                 mapName.StartsWith( "Sohu" ) ||
-                 mapName.StartsWith( "SoSo" )
-                 )
-            {
-                if( mapName.Equals("AMap", StringComparison.CurrentCultureIgnoreCase))
-                {
-                    gMap.MapProvider = AMap;
-                }
-                else if ( mapName.Equals( "AMapSatelite", StringComparison.CurrentCultureIgnoreCase ) )
-                {
-                    gMap.MapProvider = AMapSatelite;
-                }
-                else if ( mapName.Equals( "BaiduMap", StringComparison.CurrentCultureIgnoreCase ) )
-                {
-                    gMap.MapProvider = BaiduMap;
-                }
-                else if ( mapName.Equals( "BaiduSateliteMap", StringComparison.CurrentCultureIgnoreCase ) )
-                {
-                    gMap.MapProvider = BaiduSateliteMap;
-                }
-                else if ( mapName.Equals( "SohuMap", StringComparison.CurrentCultureIgnoreCase ) )
-                {
-                    gMap.MapProvider = SogouMap;
-                }
-                else if ( mapName.Equals( "SohuSateliteMap", StringComparison.CurrentCultureIgnoreCase ) )
-                {
-                    gMap.MapProvider = SogouSateliteMap;
-                }
-                else if ( mapName.Equals( "SosoMap", StringComparison.CurrentCultureIgnoreCase ) )
-                {
-                    gMap.MapProvider = SosoMap;
-                }
-                else if ( mapName.Equals( "SoSoSateliteMap", StringComparison.CurrentCultureIgnoreCase ) )
-                {
-                    gMap.MapProvider = SosoSateliteMap;
-                }
-            }
-            else
-            {
-                gMap.MapProvider = GMapProviders.TryGetProvider( mapSource[mapName] );
-            }
-            lastMapProvider = gMap.MapProvider.Name;
-            Tag = lastMapProvider;
-
-            if(mapName.StartsWith("Open", StringComparison.CurrentCultureIgnoreCase))
-                chkMapShift.Checked = false;
-            else chkMapShift.Checked = true;
-            tsmiShiftMap.Checked = chkMapShift.Checked;
-            MapShift = chkMapShift.Checked;
-            //gMap.BoundsOfMap = latlng;
+            changeMapProvider( mapName );
         }
 
         private void chkMapShift_CheckedChanged( object sender, EventArgs e )
@@ -767,8 +839,26 @@ namespace NetCharm
                 {
                     //currentMarker.Tag = new PointLatLng( e.X, e.Y );
                     currentMarker.Tag = currentMarker.Position;
-                    SetImageGeoTag( gMap.FromLocalToLatLng( e.X, e.Y ) );
+                    if ( pinMarker != null )
+                    {
+                        pinMarker.Tag = currentMarker.Position;
+                        SetImageGeoTag( gMap.FromLocalToLatLng( e.X, e.Y ) );
+                    }
+                    else
+                    {
+                        GMapImageToolTip currentTooltip = (GMapImageToolTip)(currentMarker.ToolTip);
+                        foreach( KeyValuePair<Image, string> kp in photos)
+                        {
+                            if(kp.Key == currentTooltip.Image )
+                            {
+                                string currentFile = kp.Value;
+                                SetImageGeoTag( gMap.FromLocalToLatLng( e.X, e.Y ), currentFile );
+                                break;
+                            }
+                        }
+                    }
                     currentMarker = null;
+                    pinMarker = null;
                 }
             }
         }

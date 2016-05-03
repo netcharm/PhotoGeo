@@ -183,7 +183,7 @@ namespace PhotoGeoTagShell
                                     string key = props[i].CanonicalName.Replace("System.", "");
                                     string value = "";
 
-                                    if ( !key.StartsWith( "Date" ) && !key.StartsWith( "Photo.Date" ) ) continue;
+                                    if ( !key.StartsWith( "Date" ) && !key.StartsWith( "Photo.Date" ) && !key.StartsWith( "ItemPathDisplay" ) ) continue;
 
                                     object objValue = props[i].ValueAsObject;
                                     //object objValue = new object();
@@ -219,7 +219,7 @@ namespace PhotoGeoTagShell
                                 properties.Add( "Software", properties.ContainsKey( "ApplicationName" ) ? properties["ApplicationName"] : "" );
                                 properties.Add( "FileSize", properties.ContainsKey( "Size" ) ? properties["Size"] : "" );
                                 //properties.Add( "FileName", properties.ContainsKey( "ItemPathDisplay" ) ? properties["ItemPathDisplay"] : "" );
-                                properties.Add( "FilePath", properties.ContainsKey( "ItemFolderPathDisplay" ) ? properties["ItemFolderPathDisplay"] : "" );
+                                properties.Add( "FilePath", properties.ContainsKey( "ItemPathDisplay" ) ? properties["ItemPathDisplay"] : "" );
                                 properties.Add( "FolderName", properties.ContainsKey( "ItemFolderPathDisplay" ) ? properties["ItemFolderPathDisplay"] : "" );
                                 properties.Add( "FileType", properties.ContainsKey( "ItemTypeText" ) ? properties["ItemTypeText"] : "" );
                                 properties.Add( "Dimensions", properties.ContainsKey( "Image.Dimensions" ) ? properties["Image.Dimensions"] : "" );
