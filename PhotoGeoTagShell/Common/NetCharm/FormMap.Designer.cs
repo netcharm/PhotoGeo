@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMap));
             this.gMap = new GMap.NET.WindowsForms.GMapControl();
             this.cbMapProviders = new System.Windows.Forms.ComboBox();
@@ -45,6 +46,7 @@
             this.btnPinPhoto = new System.Windows.Forms.Button();
             this.picGeoRef = new System.Windows.Forms.PictureBox();
             this.edQuery = new System.Windows.Forms.TextBox();
+            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.status.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackZoom)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picGeoRef)).BeginInit();
@@ -101,6 +103,7 @@
             this.cbMapProviders.Size = new System.Drawing.Size(107, 20);
             this.cbMapProviders.Sorted = true;
             this.cbMapProviders.TabIndex = 1;
+            this.toolTip.SetToolTip(this.cbMapProviders, "Selecting Map Provider");
             this.cbMapProviders.SelectedIndexChanged += new System.EventHandler(this.cbMapProviders_SelectedIndexChanged);
             // 
             // status
@@ -164,7 +167,7 @@
             // tsInfo
             // 
             this.tsInfo.Name = "tsInfo";
-            this.tsInfo.Size = new System.Drawing.Size(294, 17);
+            this.tsInfo.Size = new System.Drawing.Size(181, 17);
             this.tsInfo.Spring = true;
             this.tsInfo.Text = "OK";
             // 
@@ -186,19 +189,20 @@
             this.tsbtnShift.Name = "tsbtnShift";
             this.tsbtnShift.Size = new System.Drawing.Size(51, 20);
             this.tsbtnShift.Text = "Shift";
-            this.tsbtnShift.ToolTipText = "Shift Map";
+            this.tsbtnShift.ToolTipText = "Switch Shift Map On / Off";
             // 
             // tsmiResetMap
             // 
             this.tsmiResetMap.Name = "tsmiResetMap";
-            this.tsmiResetMap.Size = new System.Drawing.Size(124, 22);
+            this.tsmiResetMap.Size = new System.Drawing.Size(152, 22);
             this.tsmiResetMap.Text = "Reset Map";
+            this.tsmiResetMap.ToolTipText = "Reset Map View";
             this.tsmiResetMap.Click += new System.EventHandler(this.tsmiResetMap_Click);
             // 
             // tsmiShiftMap
             // 
             this.tsmiShiftMap.Name = "tsmiShiftMap";
-            this.tsmiShiftMap.Size = new System.Drawing.Size(124, 22);
+            this.tsmiShiftMap.Size = new System.Drawing.Size(152, 22);
             this.tsmiShiftMap.Text = "Shift Map";
             this.tsmiShiftMap.Click += new System.EventHandler(this.tsmiShiftMap_Click);
             // 
@@ -213,6 +217,7 @@
             this.trackZoom.Size = new System.Drawing.Size(159, 42);
             this.trackZoom.TabIndex = 4;
             this.trackZoom.TickStyle = System.Windows.Forms.TickStyle.Both;
+            this.toolTip.SetToolTip(this.trackZoom, "Change Map Zoom Level");
             this.trackZoom.Scroll += new System.EventHandler(this.trackZoom_Scroll);
             // 
             // chkMapShift
@@ -221,9 +226,10 @@
             this.chkMapShift.AutoEllipsis = true;
             this.chkMapShift.Location = new System.Drawing.Point(12, 466);
             this.chkMapShift.Name = "chkMapShift";
-            this.chkMapShift.Size = new System.Drawing.Size(116, 18);
+            this.chkMapShift.Size = new System.Drawing.Size(110, 18);
             this.chkMapShift.TabIndex = 6;
-            this.chkMapShift.Text = "Corr. China Map";
+            this.chkMapShift.Text = "Adj. China Map";
+            this.toolTip.SetToolTip(this.chkMapShift, "Adjust Map Shift in China mainland");
             this.chkMapShift.UseVisualStyleBackColor = true;
             this.chkMapShift.CheckedChanged += new System.EventHandler(this.chkMapShift_CheckedChanged);
             // 
@@ -235,6 +241,7 @@
             this.btnPinPhoto.Name = "btnPinPhoto";
             this.btnPinPhoto.Size = new System.Drawing.Size(35, 42);
             this.btnPinPhoto.TabIndex = 7;
+            this.toolTip.SetToolTip(this.btnPinPhoto, "Pin Photo(s) to Map");
             this.btnPinPhoto.UseVisualStyleBackColor = true;
             this.btnPinPhoto.Click += new System.EventHandler(this.btnPinPhoto_Click);
             // 
@@ -248,6 +255,7 @@
             this.picGeoRef.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.picGeoRef.TabIndex = 5;
             this.picGeoRef.TabStop = false;
+            this.toolTip.SetToolTip(this.picGeoRef, "Refrence Photo Drag Area");
             this.picGeoRef.DragDrop += new System.Windows.Forms.DragEventHandler(this.picGeoRef_DragDrop);
             this.picGeoRef.DragEnter += new System.Windows.Forms.DragEventHandler(this.picGeoRef_DragEnter);
             // 
@@ -262,7 +270,14 @@
             this.edQuery.Size = new System.Drawing.Size(241, 21);
             this.edQuery.TabIndex = 8;
             this.edQuery.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.toolTip.SetToolTip(this.edQuery, "Simple Query Posiiion By Keyword");
             this.edQuery.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.edQuery_KeyPress);
+            // 
+            // toolTip
+            // 
+            this.toolTip.IsBalloon = true;
+            this.toolTip.ToolTipIcon = System.Windows.Forms.ToolTipIcon.Info;
+            this.toolTip.ToolTipTitle = "Tip";
             // 
             // FormMap
             // 
@@ -310,6 +325,7 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiResetMap;
         private System.Windows.Forms.ToolStripMenuItem tsmiShiftMap;
         private System.Windows.Forms.TextBox edQuery;
+        private System.Windows.Forms.ToolTip toolTip;
     }
 }
 

@@ -109,15 +109,15 @@ namespace NetCharm
                 {
                     gMap.MapProvider = SosoSateliteMap;
                 }
-                gMap.MapProvider.MaxZoom = 18;
                 gMap.MaxZoom = 18;
+                gMap.MapProvider.MaxZoom = gMap.MaxZoom;
                 trackZoom.Maximum = gMap.MaxZoom;
             }
             else
             {
                 gMap.MapProvider = GMapProviders.TryGetProvider( mapSource[mapName] );
-                gMap.MapProvider.MaxZoom = 20;
                 gMap.MaxZoom = 20;
+                gMap.MapProvider.MaxZoom = gMap.MaxZoom;
             }
 
             trackZoom.Maximum = gMap.MaxZoom;
