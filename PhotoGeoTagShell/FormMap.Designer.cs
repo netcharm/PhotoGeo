@@ -96,7 +96,7 @@
             this.cbMapProviders.DropDownWidth = 200;
             this.cbMapProviders.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.cbMapProviders.FormattingEnabled = true;
-            this.cbMapProviders.Location = new System.Drawing.Point(12, 452);
+            this.cbMapProviders.Location = new System.Drawing.Point(12, 442);
             this.cbMapProviders.Name = "cbMapProviders";
             this.cbMapProviders.Size = new System.Drawing.Size(107, 20);
             this.cbMapProviders.Sorted = true;
@@ -181,7 +181,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.trackZoom.Cursor = System.Windows.Forms.Cursors.Hand;
             this.trackZoom.LargeChange = 2;
-            this.trackZoom.Location = new System.Drawing.Point(125, 441);
+            this.trackZoom.Location = new System.Drawing.Point(123, 441);
             this.trackZoom.Name = "trackZoom";
             this.trackZoom.Size = new System.Drawing.Size(159, 42);
             this.trackZoom.TabIndex = 4;
@@ -190,15 +190,14 @@
             // 
             // chkMapShift
             // 
-            this.chkMapShift.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.chkMapShift.Location = new System.Drawing.Point(472, 452);
+            this.chkMapShift.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.chkMapShift.AutoEllipsis = true;
+            this.chkMapShift.Location = new System.Drawing.Point(12, 466);
             this.chkMapShift.Name = "chkMapShift";
-            this.chkMapShift.Size = new System.Drawing.Size(45, 18);
+            this.chkMapShift.Size = new System.Drawing.Size(116, 18);
             this.chkMapShift.TabIndex = 6;
-            this.chkMapShift.Text = "Shift Map";
-            this.chkMapShift.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.chkMapShift.Text = "Corr. China Map";
             this.chkMapShift.UseVisualStyleBackColor = true;
-            this.chkMapShift.Visible = false;
             this.chkMapShift.CheckedChanged += new System.EventHandler(this.chkMapShift_CheckedChanged);
             // 
             // btnPinPhoto
@@ -258,7 +257,7 @@
             this.edQuery.ImeMode = System.Windows.Forms.ImeMode.Alpha;
             this.edQuery.Location = new System.Drawing.Point(286, 452);
             this.edQuery.Name = "edQuery";
-            this.edQuery.Size = new System.Drawing.Size(240, 21);
+            this.edQuery.Size = new System.Drawing.Size(241, 21);
             this.edQuery.TabIndex = 8;
             this.edQuery.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.edQuery.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.edQuery_KeyPress);

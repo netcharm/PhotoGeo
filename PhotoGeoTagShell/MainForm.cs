@@ -5,10 +5,12 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Windows.Forms;
 using Microsoft.WindowsAPICodePack.Controls;
 using Microsoft.WindowsAPICodePack.Shell;
 using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
+using NetCharm;
 
 namespace PhotoGeoTagShell
 {
@@ -22,6 +24,7 @@ namespace PhotoGeoTagShell
         FormMap MapViewer;//= new FormMap();
 
         private bool selection_changed = true;
+        private Mutex mutSelectionChanged = new Mutex();
         List<string> lastSelections = new List<string>();
 
         string lastMapProvider = "GoogleChinaHybridMap";
@@ -112,6 +115,7 @@ namespace PhotoGeoTagShell
 
         private void ShowSelectedImage(bool force=false)
         {
+            #region detect selection items is same or not
             if ( !force && lastSelections.Count == explorerBrowser.SelectedItems.Count )
             {
                 bool diff = false;
@@ -133,6 +137,7 @@ namespace PhotoGeoTagShell
                 }
             }
             else selection_changed = true;
+            #endregion
 
             BeginInvoke( new MethodInvoker( delegate ()
             {
@@ -264,6 +269,9 @@ namespace PhotoGeoTagShell
 
         private void MainForm_Load( object sender, EventArgs e )
         {
+            //
+            configLoad();
+
             //string CacheFolder = Path.Combine(
             //    Path.GetDirectoryName(new Uri(Assembly.GetAssembly(typeof(ImageListView)).GetName().CodeBase).LocalPath),
             //    "Cache"
@@ -272,8 +280,7 @@ namespace PhotoGeoTagShell
             if ( !Directory.Exists( CacheFolder ) )
                 Directory.CreateDirectory( CacheFolder );
 
-            //
-            configLoad();
+            string[] args = NetCharm.Common.ParseCommandLine( Environment.CommandLine );
 
             //string lastVisited = Properties.Settings.Default.lastVisitedFolder;
             string lastVisited = appSettings["lastVisitedFolder"];
@@ -294,7 +301,7 @@ namespace PhotoGeoTagShell
             explorerBrowser.ContentOptions.FullRowSelect = true;
             explorerBrowser.ContentOptions.NoSubfolders = false;
             explorerBrowser.ContentOptions.ExtendedTiles = true;
-            explorerBrowser.NavigationOptions.AlwaysNavigate = true;
+            explorerBrowser.NavigationOptions.AlwaysNavigate = false;
 
             explorerBrowser.NavigationOptions.PaneVisibility.AdvancedQuery = PaneVisibilityState.Show;
             explorerBrowser.NavigationOptions.PaneVisibility.Query = PaneVisibilityState.Show;
@@ -415,6 +422,8 @@ namespace PhotoGeoTagShell
                 tscbVistedFolder.Items.Clear();
                 tscbVistedFolder.Items.AddRange( lastVisitedFolders.ToArray() );
                 tscbVistedFolder.Text = explorerBrowser.NavigationLog.CurrentLocation.ParsingName;
+
+                explorerBrowser.Focus();
             } ) );
         }
 

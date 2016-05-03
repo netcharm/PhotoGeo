@@ -19,6 +19,7 @@ using GMap.NET.MapProviders.AMap;
 using GMap.NET.MapProviders.Baidu;
 using GMap.NET.MapProviders.Sohu;
 using GMap.NET.MapProviders.Soso;
+using NetCharm;
 
 namespace PhotoGeoTagShell
 {

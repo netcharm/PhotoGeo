@@ -7,7 +7,7 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace PhotoGeoTagShell
+namespace NetCharm
 {
     /// <summary>
     /// Usage:
