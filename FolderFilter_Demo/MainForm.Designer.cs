@@ -41,6 +41,8 @@
             this.explorerBrowser.PropertyBagName = "Microsoft.WindowsAPICodePack.Controls.WindowsForms.ExplorerBrowser";
             this.explorerBrowser.Size = new System.Drawing.Size(737, 429);
             this.explorerBrowser.TabIndex = 0;
+            this.explorerBrowser.SelectionChanged += new System.EventHandler(this.explorerBrowser_SelectionChanged);
+            this.explorerBrowser.NavigationComplete += new System.EventHandler<Microsoft.WindowsAPICodePack.Controls.NavigationCompleteEventArgs>(this.explorerBrowser_NavigationComplete);
             // 
             // MainForm
             // 

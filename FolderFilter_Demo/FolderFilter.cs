@@ -20,7 +20,7 @@ namespace PhotoGeoTagShell
 
         public int ShouldShow( [MarshalAs( UnmanagedType.Interface )] object psf, IntPtr pidlFolder, IntPtr pidlItem )
         {
-            bool fShow = true;
+            //bool fShow = true;
             //ShellItem spsi;
             //HRESULT hr = SHCreateItemWithParent(pidlFolder, psf, pidlItem,
             //                          IID_PPV_ARGS(&spsi));

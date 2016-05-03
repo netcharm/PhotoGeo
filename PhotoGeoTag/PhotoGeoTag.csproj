@@ -97,8 +97,8 @@
     <Compile Include="Common\ShellApi\ShellBrowseForFolderDialog.cs" />
     <Compile Include="Common\ShellApi\ShellFunctions.cs" />
     <Compile Include="Common\ShellApi\ShellGUIDs.cs" />
-    <Compile Include="GMap\MapProvider\AMap\AMapProvider.cs" />
-    <Compile Include="GMap\MapProvider\AMap\AMapSateliteProvider.cs" />
+    <Compile Include="Common\GMap\MapProvider\AMap\AMapProvider.cs" />
+    <Compile Include="Common\GMap\MapProvider\AMap\AMapSateliteProvider.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -111,16 +111,16 @@
     <Compile Include="Common\NetCharm\FormMap.Designer.cs">
       <DependentUpon>FormMap.cs</DependentUpon>
     </Compile>
-    <Compile Include="GMap\MapProvider\Baidu\BaiduMapProvider.cs" />
-    <Compile Include="GMap\MapProvider\Baidu\BaiduSateliteMapProvider.cs" />
-    <Compile Include="GMap\MapProvider\Sogou\SogouMapProvider.cs" />
-    <Compile Include="GMap\MapProvider\Sogou\SogouMapSateliteProvider.cs" />
-    <Compile Include="GMap\MapProvider\Soso\SosoMapProvider.cs" />
-    <Compile Include="GMap\MapProvider\Soso\SosoMapSateliteProvider.cs" />
-    <Compile Include="GMap\Marker\MarkerImage.cs" />
+    <Compile Include="Common\GMap\MapProvider\Baidu\BaiduMapProvider.cs" />
+    <Compile Include="Common\GMap\MapProvider\Baidu\BaiduSateliteMapProvider.cs" />
+    <Compile Include="Common\GMap\MapProvider\Sogou\SogouMapProvider.cs" />
+    <Compile Include="Common\GMap\MapProvider\Sogou\SogouMapSateliteProvider.cs" />
+    <Compile Include="Common\GMap\MapProvider\Soso\SosoMapProvider.cs" />
+    <Compile Include="Common\GMap\MapProvider\Soso\SosoMapSateliteProvider.cs" />
+    <Compile Include="Common\GMap\Marker\MarkerImage.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="GMap\ToolTips\ToolTipsImage.cs" />
+    <Compile Include="Common\GMap\ToolTips\ToolTipsImage.cs" />
     <EmbeddedResource Include="Common\NetCharm\FormMap.resx">
       <DependentUpon>FormMap.cs</DependentUpon>
     </EmbeddedResource>
