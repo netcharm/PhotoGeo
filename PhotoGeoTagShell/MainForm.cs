@@ -415,7 +415,7 @@ namespace PhotoGeoTagShell
             files.AddRange( Directory.GetFiles( folder, "*.tiff", SearchOption.TopDirectoryOnly ) );
             foreach ( string file in files )
             {
-                ImageGeoTag.TouchPhoto( file );
+                EXIF.TouchPhoto( file );
             }
         }
 

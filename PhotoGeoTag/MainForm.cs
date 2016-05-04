@@ -61,8 +61,8 @@ namespace PhotoGeoTag
                     {
                         using ( Image photo = Image.FromStream( fs ) )
                         {
-                            pos_Lat = ImageGeoTag.GetLatitude( photo );
-                            pos_Lng = ImageGeoTag.GetLongitude( photo );
+                            pos_Lat = EXIF.GetLatitude( photo );
+                            pos_Lng = EXIF.GetLongitude( photo );
 
                             item.Tag = photo.PropertyItems;
 
@@ -334,7 +334,7 @@ namespace PhotoGeoTag
             files.AddRange( Directory.GetFiles( folder, "*.tiff", SearchOption.TopDirectoryOnly ) );
             foreach ( string file in files )
             {
-                ImageGeoTag.TouchPhoto( file );
+                EXIF.TouchPhoto( file );
             }
         }
 

@@ -16,7 +16,7 @@ namespace NetCharm
     ///        .Save(@"C:\path\to\geotagged.jpg", ImageFormat.Jpeg);
     /// ======
     /// </summary>
-    class ImageGeoTag
+    class EXIF
     {
         /// <summary>
         /// These constants come from the CIPA DC-008 standard for EXIF 2.3
@@ -382,11 +382,11 @@ namespace NetCharm
             ms.Seek( 0, SeekOrigin.Begin );
 
             Image img = Image.FromStream(ms);
-            AddProperty( img, PropertyTagGpsVer, ExifTypeByte, new byte[] { 2, 3, 0, 0 } );
-            AddProperty( img, PropertyTagGpsLatitudeRef, ExifTypeAscii, new byte[] { (byte) latHemisphere, 0 } );
-            AddProperty( img, PropertyTagGpsLatitude, ExifTypeRational, ConvertToRationalTriplet( lat ) );
-            AddProperty( img, PropertyTagGpsLongitudeRef, ExifTypeAscii, new byte[] { (byte) lngHemisphere, 0 } );
-            AddProperty( img, PropertyTagGpsLongitude, ExifTypeRational, ConvertToRationalTriplet( lng ) );
+            AddProperty( img, PropertyTagGpsVer, PropertyTagTypeByte, new byte[] { 2, 3, 0, 0 } );
+            AddProperty( img, PropertyTagGpsLatitudeRef, PropertyTagTypeASCII, new byte[] { (byte) latHemisphere, 0 } );
+            AddProperty( img, PropertyTagGpsLatitude, PropertyTagTypeRational, ConvertToRationalTriplet( lat ) );
+            AddProperty( img, PropertyTagGpsLongitudeRef, PropertyTagTypeASCII, new byte[] { (byte) lngHemisphere, 0 } );
+            AddProperty( img, PropertyTagGpsLongitude, PropertyTagTypeRational, ConvertToRationalTriplet( lng ) );
 
             return img;
         }
@@ -398,7 +398,7 @@ namespace NetCharm
         /// <returns></returns>
         static byte[] ConvertToRationalTriplet( double value )
         {
-            int factor = 1000000;
+            int factor = 10000000;
             int degrees = (int)Math.Floor(value);
             value = ( value - degrees ) * 60;
             int minutes = (int)Math.Floor(value);
@@ -438,9 +438,9 @@ namespace NetCharm
         /// <param name="img"></param>
         /// <param name="Latitude"></param>
         /// <returns></returns>
-        public static double GetLatitude(Image img, double Latitude=0.0)
+        public static double GetLatitude(Image img, double Latitude= double.NaN )
         {
-            double lat = Double.NaN;
+            double lat = Latitude;
 
             foreach ( PropertyItem metaItem in img.PropertyItems )
             {
@@ -453,9 +453,9 @@ namespace NetCharm
                     uint secondsNumerator   = BitConverter.ToUInt32(metaItem.Value, 16);
                     uint secondsDenominator = BitConverter.ToUInt32(metaItem.Value, 20);
 
-                    lat = degreesNumerator / degreesDenominator +
-                        minutesNumerator / minutesDenominator / 60f +
-                        secondsNumerator / secondsDenominator / 3600f;
+                    lat = (double) degreesNumerator / (double) degreesDenominator +
+                        (double) minutesNumerator / (double) minutesDenominator / 60f +
+                        (double) secondsNumerator / (double) secondsDenominator / 3600f;
                 }
             }
             return ( lat );
@@ -467,9 +467,9 @@ namespace NetCharm
         /// <param name="img"></param>
         /// <param name="Longitude"></param>
         /// <returns></returns>
-        public static double GetLongitude( Image img, double Longitude=0.0)
+        public static double GetLongitude( Image img, double Longitude=double.NaN)
         {
-            double lng = double.NaN;
+            double lng = Longitude;
 
             foreach ( PropertyItem metaItem in img.PropertyItems )
             {
@@ -482,13 +482,58 @@ namespace NetCharm
                     uint secondsNumerator   = BitConverter.ToUInt32(metaItem.Value, 16);
                     uint secondsDenominator = BitConverter.ToUInt32(metaItem.Value, 20);
 
-                    lng = degreesNumerator / degreesDenominator +
-                        minutesNumerator / minutesDenominator / 60f +
-                        secondsNumerator / secondsDenominator / 3600f;
+                    lng = (double) degreesNumerator / (double) degreesDenominator +
+                       (double) minutesNumerator / (double) minutesDenominator / 60f +
+                       (double) secondsNumerator / (double) secondsDenominator / 3600f;
                 }
             }
             return ( lng );
         }
+
+        /// <summary>
+        /// Get GeoTag Lat&Lng
+        /// </summary>
+        /// <param name="img"></param>
+        /// <param name="Latitude"></param>
+        /// <param name="Longitude"></param>
+        /// <returns></returns>
+        public static PointF GetLatLng( Image img, double Latitude= double.NaN, double Longitude= double.NaN )
+        {
+            double lat = Latitude;
+            double lng = Longitude;
+
+            foreach ( PropertyItem metaItem in img.PropertyItems )
+            {
+                if ( metaItem.Id == PropertyTagGpsLatitude )
+                {
+                    uint degreesNumerator   = BitConverter.ToUInt32(metaItem.Value, 0);
+                    uint degreesDenominator = BitConverter.ToUInt32(metaItem.Value, 4);
+                    uint minutesNumerator   = BitConverter.ToUInt32(metaItem.Value, 8);
+                    uint minutesDenominator = BitConverter.ToUInt32(metaItem.Value, 12);
+                    uint secondsNumerator   = BitConverter.ToUInt32(metaItem.Value, 16);
+                    uint secondsDenominator = BitConverter.ToUInt32(metaItem.Value, 20);
+
+                    lat = (double) degreesNumerator / (double) degreesDenominator +
+                        (double) minutesNumerator / (double) minutesDenominator / 60f +
+                        (double) secondsNumerator / (double) secondsDenominator / 3600f;
+                }
+                else if ( metaItem.Id == PropertyTagGpsLongitude )
+                {
+                    uint degreesNumerator   = BitConverter.ToUInt32(metaItem.Value, 0);
+                    uint degreesDenominator = BitConverter.ToUInt32(metaItem.Value, 4);
+                    uint minutesNumerator   = BitConverter.ToUInt32(metaItem.Value, 8);
+                    uint minutesDenominator = BitConverter.ToUInt32(metaItem.Value, 12);
+                    uint secondsNumerator   = BitConverter.ToUInt32(metaItem.Value, 16);
+                    uint secondsDenominator = BitConverter.ToUInt32(metaItem.Value, 20);
+
+                    lng = (double) degreesNumerator / (double) degreesDenominator +
+                       (double) minutesNumerator / (double) minutesDenominator / 60f +
+                        (double) secondsNumerator / (double) secondsDenominator / 3600f;
+                }
+            }
+            return ( new PointF((float)lat, (float)lng) );
+        }
+
     }
 
     class GeoRegion

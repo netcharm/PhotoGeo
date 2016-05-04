@@ -63,11 +63,11 @@ namespace NetCharm
         private GMapOverlay OverlayPointsMAR = new GMapOverlay("Points");
         private GMapOverlay OverlayRoutesMAR = new GMapOverlay("Routes");
 
-        List<KeyValuePair<Image, string>> photos = new List<KeyValuePair<Image, string>>();
-        GMarkerGoogle currentMarker;
-        GMarkerGoogle pinMarker;
+        private List<KeyValuePair<Image, string>> photos = new List<KeyValuePair<Image, string>>();
+        private GMarkerGoogle currentMarker;
+        private GMarkerGoogle pinMarker;
 
-        bool mouse_down = false;
+        private bool mouse_down = false;
 
         private void changeMapProvider(string mapName)
         {
@@ -272,6 +272,8 @@ namespace NetCharm
                 if ( gMap.Zoom == 20 ) gMap.Zoom = 19;
             }
             #endregion
+            mouse_down = false;
+            currentMarker = null;
             pinMarker = null;
         }
 
@@ -308,8 +310,8 @@ namespace NetCharm
             PointLatLng pos = gMap.Position;
 
             Image photo = new Bitmap(img.Value);
-            pos.Lat = ImageGeoTag.GetLatitude( photo );
-            pos.Lng = ImageGeoTag.GetLongitude( photo );
+            pos.Lat = EXIF.GetLatitude( photo );
+            pos.Lng = EXIF.GetLongitude( photo );
             photo.Dispose();
 
             if ( double.IsNaN( pos.Lat ) || double.IsNaN( pos.Lng ) ) return;
@@ -349,8 +351,8 @@ namespace NetCharm
             {
                 using ( Image photo = new Bitmap( img.Value ) )
                 {
-                    pos.Lat = ImageGeoTag.GetLatitude( photo );
-                    pos.Lng = ImageGeoTag.GetLongitude( photo );
+                    pos.Lat = EXIF.GetLatitude( photo );
+                    pos.Lng = EXIF.GetLongitude( photo );
 
                     photo.Dispose();
                 }
@@ -402,8 +404,22 @@ namespace NetCharm
             return null;
         }
 
+        private static ImageCodecInfo GetEncoderInfo( String mimeType )
+        {
+            int j;
+            ImageCodecInfo[] encoders;
+            encoders = ImageCodecInfo.GetImageEncoders();
+            for ( j = 0; j < encoders.Length; ++j )
+            {
+                if ( encoders[j].MimeType == mimeType )
+                    return encoders[j];
+            }
+            return null;
+        }
+
         public void SetImageGeoTag( PointLatLng pos, string image )
         {
+            #region calc position for wgs & mars
             double lat = pos.Lat, lng = pos.Lng;
             double lat_mar = lat, lng_mar = lng;
             double lat_wgs = lat, lng_wgs = lng;
@@ -419,17 +435,42 @@ namespace NetCharm
                 lat_mar = lat;
                 lng_mar = lng;
             }
+            #endregion
 
+            #region update modified marker position
+            GMapImageToolTip currentTooltip = (GMapImageToolTip)(currentMarker.ToolTip);
+            foreach ( GMarkerGoogle marker in OverlayPhotosWGS.Markers)
+            {
+                GMapImageToolTip markerTooltip = (GMapImageToolTip)(marker.ToolTip);
+                if ( markerTooltip.Image == currentTooltip.Image )
+                {
+                    marker.Position = new PointLatLng( lat_wgs, lng_wgs);
+                    break;
+                }
+            }
+
+            foreach ( GMarkerGoogle marker in OverlayPhotosMAR.Markers )
+            {
+                GMapImageToolTip markerTooltip = (GMapImageToolTip)(marker.ToolTip);
+                if ( markerTooltip.Image == currentTooltip.Image )
+                {
+                    marker.Position = new PointLatLng( lat_mar, lng_mar );
+                    break;
+                }
+            }
+            #endregion
+
+            #region Touch file datetime to DateTaken/DateOriginal
             FileInfo fi = new FileInfo( image );
             DateTime dt = DateTime.Now;
 
             using ( FileStream fs = new FileStream( image, FileMode.Open, FileAccess.Read ) )
             {
                 Image photo = Image.FromStream( fs, true, true );
-                photo = ImageGeoTag.Geotag( photo, lat_wgs, lng_wgs );
+                photo = EXIF.Geotag( photo, lat_wgs, lng_wgs );
                 fs.Close();
 
-                PropertyItem DTOrig = photo.GetPropertyItem(ImageGeoTag.PropertyTagExifDTOrig);
+                PropertyItem DTOrig = photo.GetPropertyItem(EXIF.PropertyTagExifDTOrig);
 
                 ASCIIEncoding enc = new ASCIIEncoding();
                 string dateTakenText = enc.GetString( DTOrig.Value, 0, DTOrig.Len - 1 );
@@ -453,6 +494,13 @@ namespace NetCharm
             fi.LastAccessTimeUtc = dt.ToUniversalTime();
             fi.LastWriteTimeUtc = dt.ToUniversalTime();
             fi.CreationTimeUtc = dt.ToUniversalTime();
+            #endregion
+
+            #region using media.image modify geotag
+
+
+
+            #endregion
         }
 
         public void SetImageGeoTag( PointLatLng pos )
@@ -487,7 +535,7 @@ namespace NetCharm
                 using ( FileStream fs = new FileStream( img.Value, FileMode.Open, FileAccess.Read ) )
                 {
                     Image photo = Image.FromStream( fs, true, true );
-                    photo = ImageGeoTag.Geotag( photo, lat_wgs, lng_wgs );
+                    photo = EXIF.Geotag( photo, lat_wgs, lng_wgs );
                     fs.Close();
 
                     ImageCodecInfo jpgEncoder = GetEncoder(ImageFormat.Jpeg);
@@ -700,6 +748,37 @@ namespace NetCharm
             tsZoom.ToolTipText = tsZoom.Text;
         }
 
+        private void btnPinPhoto_Click( object sender, EventArgs e )
+        {
+            if ( photos.Count <= 0 ) return;
+
+            PointLatLng pos = gMap.Position;
+            GMarkerGoogle marker = new GMarkerGoogle( pos, GMarkerGoogleType.yellow );
+            marker.ToolTip = new GMapBaloonToolTip( marker );
+            marker.ToolTip.Stroke = new Pen( Color.SlateBlue );
+            marker.ToolTip.Fill = new SolidBrush( Color.Snow );
+            marker.ToolTipText = "Location you want to place photo(s)";
+
+            OverlayRefPos.Markers.Add( marker );
+            pinMarker = marker;
+        }
+
+        private void edQuery_KeyPress( object sender, KeyPressEventArgs e )
+        {
+            if ( e.KeyChar == Convert.ToChar( Keys.Enter ) )
+            {
+                PointLatLng pos = gMap.Position;
+                tsProgress.Visible = true;
+                tsProgress.Value = 50;
+                if ( gMap.SetPositionByKeywords( edQuery.Text ) != GeoCoderStatusCode.G_GEO_SUCCESS )
+                {
+                    gMap.Position = pos;
+                }
+                else trackZoom.Value = (int) gMap.Zoom;
+                tsProgress.Visible = false;
+            }
+        }
+
         private void picGeoRef_DragEnter( object sender, DragEventArgs e )
         {
             e.Effect = DragDropEffects.Link;
@@ -712,8 +791,8 @@ namespace NetCharm
             string[] flist = (string[])e.Data.GetData( DataFormats.FileDrop, true );
             picGeoRef.Load( flist[0] );
 
-            pos.Lat = ImageGeoTag.GetLatitude( picGeoRef.Image, pos.Lat );
-            pos.Lng = ImageGeoTag.GetLongitude( picGeoRef.Image, pos.Lng );
+            pos.Lat = EXIF.GetLatitude( picGeoRef.Image, pos.Lat );
+            pos.Lng = EXIF.GetLongitude( picGeoRef.Image, pos.Lng );
 
             double lat = pos.Lat, lng = pos.Lng;
             PosShift.Convert2Mars( pos.Lng, pos.Lat, out lng, out lat );
@@ -728,14 +807,14 @@ namespace NetCharm
             //marker.ToolTipText = "<html><body><img src=\"./P4083508.jpg\" /></body></html>";
             marker_wgs.ToolTipText = Path.GetFileName( flist[0] );
             OverlayRefPosWGS.Markers.Add( marker_wgs );
-            
+
             OverlayRefPosMAR.Markers.Clear();
             //OverlayRefPosMAR.Markers.Add( new GMarkerGoogle( new PointLatLng(lat, lng), GMarkerGoogleType.blue_pushpin ) );
             //OverlayRefPosMAR.Markers.Add( new GMarkerGoogle( new PointLatLng( lat, lng ), getPhotoThumb( picGeoRef.Image ) ) );
             GMarkerGoogle marker_mar = new GMarkerGoogle( new PointLatLng( lat, lng ), GMarkerGoogleType.orange_dot );
             marker_mar.ToolTip = new GMapBaloonToolTip( marker_mar );
-            marker_mar.ToolTip.Stroke = new Pen(Color.SlateBlue);
-            marker_mar.ToolTip.Fill = new SolidBrush( Color.Snow);
+            marker_mar.ToolTip.Stroke = new Pen( Color.SlateBlue );
+            marker_mar.ToolTip.Fill = new SolidBrush( Color.Snow );
             //markermar.ToolTipText = "<html><body><img src=\"./P4083508.jpg\" /></body></html>";
             marker_mar.ToolTipText = Path.GetFileName( flist[0] );
             OverlayRefPosMAR.Markers.Add( marker_mar );
@@ -745,19 +824,29 @@ namespace NetCharm
             updatePositions( OverlayRefPos, true );
         }
 
-        private void btnPinPhoto_Click( object sender, EventArgs e )
+        private void tsmiResetMap_Click( object sender, EventArgs e )
         {
-            if ( photos.Count <= 0 ) return;
+            updatePositions( true );
+        }
 
-            PointLatLng pos = gMap.Position;
-            GMarkerGoogle marker = new GMarkerGoogle( pos, GMarkerGoogleType.yellow );
-            marker.ToolTip = new GMapBaloonToolTip( marker );
-            marker.ToolTip.Stroke = new Pen( Color.SlateBlue );
-            marker.ToolTip.Fill = new SolidBrush( Color.Snow );
-            marker.ToolTipText = "Location you want to place photo(s)";
+        private void tsmiShiftMap_Click( object sender, EventArgs e )
+        {
+            tsmiShiftMap.Checked = !tsmiShiftMap.Checked;
+            chkMapShift.Checked = tsmiShiftMap.Checked;
+            MapShift = tsmiShiftMap.Checked;
+            mouse_down = false;
+            currentMarker = null;
+            updatePositions( true );
+        }
 
-            OverlayRefPos.Markers.Add( marker );
-            pinMarker = marker;
+        private void tsmiImportGPXKML_Click( object sender, EventArgs e )
+        {
+            //
+        }
+
+        private void tsmiExportGPXKML_Click( object sender, EventArgs e )
+        {
+            //
         }
 
         private void gMap_OnMapTypeChanged( GMapProvider type )
@@ -883,35 +972,5 @@ namespace NetCharm
             }
         }
 
-        private void tsmiResetMap_Click( object sender, EventArgs e )
-        {
-            updatePositions( true );
-        }
-
-        private void tsmiShiftMap_Click( object sender, EventArgs e )
-        {
-            tsmiShiftMap.Checked = !tsmiShiftMap.Checked;
-            chkMapShift.Checked = tsmiShiftMap.Checked;
-            MapShift = tsmiShiftMap.Checked;
-            mouse_down = false;
-            currentMarker = null;
-            updatePositions( true );
-        }
-
-        private void edQuery_KeyPress( object sender, KeyPressEventArgs e )
-        {
-            if ( e.KeyChar == Convert.ToChar( Keys.Enter ) )
-            {
-                PointLatLng pos = gMap.Position;
-                tsProgress.Visible = true;
-                tsProgress.Value = 50;
-                if (gMap.SetPositionByKeywords( edQuery.Text ) != GeoCoderStatusCode.G_GEO_SUCCESS)
-                {
-                    gMap.Position = pos;
-                }
-                else trackZoom.Value = (int)gMap.Zoom;
-                tsProgress.Visible = false;
-            }
-        }
     }
 }

@@ -38,7 +38,7 @@
             this.tsZoom = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsInfo = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsProgress = new System.Windows.Forms.ToolStripProgressBar();
-            this.tsbtnShift = new System.Windows.Forms.ToolStripSplitButton();
+            this.tsbtnFunction = new System.Windows.Forms.ToolStripSplitButton();
             this.tsmiResetMap = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiShiftMap = new System.Windows.Forms.ToolStripMenuItem();
             this.trackZoom = new System.Windows.Forms.TrackBar();
@@ -47,6 +47,9 @@
             this.picGeoRef = new System.Windows.Forms.PictureBox();
             this.edQuery = new System.Windows.Forms.TextBox();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsmiImportGPXKML = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiExportGPXKML = new System.Windows.Forms.ToolStripMenuItem();
             this.status.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackZoom)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picGeoRef)).BeginInit();
@@ -116,7 +119,7 @@
             this.tsZoom,
             this.tsInfo,
             this.tsProgress,
-            this.tsbtnShift});
+            this.tsbtnFunction});
             this.status.Location = new System.Drawing.Point(0, 487);
             this.status.Name = "status";
             this.status.Size = new System.Drawing.Size(640, 22);
@@ -178,23 +181,27 @@
             this.tsProgress.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
             this.tsProgress.Visible = false;
             // 
-            // tsbtnShift
+            // tsbtnFunction
             // 
-            this.tsbtnShift.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.tsbtnShift.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsbtnFunction.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsbtnFunction.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsmiResetMap,
-            this.tsmiShiftMap});
-            this.tsbtnShift.Image = ((System.Drawing.Image)(resources.GetObject("tsbtnShift.Image")));
-            this.tsbtnShift.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbtnShift.Name = "tsbtnShift";
-            this.tsbtnShift.Size = new System.Drawing.Size(51, 20);
-            this.tsbtnShift.Text = "Shift";
-            this.tsbtnShift.ToolTipText = "Switch Shift Map On / Off";
+            this.tsmiShiftMap,
+            this.toolStripMenuItem1,
+            this.tsmiExportGPXKML,
+            this.tsmiImportGPXKML});
+            this.tsbtnFunction.Image = ((System.Drawing.Image)(resources.GetObject("tsbtnFunction.Image")));
+            this.tsbtnFunction.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbtnFunction.Name = "tsbtnFunction";
+            this.tsbtnFunction.Size = new System.Drawing.Size(51, 20);
+            this.tsbtnFunction.Text = "RESET";
+            this.tsbtnFunction.ToolTipText = "Switch Shift Map On / Off";
+            this.tsbtnFunction.ButtonClick += new System.EventHandler(this.tsmiResetMap_Click);
             // 
             // tsmiResetMap
             // 
             this.tsmiResetMap.Name = "tsmiResetMap";
-            this.tsmiResetMap.Size = new System.Drawing.Size(152, 22);
+            this.tsmiResetMap.Size = new System.Drawing.Size(154, 22);
             this.tsmiResetMap.Text = "Reset Map";
             this.tsmiResetMap.ToolTipText = "Reset Map View";
             this.tsmiResetMap.Click += new System.EventHandler(this.tsmiResetMap_Click);
@@ -202,7 +209,7 @@
             // tsmiShiftMap
             // 
             this.tsmiShiftMap.Name = "tsmiShiftMap";
-            this.tsmiShiftMap.Size = new System.Drawing.Size(152, 22);
+            this.tsmiShiftMap.Size = new System.Drawing.Size(154, 22);
             this.tsmiShiftMap.Text = "Shift Map";
             this.tsmiShiftMap.Click += new System.EventHandler(this.tsmiShiftMap_Click);
             // 
@@ -275,9 +282,27 @@
             // 
             // toolTip
             // 
-            this.toolTip.IsBalloon = true;
             this.toolTip.ToolTipIcon = System.Windows.Forms.ToolTipIcon.Info;
             this.toolTip.ToolTipTitle = "Tip";
+            // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(151, 6);
+            // 
+            // tsmiImportGPXKML
+            // 
+            this.tsmiImportGPXKML.Name = "tsmiImportGPXKML";
+            this.tsmiImportGPXKML.Size = new System.Drawing.Size(154, 22);
+            this.tsmiImportGPXKML.Text = "Import GPX/KML";
+            this.tsmiImportGPXKML.Click += new System.EventHandler(this.tsmiImportGPXKML_Click);
+            // 
+            // tsmiExportGPXKML
+            // 
+            this.tsmiExportGPXKML.Name = "tsmiExportGPXKML";
+            this.tsmiExportGPXKML.Size = new System.Drawing.Size(154, 22);
+            this.tsmiExportGPXKML.Text = "Export GPX/KML";
+            this.tsmiExportGPXKML.Click += new System.EventHandler(this.tsmiExportGPXKML_Click);
             // 
             // FormMap
             // 
@@ -321,11 +346,14 @@
         private System.Windows.Forms.ToolStripStatusLabel tsInfo;
         private System.Windows.Forms.ToolStripProgressBar tsProgress;
         private System.Windows.Forms.Button btnPinPhoto;
-        private System.Windows.Forms.ToolStripSplitButton tsbtnShift;
+        private System.Windows.Forms.ToolStripSplitButton tsbtnFunction;
         private System.Windows.Forms.ToolStripMenuItem tsmiResetMap;
         private System.Windows.Forms.ToolStripMenuItem tsmiShiftMap;
         private System.Windows.Forms.TextBox edQuery;
         private System.Windows.Forms.ToolTip toolTip;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem tsmiExportGPXKML;
+        private System.Windows.Forms.ToolStripMenuItem tsmiImportGPXKML;
     }
 }
 
