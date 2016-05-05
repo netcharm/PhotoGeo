@@ -28,6 +28,7 @@ namespace PhotoGeoTagShell
         List<string> lastSelections = new List<string>();
 
         string lastMapProvider = "GoogleChinaHybridMap";
+        string[] PhotoExts = { ".jpg", ".jpeg", ".tif",".tiff" };
 
         private void configUpdate()
         {
@@ -113,6 +114,30 @@ namespace PhotoGeoTagShell
             config.Save();
         }
 
+        private int getTotalPhotos(string folder)
+        {
+            int total = 0;
+            foreach ( ShellObject item in explorerBrowser.Items )
+            {
+                if ( !item.IsFileSystemObject || item.IsLink ) continue;
+
+                #region get property
+                string dn = item.Name;
+                string dp = item.ParsingName;
+                string ext = Path.GetExtension(dp);
+                if ( !File.GetAttributes( dp ).HasFlag( FileAttributes.Directory ) )
+                {
+                    if ( PhotoExts.Contains( ext, StringComparer.CurrentCultureIgnoreCase ) )
+                    {
+                        total++;
+                    }
+                }
+                #endregion
+            }
+
+            return ( total );
+        }
+
         private void ShowSelectedImage(bool force=false)
         {
             #region detect selection items is same or not
@@ -123,11 +148,17 @@ namespace PhotoGeoTagShell
                 {
                     if ( !item.IsFileSystemObject || item.IsLink ) continue;
                     //if ( !lastSelections.Contains( item.ParsingName ) )
-                    if ( !lastSelections.Contains( item.Name ) )
+                    string dp = item.ParsingName;
+                    string ext = Path.GetExtension(dp);
+                    if ( File.GetAttributes( dp ).HasFlag( FileAttributes.Directory ) ) continue;
+                    if ( PhotoExts.Contains( ext, StringComparer.CurrentCultureIgnoreCase ) )
                     {
-                        diff = true;
-                        selection_changed = true;
-                        break;
+                        if ( !lastSelections.Contains( item.Name ) )
+                        {
+                            diff = true;
+                            selection_changed = true;
+                            break;
+                        }
                     }
                 }
                 if ( !diff )
@@ -153,29 +184,20 @@ namespace PhotoGeoTagShell
                     {
                         if ( !item.IsFileSystemObject || item.IsLink ) continue;
                         if ( lastSelections.Contains( item.Name ) ) continue;
-                        lastSelections.Add( item.Name );
 
                         #region get property
                         string dn = item.Name;
                         string dp = item.ParsingName;
+                        string ext = Path.GetExtension(dp);
                         if ( !File.GetAttributes( dp ).HasFlag( FileAttributes.Directory ) )
                         {
-                            if ( dp.EndsWith( ".jpg", StringComparison.OrdinalIgnoreCase ) ||
-                                 dp.EndsWith( ".jpeg", StringComparison.OrdinalIgnoreCase ) ||
-                                 //dp.EndsWith( ".gif", StringComparison.OrdinalIgnoreCase ) || 
-                                 //dp.EndsWith( ".png", StringComparison.OrdinalIgnoreCase ) ||
-                                 //dp.EndsWith( ".bmp", StringComparison.OrdinalIgnoreCase ) ||
-                                 //dp.EndsWith( ".ico", StringComparison.OrdinalIgnoreCase ) ||
-                                 //dp.EndsWith( ".cur", StringComparison.OrdinalIgnoreCase ) ||
-                                 //dp.EndsWith( ".emf", StringComparison.OrdinalIgnoreCase ) ||
-                                 //dp.EndsWith( ".wmf", StringComparison.OrdinalIgnoreCase ) ||
-                                 dp.EndsWith( ".tif", StringComparison.OrdinalIgnoreCase ) ||
-                                 dp.EndsWith( ".tiff", StringComparison.OrdinalIgnoreCase ) )
+                            if ( PhotoExts.Contains( ext, StringComparer.CurrentCultureIgnoreCase ) )
                             {
+                                lastSelections.Add( item.Name );
 
                                 Image thumb = new Bitmap(item.Thumbnail.MediumBitmap);
                                 ShellPropertyCollection props = item.Properties.DefaultPropertyCollection;
-                                
+
                                 Dictionary<string, string> properties = new Dictionary<string, string>();
                                 for ( int i = 0; i < props.Count; i++ )
                                 {
@@ -247,6 +269,7 @@ namespace PhotoGeoTagShell
 
                 }
                 catch { };
+                tsFilesSelected.Text = $"Selected: {imgs.Count}";
 
                 try
                 {
@@ -436,6 +459,8 @@ namespace PhotoGeoTagShell
                 tscbVistedFolder.Text = explorerBrowser.NavigationLog.CurrentLocation.ParsingName;
 
                 explorerBrowser.Focus();
+                tsFilesTotal.Text = $"Total: {getTotalPhotos(e.NewLocation.ToString())}";
+                tsFilesSelected.Text = $"Selected: {0}";
             } ) );
         }
 

@@ -4,22 +4,24 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 using GMap.NET;
-using GMap.NET.WindowsForms;
 using GMap.NET.MapProviders;
-using GMap.NET.WindowsForms.Markers;
-using GMap.NET.WindowsForms.ToolTips;
 using GMap.NET.MapProviders.AMap;
 using GMap.NET.MapProviders.Baidu;
 using GMap.NET.MapProviders.Sohu;
 using GMap.NET.MapProviders.Soso;
-using System.Globalization;
+using GMap.NET.WindowsForms;
+using GMap.NET.WindowsForms.Markers;
+using GMap.NET.WindowsForms.ToolTips;
 
 namespace NetCharm
 {
@@ -322,16 +324,16 @@ namespace NetCharm
             OverlayRefPosWGS.Markers.Clear();
             GMarkerGoogle marker_wgs = new GMarkerGoogle( pos, GMarkerGoogleType.pink_dot );
             marker_wgs.ToolTip = new GMapBaloonToolTip( marker_wgs );
-            marker_wgs.ToolTip.Stroke = new Pen(Color.Violet);
-            marker_wgs.ToolTip.Fill = new SolidBrush(Color.Snow); //new SolidBrush(Color.WhiteSmoke);
+            marker_wgs.ToolTip.Stroke = new System.Drawing.Pen( System.Drawing.Color.Violet);
+            marker_wgs.ToolTip.Fill = new SolidBrush( System.Drawing.Color.Snow); //new SolidBrush(Color.WhiteSmoke);
             marker_wgs.ToolTipText = Path.GetFileName( img.Value );
             OverlayRefPosWGS.Markers.Add( marker_wgs );
 
             OverlayRefPosMAR.Markers.Clear();
             GMarkerGoogle marker_mar = new GMarkerGoogle( new PointLatLng( lat, lng ), GMarkerGoogleType.pink_dot );
             marker_mar.ToolTip = new GMapBaloonToolTip( marker_mar );
-            marker_mar.ToolTip.Stroke = new Pen(Color.SlateBlue);
-            marker_mar.ToolTip.Fill = new SolidBrush( Color.Snow);
+            marker_mar.ToolTip.Stroke = new System.Drawing.Pen( System.Drawing.Color.SlateBlue);
+            marker_mar.ToolTip.Fill = new SolidBrush( System.Drawing.Color.Snow);
             marker_mar.ToolTipText = Path.GetFileName( img.Value );
             OverlayRefPosMAR.Markers.Add( marker_mar );
 
@@ -340,53 +342,60 @@ namespace NetCharm
 
         public void ShowImage( List<KeyValuePair<Image, string>> imgs )
         {
-            PointLatLng pos = gMap.Position;
-
             photos.Clear();
             photos.AddRange( imgs );
 
-            OverlayPhotosWGS.Markers.Clear();
-            OverlayPhotosMAR.Markers.Clear();
-            foreach ( KeyValuePair<Image, string> img in imgs)
-            {
-                using ( Image photo = new Bitmap( img.Value ) )
-                {
-                    pos.Lat = EXIF.GetLatitude( photo );
-                    pos.Lng = EXIF.GetLongitude( photo );
+            tsProgress.Minimum = 0;
+            tsProgress.Maximum = photos.Count;
 
-                    photo.Dispose();
-                }
+            bgwShowImage.RunWorkerAsync(imgs);
+            //PointLatLng pos = gMap.Position;
 
-                if ( double.IsNaN( pos.Lat ) || double.IsNaN( pos.Lng ) ) continue;
+            //photos.Clear();
+            //photos.AddRange( imgs );
 
-                double lat = pos.Lat, lng = pos.Lng;
-                PosShift.Convert2Mars( pos.Lng, pos.Lat, out lng, out lat );
+            //OverlayPhotosWGS.Markers.Clear();
+            //OverlayPhotosMAR.Markers.Clear();
+            //foreach ( KeyValuePair<Image, string> img in imgs)
+            //{
+            //    using ( Image photo = new Bitmap( img.Value ) )
+            //    {
+            //        pos.Lat = EXIF.GetLatitude( photo );
+            //        pos.Lng = EXIF.GetLongitude( photo );
 
-                GMarkerGoogle marker_wgs = new GMarkerGoogle( pos, GMarkerGoogleType.green_dot );
-                GMapImageToolTip tooltip_wgs = new GMapImageToolTip( marker_wgs );
-                tooltip_wgs.Image = img.Key;
-                tooltip_wgs.Offset = new Point( 0, -12 );
-                tooltip_wgs.Font = new Font( "Segoe UI", 8 );
-                tooltip_wgs.Stroke = new Pen( Color.LightCoral, 2 );
-                tooltip_wgs.Fill = new SolidBrush( Color.Snow );
-                marker_wgs.ToolTip = tooltip_wgs;
-                marker_wgs.ToolTipText = Path.GetFileName( img.Value );
-                marker_wgs.Tag = pos;
-                OverlayPhotosWGS.Markers.Add( marker_wgs );
+            //        photo.Dispose();
+            //    }
 
-                GMarkerGoogle marker_mar = new GMarkerGoogle( new PointLatLng( lat, lng ), GMarkerGoogleType.green_dot );
-                GMapImageToolTip tooltip_mar = new GMapImageToolTip( marker_mar );
-                tooltip_mar.Image = img.Key;
-                tooltip_mar.Offset = new Point( 0, -12 );
-                tooltip_mar.Font = new Font( "Segoe UI", 8 );
-                tooltip_mar.Stroke = new Pen( Color.SlateBlue, 2 );
-                tooltip_mar.Fill = new SolidBrush( Color.Snow );
-                marker_mar.ToolTip = tooltip_mar;
-                marker_mar.ToolTipText = Path.GetFileName( img.Value );
-                marker_mar.Tag = new PointLatLng( lat, lng );
-                OverlayPhotosMAR.Markers.Add( marker_mar );
-            }
-            updatePositions( OverlayPhotos, true );
+            //    if ( double.IsNaN( pos.Lat ) || double.IsNaN( pos.Lng ) ) continue;
+
+            //    double lat = pos.Lat, lng = pos.Lng;
+            //    PosShift.Convert2Mars( pos.Lng, pos.Lat, out lng, out lat );
+
+            //    GMarkerGoogle marker_wgs = new GMarkerGoogle( pos, GMarkerGoogleType.green_dot );
+            //    GMapImageToolTip tooltip_wgs = new GMapImageToolTip( marker_wgs );
+            //    tooltip_wgs.Image = img.Key;
+            //    tooltip_wgs.Offset = new Point( 0, -12 );
+            //    tooltip_wgs.Font = new Font( "Segoe UI", 8 );
+            //    tooltip_wgs.Stroke = new System.Drawing.Pen( System.Drawing.Color.LightCoral, 2 );
+            //    tooltip_wgs.Fill = new SolidBrush( System.Drawing.Color.Snow );
+            //    marker_wgs.ToolTip = tooltip_wgs;
+            //    marker_wgs.ToolTipText = Path.GetFileName( img.Value );
+            //    marker_wgs.Tag = pos;
+            //    OverlayPhotosWGS.Markers.Add( marker_wgs );
+
+            //    GMarkerGoogle marker_mar = new GMarkerGoogle( new PointLatLng( lat, lng ), GMarkerGoogleType.green_dot );
+            //    GMapImageToolTip tooltip_mar = new GMapImageToolTip( marker_mar );
+            //    tooltip_mar.Image = img.Key;
+            //    tooltip_mar.Offset = new Point( 0, -12 );
+            //    tooltip_mar.Font = new Font( "Segoe UI", 8 );
+            //    tooltip_mar.Stroke = new System.Drawing.Pen( System.Drawing.Color.SlateBlue, 2 );
+            //    tooltip_mar.Fill = new SolidBrush( System.Drawing.Color.Snow );
+            //    marker_mar.ToolTip = tooltip_mar;
+            //    marker_mar.ToolTipText = Path.GetFileName( img.Value );
+            //    marker_mar.Tag = new PointLatLng( lat, lng );
+            //    OverlayPhotosMAR.Markers.Add( marker_mar );
+            //}
+            //updatePositions( OverlayPhotos, true );
         }
 
         private ImageCodecInfo GetEncoder( ImageFormat format )
@@ -470,17 +479,24 @@ namespace NetCharm
                 photo = EXIF.Geotag( photo, lat_wgs, lng_wgs );
                 fs.Close();
 
-                PropertyItem DTOrig = photo.GetPropertyItem(EXIF.PropertyTagExifDTOrig);
-
-                ASCIIEncoding enc = new ASCIIEncoding();
-                string dateTakenText = enc.GetString( DTOrig.Value, 0, DTOrig.Len - 1 );
-
-                if ( !string.IsNullOrEmpty( dateTakenText ) )
+                try
                 {
-                    if ( !DateTime.TryParseExact( dateTakenText, "yyyy:MM:dd HH:mm:ss", CultureInfo.CurrentCulture, DateTimeStyles.None, out dt ) )
+                    if ( photo.PropertyIdList.Contains( EXIF.PropertyTagExifDTOrig ) )
                     {
+                        PropertyItem DTOrig = photo.GetPropertyItem(EXIF.PropertyTagExifDTOrig);
+
+                        ASCIIEncoding enc = new ASCIIEncoding();
+                        string dateTakenText = enc.GetString( DTOrig.Value, 0, DTOrig.Len - 1 );
+
+                        if ( !string.IsNullOrEmpty( dateTakenText ) )
+                        {
+                            if ( !DateTime.TryParseExact( dateTakenText, "yyyy:MM:dd HH:mm:ss", CultureInfo.CurrentCulture, DateTimeStyles.None, out dt ) )
+                            {
+                            }
+                        }
                     }
                 }
+                catch { }
 
                 ImageCodecInfo jpgEncoder = GetEncoder(ImageFormat.Jpeg);
                 System.Drawing.Imaging.Encoder myEncoder = System.Drawing.Imaging.Encoder.Quality;
@@ -582,8 +598,8 @@ namespace NetCharm
                 tooltip_wgs.Image = img.Key;
                 tooltip_wgs.Offset = new Point( 0, -12 );
                 tooltip_wgs.Font = new Font( "Segoe UI", 8 );
-                tooltip_wgs.Stroke = new Pen( Color.SlateBlue, 2 );
-                tooltip_wgs.Fill = new SolidBrush( Color.Snow );
+                tooltip_wgs.Stroke = new System.Drawing.Pen( System.Drawing.Color.SlateBlue, 2 );
+                tooltip_wgs.Fill = new SolidBrush( System.Drawing.Color.Snow );
                 marker_wgs.ToolTip = tooltip_wgs;
                 marker_wgs.ToolTipText = Path.GetFileName( img.Value );
                 marker_wgs.Tag = new PointLatLng( lat_wgs, lng_wgs );
@@ -594,15 +610,19 @@ namespace NetCharm
                 tooltip_mar.Image = img.Key;
                 tooltip_mar.Offset = new Point( 0, -12 );
                 tooltip_mar.Font = new Font( "Segoe UI", 8 );
-                tooltip_mar.Stroke = new Pen( Color.SlateBlue, 2 );
-                tooltip_mar.Fill = new SolidBrush( Color.Snow );
+                tooltip_mar.Stroke = new System.Drawing.Pen( System.Drawing.Color.SlateBlue, 2 );
+                tooltip_mar.Fill = new SolidBrush( System.Drawing.Color.Snow );
                 marker_mar.ToolTip = tooltip_mar;
                 marker_mar.ToolTipText = Path.GetFileName( img.Value );
                 marker_mar.Tag = new PointLatLng( lat_mar, lng_mar );
                 OverlayPhotosMAR.Markers.Add( marker_mar );
                 #endregion
+                if( bgwSetGeo.IsBusy )
+                {
+                    bgwSetGeo.ReportProgress( OverlayPhotosMAR.Markers.Count );
+                }
             }
-            if( OverlayRefPos.Markers.Count > 0)
+            if ( OverlayRefPos.Markers.Count > 0)
             {
                 OverlayRefPos.Markers.RemoveAt( OverlayRefPos.Markers.Count - 1 );
             }
@@ -694,7 +714,7 @@ namespace NetCharm
             gMap.RetryLoadTile = 5;
             gMap.ScaleMode = ScaleModes.Fractional;
             //gMap.ScaleMode = ScaleModes.Integer;
-            gMap.ScalePen = new Pen(Color.Silver);
+            gMap.ScalePen = new System.Drawing.Pen( System.Drawing.Color.Silver);
             gMap.ShowCenter = false;
             gMap.Zoom = trackZoom.Value;
             gMap.ForceDoubleBuffer = false;
@@ -755,8 +775,8 @@ namespace NetCharm
             PointLatLng pos = gMap.Position;
             GMarkerGoogle marker = new GMarkerGoogle( pos, GMarkerGoogleType.yellow );
             marker.ToolTip = new GMapBaloonToolTip( marker );
-            marker.ToolTip.Stroke = new Pen( Color.SlateBlue );
-            marker.ToolTip.Fill = new SolidBrush( Color.Snow );
+            marker.ToolTip.Stroke = new System.Drawing.Pen( System.Drawing.Color.SlateBlue );
+            marker.ToolTip.Fill = new SolidBrush( System.Drawing.Color.Snow );
             marker.ToolTipText = "Location you want to place photo(s)";
 
             OverlayRefPos.Markers.Add( marker );
@@ -802,8 +822,8 @@ namespace NetCharm
             //OverlayRefPosWGS.Markers.Add( new GMarkerGoogle( pos, getPhotoThumb( picGeoRef.Image ) ) );
             GMarkerGoogle marker_wgs = new GMarkerGoogle( pos, GMarkerGoogleType.lightblue_dot );
             marker_wgs.ToolTip = new GMapBaloonToolTip( marker_wgs );
-            marker_wgs.ToolTip.Stroke = new Pen( Color.Violet );
-            marker_wgs.ToolTip.Fill = new SolidBrush( Color.Snow );
+            marker_wgs.ToolTip.Stroke = new System.Drawing.Pen( System.Drawing.Color.Violet );
+            marker_wgs.ToolTip.Fill = new SolidBrush( System.Drawing.Color.Snow );
             //marker.ToolTipText = "<html><body><img src=\"./P4083508.jpg\" /></body></html>";
             marker_wgs.ToolTipText = Path.GetFileName( flist[0] );
             OverlayRefPosWGS.Markers.Add( marker_wgs );
@@ -813,8 +833,8 @@ namespace NetCharm
             //OverlayRefPosMAR.Markers.Add( new GMarkerGoogle( new PointLatLng( lat, lng ), getPhotoThumb( picGeoRef.Image ) ) );
             GMarkerGoogle marker_mar = new GMarkerGoogle( new PointLatLng( lat, lng ), GMarkerGoogleType.orange_dot );
             marker_mar.ToolTip = new GMapBaloonToolTip( marker_mar );
-            marker_mar.ToolTip.Stroke = new Pen( Color.SlateBlue );
-            marker_mar.ToolTip.Fill = new SolidBrush( Color.Snow );
+            marker_mar.ToolTip.Stroke = new System.Drawing.Pen( System.Drawing.Color.SlateBlue );
+            marker_mar.ToolTip.Fill = new SolidBrush( System.Drawing.Color.Snow );
             //markermar.ToolTipText = "<html><body><img src=\"./P4083508.jpg\" /></body></html>";
             marker_mar.ToolTipText = Path.GetFileName( flist[0] );
             OverlayRefPosMAR.Markers.Add( marker_mar );
@@ -924,21 +944,34 @@ namespace NetCharm
             mouse_down = false;
             if ( currentMarker != null )
             {
+                if ( bgwSetGeo.IsBusy ) return;
                 if ( MessageBox.Show( this, "Place photo(s) to here?", "Warning", MessageBoxButtons.OKCancel, MessageBoxIcon.Question ) == DialogResult.OK )
                 {
+                    //PointLatLng pos = gMap.FromLocalToLatLng( e.X, e.Y );
+                    //GMapImageToolTip currentTooltip = (GMapImageToolTip)(currentMarker.ToolTip);
+                    //currentMarker.Tag = pos;
+                    //KeyValuePair<PointLatLng, GMapImageToolTip> param = new KeyValuePair<PointLatLng, GMapImageToolTip>(pos, currentTooltip);
+                    //bgwSetGeo.RunWorkerAsync( param );
+
                     //currentMarker.Tag = new PointLatLng( e.X, e.Y );
                     currentMarker.Tag = currentMarker.Position;
                     if ( pinMarker != null )
-                    {
+                    {                        
                         pinMarker.Tag = currentMarker.Position;
-                        SetImageGeoTag( gMap.FromLocalToLatLng( e.X, e.Y ) );
+                        PointLatLng pos = gMap.FromLocalToLatLng( e.X, e.Y );
+                        //SetImageGeoTag( pos );
+
+                        //tsProgress.Visible = true;
+                        tsProgress.Minimum = 0;
+                        tsProgress.Maximum = photos.Count;
+                        bgwSetGeo.RunWorkerAsync( pos );
                     }
                     else
                     {
                         GMapImageToolTip currentTooltip = (GMapImageToolTip)(currentMarker.ToolTip);
-                        foreach( KeyValuePair<Image, string> kp in photos)
+                        foreach ( KeyValuePair<Image, string> kp in photos )
                         {
-                            if(kp.Key == currentTooltip.Image )
+                            if ( kp.Key == currentTooltip.Image )
                             {
                                 string currentFile = kp.Value;
                                 SetImageGeoTag( gMap.FromLocalToLatLng( e.X, e.Y ), currentFile );
@@ -946,10 +979,11 @@ namespace NetCharm
                             }
                         }
                     }
-                    currentMarker = null;
-                    pinMarker = null;
+                    //currentMarker = null;
+                    //pinMarker = null;
                 }
             }
+            currentMarker = null;
         }
 
         private void gMap_MouseMove( object sender, MouseEventArgs e )
@@ -972,5 +1006,89 @@ namespace NetCharm
             }
         }
 
+        private void bgwSetGeo_DoWork( object sender, DoWorkEventArgs e )
+        {
+            //KeyValuePair<PointLatLng, GMapImageToolTip> param =  (KeyValuePair<PointLatLng, GMapImageToolTip>)e.Argument;
+            //GMapImageToolTip currentTooltip = param.Value;
+            //PointLatLng pos = param.Key;
+            PointLatLng pos = (PointLatLng)e.Argument;
+            SetImageGeoTag( pos );
+        }
+
+        private void bgwSetGeo_ProgressChanged( object sender, ProgressChangedEventArgs e )
+        {
+            tsProgress.Value = e.ProgressPercentage;
+        }
+
+        private void bgwSetGeo_RunWorkerCompleted( object sender, RunWorkerCompletedEventArgs e )
+        {
+            pinMarker = null;
+            //tsProgress.Visible = false;
+            updatePositions( true );
+        }
+
+        private void bgwShowImage_DoWork( object sender, DoWorkEventArgs e )
+        {
+            PointLatLng pos = gMap.Position;
+            int progress = 0;
+
+            OverlayPhotosWGS.Markers.Clear();
+            OverlayPhotosMAR.Markers.Clear();
+            foreach ( KeyValuePair<Image, string> img in photos )
+            {
+                using ( Image photo = new Bitmap( img.Value ) )
+                {
+                    pos.Lat = EXIF.GetLatitude( photo );
+                    pos.Lng = EXIF.GetLongitude( photo );
+
+                    photo.Dispose();
+                }
+
+                if ( double.IsNaN( pos.Lat ) || double.IsNaN( pos.Lng ) ) continue;
+
+                double lat = pos.Lat, lng = pos.Lng;
+                PosShift.Convert2Mars( pos.Lng, pos.Lat, out lng, out lat );
+
+                GMarkerGoogle marker_wgs = new GMarkerGoogle( pos, GMarkerGoogleType.green_dot );
+                GMapImageToolTip tooltip_wgs = new GMapImageToolTip( marker_wgs );
+                tooltip_wgs.Image = img.Key;
+                tooltip_wgs.Offset = new Point( 0, -12 );
+                tooltip_wgs.Font = new Font( "Segoe UI", 8 );
+                tooltip_wgs.Stroke = new System.Drawing.Pen( System.Drawing.Color.LightCoral, 2 );
+                tooltip_wgs.Fill = new SolidBrush( System.Drawing.Color.Snow );
+                marker_wgs.ToolTip = tooltip_wgs;
+                marker_wgs.ToolTipText = Path.GetFileName( img.Value );
+                marker_wgs.Tag = pos;
+                OverlayPhotosWGS.Markers.Add( marker_wgs );
+
+                GMarkerGoogle marker_mar = new GMarkerGoogle( new PointLatLng( lat, lng ), GMarkerGoogleType.green_dot );
+                GMapImageToolTip tooltip_mar = new GMapImageToolTip( marker_mar );
+                tooltip_mar.Image = img.Key;
+                tooltip_mar.Offset = new Point( 0, -12 );
+                tooltip_mar.Font = new Font( "Segoe UI", 8 );
+                tooltip_mar.Stroke = new System.Drawing.Pen( System.Drawing.Color.SlateBlue, 2 );
+                tooltip_mar.Fill = new SolidBrush( System.Drawing.Color.Snow );
+                marker_mar.ToolTip = tooltip_mar;
+                marker_mar.ToolTipText = Path.GetFileName( img.Value );
+                marker_mar.Tag = new PointLatLng( lat, lng );
+                OverlayPhotosMAR.Markers.Add( marker_mar );
+
+                progress++;
+                if ( bgwShowImage.IsBusy )
+                {
+                    bgwShowImage.ReportProgress( progress );
+                }
+            }
+        }
+
+        private void bgwShowImage_ProgressChanged( object sender, ProgressChangedEventArgs e )
+        {
+            tsProgress.Value = e.ProgressPercentage;
+        }
+
+        private void bgwShowImage_RunWorkerCompleted( object sender, RunWorkerCompletedEventArgs e )
+        {
+            updatePositions( true );
+        }
     }
 }

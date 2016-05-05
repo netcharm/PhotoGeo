@@ -32,6 +32,8 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.status = new System.Windows.Forms.StatusStrip();
             this.tsInfo = new System.Windows.Forms.ToolStripStatusLabel();
+            this.tsFilesSelected = new System.Windows.Forms.ToolStripStatusLabel();
+            this.tsFilesTotal = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsProgress = new System.Windows.Forms.ToolStripProgressBar();
             this.dlgFolderBrowser = new System.Windows.Forms.FolderBrowserDialog();
             this.toolContainer = new System.Windows.Forms.ToolStripContainer();
@@ -60,6 +62,8 @@
             // 
             this.status.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsInfo,
+            this.tsFilesSelected,
+            this.tsFilesTotal,
             this.tsProgress});
             this.status.Location = new System.Drawing.Point(0, 551);
             this.status.Name = "status";
@@ -70,10 +74,36 @@
             // tsInfo
             // 
             this.tsInfo.Name = "tsInfo";
-            this.tsInfo.Size = new System.Drawing.Size(685, 17);
+            this.tsInfo.Size = new System.Drawing.Size(522, 17);
             this.tsInfo.Spring = true;
             this.tsInfo.Text = "Ok";
             this.tsInfo.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // tsFilesSelected
+            // 
+            this.tsFilesSelected.AutoToolTip = true;
+            this.tsFilesSelected.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)(((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
+            this.tsFilesSelected.BorderStyle = System.Windows.Forms.Border3DStyle.SunkenOuter;
+            this.tsFilesSelected.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsFilesSelected.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.tsFilesSelected.Name = "tsFilesSelected";
+            this.tsFilesSelected.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
+            this.tsFilesSelected.Size = new System.Drawing.Size(4, 17);
+            this.tsFilesSelected.ToolTipText = "Selected Photos";
+            // 
+            // tsFilesTotal
+            // 
+            this.tsFilesTotal.AutoToolTip = true;
+            this.tsFilesTotal.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)(((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
+            this.tsFilesTotal.BorderStyle = System.Windows.Forms.Border3DStyle.SunkenOuter;
+            this.tsFilesTotal.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsFilesTotal.Name = "tsFilesTotal";
+            this.tsFilesTotal.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
+            this.tsFilesTotal.Size = new System.Drawing.Size(4, 17);
+            this.tsFilesTotal.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.tsFilesTotal.ToolTipText = "Total Photos";
             // 
             // tsProgress
             // 
@@ -285,5 +315,7 @@
         private System.Windows.Forms.ToolStripButton tsbtnTouch;
         private System.Windows.Forms.ToolStripSeparator tsSep3;
         private System.Windows.Forms.ToolTip toolTip;
+        private System.Windows.Forms.ToolStripStatusLabel tsFilesSelected;
+        private System.Windows.Forms.ToolStripStatusLabel tsFilesTotal;
     }
 }
