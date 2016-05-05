@@ -171,8 +171,12 @@
             // 
             // tsInfo
             // 
+            this.tsInfo.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
+            this.tsInfo.BorderStyle = System.Windows.Forms.Border3DStyle.SunkenOuter;
             this.tsInfo.Name = "tsInfo";
-            this.tsInfo.Size = new System.Drawing.Size(212, 17);
+            this.tsInfo.Size = new System.Drawing.Size(224, 17);
             this.tsInfo.Spring = true;
             this.tsInfo.Text = "OK";
             // 
@@ -234,8 +238,7 @@
             // 
             // trackZoom
             // 
-            this.trackZoom.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.trackZoom.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.trackZoom.Cursor = System.Windows.Forms.Cursors.Hand;
             this.trackZoom.LargeChange = 2;
             this.trackZoom.Location = new System.Drawing.Point(123, 455);
@@ -291,9 +294,9 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.edQuery.HideSelection = false;
             this.edQuery.ImeMode = System.Windows.Forms.ImeMode.Alpha;
-            this.edQuery.Location = new System.Drawing.Point(286, 466);
+            this.edQuery.Location = new System.Drawing.Point(292, 466);
             this.edQuery.Name = "edQuery";
-            this.edQuery.Size = new System.Drawing.Size(253, 21);
+            this.edQuery.Size = new System.Drawing.Size(247, 21);
             this.edQuery.TabIndex = 8;
             this.edQuery.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.toolTip.SetToolTip(this.edQuery, "Simple Query Posiiion By Keyword");

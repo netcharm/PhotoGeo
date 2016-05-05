@@ -461,6 +461,7 @@ namespace PhotoGeoTagShell
                 explorerBrowser.Focus();
                 tsFilesTotal.Text = $"Total: {getTotalPhotos(e.NewLocation.ToString())}";
                 tsFilesSelected.Text = $"Selected: {0}";
+                ShowSelectedImage();
             } ) );
         }
 

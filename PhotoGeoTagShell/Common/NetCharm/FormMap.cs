@@ -777,7 +777,7 @@ namespace NetCharm
             marker.ToolTip = new GMapBaloonToolTip( marker );
             marker.ToolTip.Stroke = new System.Drawing.Pen( System.Drawing.Color.SlateBlue );
             marker.ToolTip.Fill = new SolidBrush( System.Drawing.Color.Snow );
-            marker.ToolTipText = "Location you want to place photo(s)";
+            marker.ToolTipText = "Place photo(s) to here?";
 
             OverlayRefPos.Markers.Add( marker );
             pinMarker = marker;
@@ -788,14 +788,15 @@ namespace NetCharm
             if ( e.KeyChar == Convert.ToChar( Keys.Enter ) )
             {
                 PointLatLng pos = gMap.Position;
-                tsProgress.Visible = true;
-                tsProgress.Value = 50;
+                this.Cursor = Cursors.WaitCursor;
+                tsProgress.Style = ProgressBarStyle.Marquee;
                 if ( gMap.SetPositionByKeywords( edQuery.Text ) != GeoCoderStatusCode.G_GEO_SUCCESS )
                 {
                     gMap.Position = pos;
                 }
                 else trackZoom.Value = (int) gMap.Zoom;
-                tsProgress.Visible = false;
+                tsProgress.Style = ProgressBarStyle.Blocks;
+                this.Cursor = Cursors.Default;
             }
         }
 
@@ -1017,7 +1018,12 @@ namespace NetCharm
 
         private void bgwSetGeo_ProgressChanged( object sender, ProgressChangedEventArgs e )
         {
-            tsProgress.Value = e.ProgressPercentage;
+            if ( e.ProgressPercentage >= tsProgress.Maximum )
+                tsProgress.Value = tsProgress.Maximum;
+            else if ( e.ProgressPercentage < tsProgress.Minimum )
+                tsProgress.Value = tsProgress.Minimum;
+            else
+                tsProgress.Value = e.ProgressPercentage;
         }
 
         private void bgwSetGeo_RunWorkerCompleted( object sender, RunWorkerCompletedEventArgs e )
@@ -1083,7 +1089,12 @@ namespace NetCharm
 
         private void bgwShowImage_ProgressChanged( object sender, ProgressChangedEventArgs e )
         {
-            tsProgress.Value = e.ProgressPercentage;
+            if( e.ProgressPercentage >= tsProgress.Maximum)
+                tsProgress.Value = tsProgress.Maximum;
+            else if ( e.ProgressPercentage < tsProgress.Minimum )
+                tsProgress.Value = tsProgress.Minimum;
+            else
+                tsProgress.Value = e.ProgressPercentage;
         }
 
         private void bgwShowImage_RunWorkerCompleted( object sender, RunWorkerCompletedEventArgs e )

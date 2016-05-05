@@ -38,8 +38,6 @@
             this.dlgFolderBrowser = new System.Windows.Forms.FolderBrowserDialog();
             this.toolContainer = new System.Windows.Forms.ToolStripContainer();
             this.explorerBrowser = new Microsoft.WindowsAPICodePack.Controls.WindowsForms.ExplorerBrowser();
-            this.menuMain = new System.Windows.Forms.MenuStrip();
-            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolMain = new System.Windows.Forms.ToolStrip();
             this.tsbtnMapView = new System.Windows.Forms.ToolStripButton();
             this.tsSep1 = new System.Windows.Forms.ToolStripSeparator();
@@ -49,13 +47,15 @@
             this.tsSep3 = new System.Windows.Forms.ToolStripSeparator();
             this.tsbtnTouch = new System.Windows.Forms.ToolStripButton();
             this.tscbKnownFolder = new System.Windows.Forms.ToolStripComboBox();
+            this.menuMain = new System.Windows.Forms.MenuStrip();
+            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.status.SuspendLayout();
             this.toolContainer.ContentPanel.SuspendLayout();
             this.toolContainer.TopToolStripPanel.SuspendLayout();
             this.toolContainer.SuspendLayout();
-            this.menuMain.SuspendLayout();
             this.toolMain.SuspendLayout();
+            this.menuMain.SuspendLayout();
             this.SuspendLayout();
             // 
             // status
@@ -73,8 +73,12 @@
             // 
             // tsInfo
             // 
+            this.tsInfo.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
+            this.tsInfo.BorderStyle = System.Windows.Forms.Border3DStyle.SunkenOuter;
             this.tsInfo.Name = "tsInfo";
-            this.tsInfo.Size = new System.Drawing.Size(522, 17);
+            this.tsInfo.Size = new System.Drawing.Size(677, 17);
             this.tsInfo.Spring = true;
             this.tsInfo.Text = "Ok";
             this.tsInfo.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -128,8 +132,8 @@
             // 
             // toolContainer.TopToolStripPanel
             // 
-            this.toolContainer.TopToolStripPanel.Controls.Add(this.toolMain);
             this.toolContainer.TopToolStripPanel.Controls.Add(this.menuMain);
+            this.toolContainer.TopToolStripPanel.Controls.Add(this.toolMain);
             // 
             // explorerBrowser
             // 
@@ -141,26 +145,6 @@
             this.explorerBrowser.TabIndex = 3;
             this.explorerBrowser.SelectionChanged += new System.EventHandler(this.explorerBrowser_SelectionChanged);
             this.explorerBrowser.NavigationComplete += new System.EventHandler<Microsoft.WindowsAPICodePack.Controls.NavigationCompleteEventArgs>(this.explorerBrowser_NavigationComplete);
-            // 
-            // menuMain
-            // 
-            this.menuMain.Dock = System.Windows.Forms.DockStyle.None;
-            this.menuMain.GripStyle = System.Windows.Forms.ToolStripGripStyle.Visible;
-            this.menuMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem});
-            this.menuMain.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.Flow;
-            this.menuMain.Location = new System.Drawing.Point(0, 0);
-            this.menuMain.Name = "menuMain";
-            this.menuMain.Size = new System.Drawing.Size(44, 20);
-            this.menuMain.TabIndex = 0;
-            this.menuMain.Text = "MainMenu";
-            this.menuMain.Visible = false;
-            // 
-            // fileToolStripMenuItem
-            // 
-            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(41, 16);
-            this.fileToolStripMenuItem.Text = "File";
             // 
             // toolMain
             // 
@@ -261,6 +245,26 @@
             this.tscbKnownFolder.Visible = false;
             this.tscbKnownFolder.SelectedIndexChanged += new System.EventHandler(this.tscbKnownFolder_SelectedIndexChanged);
             // 
+            // menuMain
+            // 
+            this.menuMain.Dock = System.Windows.Forms.DockStyle.None;
+            this.menuMain.GripStyle = System.Windows.Forms.ToolStripGripStyle.Visible;
+            this.menuMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.fileToolStripMenuItem});
+            this.menuMain.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.Flow;
+            this.menuMain.Location = new System.Drawing.Point(0, 0);
+            this.menuMain.Name = "menuMain";
+            this.menuMain.Size = new System.Drawing.Size(44, 20);
+            this.menuMain.TabIndex = 0;
+            this.menuMain.Text = "MainMenu";
+            this.menuMain.Visible = false;
+            // 
+            // fileToolStripMenuItem
+            // 
+            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(41, 16);
+            this.fileToolStripMenuItem.Text = "File";
+            // 
             // toolTip
             // 
             this.toolTip.ToolTipIcon = System.Windows.Forms.ToolTipIcon.Info;
@@ -286,10 +290,10 @@
             this.toolContainer.TopToolStripPanel.PerformLayout();
             this.toolContainer.ResumeLayout(false);
             this.toolContainer.PerformLayout();
-            this.menuMain.ResumeLayout(false);
-            this.menuMain.PerformLayout();
             this.toolMain.ResumeLayout(false);
             this.toolMain.PerformLayout();
+            this.menuMain.ResumeLayout(false);
+            this.menuMain.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
