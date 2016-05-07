@@ -426,20 +426,26 @@ namespace PhotoGeoTagShell
             }
         }
 
-        private void tsmiTouch_Click( object sender, EventArgs e )
+        private void tsbtnTouch_Click( object sender, EventArgs e )
         {
-            //
             string folder = tscbVistedFolder.Text;
-            List<string> files = new List<string>();
-            //Directory.GetFiles(folder, "*.jpg;*.jpeg;*.tif;*.tiff", SearchOption.TopDirectoryOnly);
-            files.AddRange( Directory.GetFiles( folder, "*.jpg" , SearchOption.TopDirectoryOnly ) );
-            files.AddRange( Directory.GetFiles( folder, "*.jpeg", SearchOption.TopDirectoryOnly ) );
-            files.AddRange( Directory.GetFiles( folder, "*.tif" , SearchOption.TopDirectoryOnly ) );
-            files.AddRange( Directory.GetFiles( folder, "*.tiff", SearchOption.TopDirectoryOnly ) );
-            foreach ( string file in files )
-            {
-                EXIF.TouchPhoto( file );
-            }
+            //EXIF.TouchPhoto( folder, "", SearchOption.TopDirectoryOnly );
+            tsProgress.Minimum = 0;
+            tsProgress.Maximum = 100;
+            KeyValuePair<string, SearchOption> args = new KeyValuePair<string, SearchOption>(folder, SearchOption.TopDirectoryOnly);
+            Cursor = Cursors.WaitCursor;
+            bgwTouch.RunWorkerAsync( args );
+        }
+
+        private void tsmiTouchRecursion_Click( object sender, EventArgs e )
+        {
+            string folder = tscbVistedFolder.Text;
+            //EXIF.TouchPhoto( folder, "", SearchOption.AllDirectories );
+            tsProgress.Minimum = 0;
+            tsProgress.Maximum = 100;
+            KeyValuePair<string, SearchOption> args = new KeyValuePair<string, SearchOption>(folder, SearchOption.AllDirectories);
+            Cursor = Cursors.WaitCursor;
+            bgwTouch.RunWorkerAsync( args );
         }
 
         private void explorerBrowser_NavigationComplete( object sender, NavigationCompleteEventArgs e )
@@ -470,5 +476,43 @@ namespace PhotoGeoTagShell
             ShowSelectedImage();
         }
 
+        private void bgwTouch_DoWork( object sender, System.ComponentModel.DoWorkEventArgs e )
+        {
+            KeyValuePair<string, SearchOption> args = (KeyValuePair<string, SearchOption>)e.Argument;
+            string folder = args.Key;
+            SearchOption option = args.Value;
+
+            List < string> files = new List<string>();
+            //Directory.GetFiles(folder, "*.jpg;*.jpeg;*.tif;*.tiff", SearchOption.TopDirectoryOnly);
+            files.AddRange( Directory.GetFiles( folder, "*.jpg", option ) );
+            bgwTouch.ReportProgress( 25 );
+            files.AddRange( Directory.GetFiles( folder, "*.jpeg", option ) );
+            bgwTouch.ReportProgress( 50 );
+            files.AddRange( Directory.GetFiles( folder, "*.tif", option ) );
+            bgwTouch.ReportProgress( 75 );
+            files.AddRange( Directory.GetFiles( folder, "*.tiff", option ) );
+            bgwTouch.ReportProgress( 100 );
+
+            int index = 0;
+            int count = files.Count;
+            foreach ( string file in files )
+            {
+                EXIF.TouchPhoto( file, "" );
+                bgwTouch.ReportProgress( (int)Math.Round( ( index++ ) * 100f / count ) );
+            }
+        }
+
+        private void bgwTouch_ProgressChanged( object sender, System.ComponentModel.ProgressChangedEventArgs e )
+        {
+            tsProgress.Value = e.ProgressPercentage;
+            tsInfo.Text = $"Touching file datetime {e.ProgressPercentage}%";
+        }
+
+        private void bgwTouch_RunWorkerCompleted( object sender, System.ComponentModel.RunWorkerCompletedEventArgs e )
+        {
+            tsProgress.Value = tsProgress.Maximum;
+            Cursor = Cursors.Default;
+            tsInfo.Text = $"Touching file datetime 100%";
+        }
     }
 }

@@ -43,13 +43,14 @@
             this.tsSep1 = new System.Windows.Forms.ToolStripSeparator();
             this.tscbVistedFolder = new System.Windows.Forms.ToolStripComboBox();
             this.tsbtnGo = new System.Windows.Forms.ToolStripSplitButton();
-            this.tsmiTouch = new System.Windows.Forms.ToolStripMenuItem();
             this.tsSep3 = new System.Windows.Forms.ToolStripSeparator();
-            this.tsbtnTouch = new System.Windows.Forms.ToolStripButton();
+            this.tsbtnTouch = new System.Windows.Forms.ToolStripSplitButton();
+            this.tsmiTouchRecursion = new System.Windows.Forms.ToolStripMenuItem();
             this.tscbKnownFolder = new System.Windows.Forms.ToolStripComboBox();
             this.menuMain = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.bgwTouch = new System.ComponentModel.BackgroundWorker();
             this.status.SuspendLayout();
             this.toolContainer.ContentPanel.SuspendLayout();
             this.toolContainer.TopToolStripPanel.SuspendLayout();
@@ -60,6 +61,7 @@
             // 
             // status
             // 
+            this.status.AutoSize = false;
             this.status.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsInfo,
             this.tsFilesSelected,
@@ -78,7 +80,7 @@
             | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
             this.tsInfo.BorderStyle = System.Windows.Forms.Border3DStyle.SunkenOuter;
             this.tsInfo.Name = "tsInfo";
-            this.tsInfo.Size = new System.Drawing.Size(677, 17);
+            this.tsInfo.Size = new System.Drawing.Size(646, 17);
             this.tsInfo.Spring = true;
             this.tsInfo.Text = "Ok";
             this.tsInfo.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -198,8 +200,6 @@
             // tsbtnGo
             // 
             this.tsbtnGo.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.tsbtnGo.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsmiTouch});
             this.tsbtnGo.Image = ((System.Drawing.Image)(resources.GetObject("tsbtnGo.Image")));
             this.tsbtnGo.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbtnGo.Margin = new System.Windows.Forms.Padding(2, 1, 0, 2);
@@ -210,13 +210,6 @@
             this.tsbtnGo.ToolTipText = "Goto Folder of left box";
             this.tsbtnGo.Click += new System.EventHandler(this.tsbtnGo_Click);
             // 
-            // tsmiTouch
-            // 
-            this.tsmiTouch.Name = "tsmiTouch";
-            this.tsmiTouch.Size = new System.Drawing.Size(106, 22);
-            this.tsmiTouch.Text = "Touch!";
-            this.tsmiTouch.Click += new System.EventHandler(this.tsmiTouch_Click);
-            // 
             // tsSep3
             // 
             this.tsSep3.Name = "tsSep3";
@@ -225,14 +218,23 @@
             // tsbtnTouch
             // 
             this.tsbtnTouch.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsbtnTouch.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiTouchRecursion});
             this.tsbtnTouch.Image = ((System.Drawing.Image)(resources.GetObject("tsbtnTouch.Image")));
             this.tsbtnTouch.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbtnTouch.Name = "tsbtnTouch";
             this.tsbtnTouch.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
-            this.tsbtnTouch.Size = new System.Drawing.Size(39, 22);
+            this.tsbtnTouch.Size = new System.Drawing.Size(51, 22);
             this.tsbtnTouch.Text = "Touch";
             this.tsbtnTouch.ToolTipText = "Touch Photos Datetime to Taken";
-            this.tsbtnTouch.Click += new System.EventHandler(this.tsmiTouch_Click);
+            this.tsbtnTouch.Click += new System.EventHandler(this.tsbtnTouch_Click);
+            // 
+            // tsmiTouchRecursion
+            // 
+            this.tsmiTouchRecursion.Name = "tsmiTouchRecursion";
+            this.tsmiTouchRecursion.Size = new System.Drawing.Size(160, 22);
+            this.tsmiTouchRecursion.Text = "Touch Recursion";
+            this.tsmiTouchRecursion.Click += new System.EventHandler(this.tsmiTouchRecursion_Click);
             // 
             // tscbKnownFolder
             // 
@@ -270,6 +272,14 @@
             this.toolTip.ToolTipIcon = System.Windows.Forms.ToolTipIcon.Info;
             this.toolTip.ToolTipTitle = "Tip";
             // 
+            // bgwTouch
+            // 
+            this.bgwTouch.WorkerReportsProgress = true;
+            this.bgwTouch.WorkerSupportsCancellation = true;
+            this.bgwTouch.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgwTouch_DoWork);
+            this.bgwTouch.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bgwTouch_ProgressChanged);
+            this.bgwTouch.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgwTouch_RunWorkerCompleted);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -295,7 +305,6 @@
             this.menuMain.ResumeLayout(false);
             this.menuMain.PerformLayout();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -315,11 +324,12 @@
         private Microsoft.WindowsAPICodePack.Controls.WindowsForms.ExplorerBrowser explorerBrowser;
         private System.Windows.Forms.ToolStripComboBox tscbKnownFolder;
         private System.Windows.Forms.ToolStripSplitButton tsbtnGo;
-        private System.Windows.Forms.ToolStripMenuItem tsmiTouch;
-        private System.Windows.Forms.ToolStripButton tsbtnTouch;
         private System.Windows.Forms.ToolStripSeparator tsSep3;
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.ToolStripStatusLabel tsFilesSelected;
         private System.Windows.Forms.ToolStripStatusLabel tsFilesTotal;
+        private System.Windows.Forms.ToolStripSplitButton tsbtnTouch;
+        private System.Windows.Forms.ToolStripMenuItem tsmiTouchRecursion;
+        private System.ComponentModel.BackgroundWorker bgwTouch;
     }
 }
