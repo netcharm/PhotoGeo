@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -21,10 +22,6 @@ namespace NetCharm
         /// <summary>
         /// These constants come from the CIPA DC-008 standard for EXIF 2.3
         /// </summary>
-        const short ExifTypeByte = 1;
-        const short ExifTypeAscii = 2;
-        const short ExifTypeRational = 5;
-
 
         #region EXIF Data Type
         /// <summary> 
@@ -294,6 +291,27 @@ namespace NetCharm
         public const int PropertyTagExifFileSource = 0xA300;
         public const int PropertyTagExifSceneType = 0xA301;
         public const int PropertyTagExifCfaPattern = 0xA302;
+
+        // extension tags
+        public const int PropertyTagExifCustomRendered = 0xA401;
+        public const int PropertyTagExifExposureMode = 0xA402;
+        public const int PropertyTagExifWhiteBalance = 0xA403;
+        public const int PropertyTagExifDigitalZoomRatio = 0xA404;
+        public const int PropertyTagExifFocalLengthIn35mmFilm = 0xA405;
+        public const int PropertyTagExifSceneCaptureType = 0xA406;
+        public const int PropertyTagExifGainControl = 0xA407;
+        public const int PropertyTagExifContrast = 0xA408;
+        public const int PropertyTagExifSaturation = 0xA409;
+        public const int PropertyTagExifSharpness = 0xA40A;
+        public const int PropertyTagExifSubjectDistanceRange = 0xA40C;
+
+        // XP System Property
+        public const int PropertyTagExifXPTitle = 0x9C9B; // 40091;
+        public const int PropertyTagExifXPComment = 0x9C9C; // 40092;
+        public const int PropertyTagExifXPAuthor = 0x9C9D; // 40093;
+        public const int PropertyTagExifXPKeywords = 0x9C9E; // 40094;
+        public const int PropertyTagExifXPSubject = 0x9C9F; // 40095;
+
         #endregion
 
         /// <summary>
@@ -306,27 +324,32 @@ namespace NetCharm
         public static void TouchPhoto( Image photo, string file, string touch = "" )
         {
             FileInfo fi = new FileInfo( file );
-            DateTime dt = DateTime.Now;
+            DateTime dt = fi.CreationTimeUtc.ToLocalTime();
 
             if ( string.IsNullOrEmpty( touch ))
             {
                 try
                 {
-                    //PropertyItem DTDigital = photo.GetPropertyItem(PropertyTagExifDTDigitized);
-                    PropertyItem DTOrig = photo.GetPropertyItem(PropertyTagExifDTOrig);
-
-                    ASCIIEncoding enc = new ASCIIEncoding();
-                    string dateTakenText = enc.GetString( DTOrig.Value, 0, DTOrig.Len - 1 );
-
-                    if ( !string.IsNullOrEmpty( dateTakenText ) )
+                    if ( photo.PropertyIdList.Contains( EXIF.PropertyTagExifDTOrig ) ||
+                         photo.PropertyIdList.Contains( EXIF.PropertyTagExifDTDigitized ) )
                     {
-                        if ( !DateTime.TryParseExact( dateTakenText, "yyyy:MM:dd HH:mm:ss", CultureInfo.CurrentCulture, DateTimeStyles.None, out dt ) )
+                        PropertyItem DTOrig = photo.PropertyIdList.Contains( EXIF.PropertyTagExifDTOrig ) ? photo.GetPropertyItem( EXIF.PropertyTagExifDTOrig ) : photo.GetPropertyItem( EXIF.PropertyTagExifDTDigitized );
+                        //PropertyItem DTDigital = photo.GetPropertyItem(PropertyTagExifDTDigitized);
+                        //PropertyItem DTOrig = photo.GetPropertyItem(PropertyTagExifDTOrig);
+
+                        ASCIIEncoding enc = new ASCIIEncoding();
+                        string dateTakenText = enc.GetString( DTOrig.Value, 0, DTOrig.Len - 1 );
+
+                        if ( !string.IsNullOrEmpty( dateTakenText ) )
                         {
-                            //dt = DateTime.ParseExact( dateTakenText, "yyyy:MM:dd HH:mm:ss", CultureInfo.CurrentCulture, DateTimeStyles.None );
-                            return;
+                            if ( !DateTime.TryParseExact( dateTakenText, "yyyy:MM:dd HH:mm:ss", CultureInfo.CurrentCulture, DateTimeStyles.None, out dt ) )
+                            {
+                                //dt = DateTime.ParseExact( dateTakenText, "yyyy:MM:dd HH:mm:ss", CultureInfo.CurrentCulture, DateTimeStyles.None );
+                                return;
+                            }
                         }
+                        else return;
                     }
-                    else return;
                 }
                 catch { }
             }
@@ -352,6 +375,20 @@ namespace NetCharm
                 fs.Close();
                 TouchPhoto( img, photo, touch );
                 img.Dispose();
+            }
+        }
+
+        public static void TouchPhoto( string folder, string touch = "", SearchOption option=SearchOption.TopDirectoryOnly )
+        {
+            List<string> files = new List<string>();
+            //Directory.GetFiles(folder, "*.jpg;*.jpeg;*.tif;*.tiff", SearchOption.TopDirectoryOnly);
+            files.AddRange( Directory.GetFiles( folder, "*.jpg", option ) );
+            files.AddRange( Directory.GetFiles( folder, "*.jpeg", option ) );
+            files.AddRange( Directory.GetFiles( folder, "*.tif", option ) );
+            files.AddRange( Directory.GetFiles( folder, "*.tiff", option ) );
+            foreach ( string file in files )
+            {
+                TouchPhoto( file, touch );
             }
         }
 
@@ -536,6 +573,72 @@ namespace NetCharm
 
     }
 
+    class META
+    {
+        #region Query Path
+        ///
+        /// all used the bitmapmetadata.getquery("[INSERT BELOW]")... warning data type that is returned is not always the same
+        /// "they" could have made it much easier...I would still have some hair left in if they did !!
+        ///
+        // IPTC Tags
+        public const string TagIptcRecordVersion = "/app13/irb/8bimiptc/iptc/{ str = Record Version}";
+        public const string TagIptcWriterEditor = "/app13/irb/8bimiptc/iptc/{str=Writer/Editor}";
+        public const string TagIptcHeadline = "/app13/irb/8bimiptc/iptc/{str=Headline}";
+        public const string TagIptcSpecialInstructions = "/app13/irb/8bimiptc/iptc/{str=Special Instructions}";
+        public const string TagIptcByline = "/app13/irb/8bimiptc/iptc/{str=By-line}";
+        public const string TagIptcBylineTitle = "/app13/irb/8bimiptc/iptc/{str=By-line Title}";
+        public const string TagIptcCredit = "/app13/irb/8bimiptc/iptc/{str=Credit}";
+        public const string TagIptcSource = "/app13/irb/8bimiptc/iptc/{str=Source}";
+        public const string TagIptcObjectName = "/app13/irb/8bimiptc/iptc/{str=Object Name}";
+        public const string TagIptcDateCreated = "/app13/irb/8bimiptc/iptc/{str=Date Created}";
+        public const string TagIptcCity = "/app13/irb/8bimiptc/iptc/{str=City}";
+        public const string TagIptcState = "/app13/irb/8bimiptc/iptc/{str=Province/State}";
+        public const string TagIptcCountryPrimaryLocationName = "/app13/irb/8bimiptc/iptc/{str=Country/Primary Location Name}";
+        public const string TagIptcOriginalTransmissionReference = "/app13/irb/8bimiptc/iptc/{str=Original Transmission Reference}";
+        public const string TagIptcKeywords = "/app13/irb/8bimiptc/iptc/{str=Keywords}";
+        public const string TagIptcCopyrightNotice = "/app13/irb/8bimiptc/iptc/{str=Copyright Notice}";
+        // EXIF Tags
+        public const string TagExifExposureTime = "/app/ifd/exif/{ushort=33434}";
+        public const string TagExifFNumber = "/app/ifd/exif/{ushort=33437}";
+        public const string TagExifExposureProg = "/app/ifd/exif/{ushort=34850}";
+        public const string TagExifISOSpeed = "/app/ifd/exif/{ushort=34855}";
+        public const string TagExifDTOrig = "/app/ifd/exif/{ushort=36867}";
+        public const string TagExifDTDigitized = "/app/ifd/exif/{ushort=36868}";
+        public const string TagExifShutterSpeed = "/app/ifd/exif/{ushort=37377}";
+        public const string TagExifAperture = "/app/ifd/exif/{ushort=37378}";
+        public const string TagExifExposureBias = "/app/ifd/exif/{ushort=37380}";
+        public const string TagExifMaxAperture = "/app/ifd/exif/{ushort=37381}";
+        public const string TagExifMeteringMode = "/app/ifd/exif/{ushort=37383}";
+        public const string TagExifLightSource = "/app/ifd/exif/{ushort=37384}";
+        public const string TagExifFlash = "/app/ifd/exif/{ushort=37385}";
+        public const string TagExifFocalLength = "/app/ifd/exif/{ushort=37386}";
+        public const string TagExifUserComment = "/app/ifd/exif/{ushort=37510}";
+        public const string TagExifDTSubsec = "/app/ifd/exif/{ushort=37520}";
+        public const string TagExifDTOrigSS = "/app/ifd/exif/{ushort=37521}";
+        public const string TagExifDTDigSS = "/app/ifd/exif/{ushort=37522}";
+        public const string TagExifColorSpace = "/app/ifd/exif/{ushort=40961}";
+        public const string TagExifPixXDim = "/app/ifd/exif/{ushort=40962}";
+        public const string TagExifPixYDim = "/app/ifd/exif/{ushort=40963}";
+        public const string TagExifSensingMethod = "/app/ifd/exif/{ushort=41495}";
+        public const string TagExifFileSource = "/app/ifd/exif/{ushort=41728}";
+        public const string TagExifSceneType = "/app/ifd/exif/{ushort=41729}";
+        public const string TagExifCfaPattern = "/app/ifd/exif/{ushort=41730}";
+        public const string TagExifCustomRendered = "/app/ifd/exif/{ushort=41985}";
+        public const string TagExifExposureMode = "/app/ifd/exif/{ushort=41986}";
+        public const string TagExifWhiteBalance = "/app/ifd/exif/{ushort=41987}";
+        public const string TagExifDigitalZoomRatio = "/app/ifd/exif/{ushort=41988}";
+        public const string TagExifFocalLengthIn35mmFilm = "/app/ifd/exif/{ushort=41989}";
+        public const string TagExifSceneCaptureType = "/app/ifd/exif/{ushort=41990}";
+        public const string TagExifGainControl = "/app/ifd/exif/{ushort=41991}";
+        public const string TagExifContrast = "/app/ifd/exif/{ushort=41992}";
+        public const string TagExifSaturation = "/app/ifd/exif/{ushort=41993}";
+        public const string TagExifSharpness = "/app/ifd/exif/{ushort=41994}";
+        public const string TagExifSubjectDistanceRange = "/app/ifd/exif/{ushort=41996}";
+
+        #endregion
+
+    }
+
     class GeoRegion
     {
         public double west;
@@ -565,7 +668,7 @@ namespace NetCharm
         /// <summary>
         /// 
         /// </summary>
-        string AppPath = System.AppDomain.CurrentDomain.BaseDirectory;
+        string AppPath = AppDomain.CurrentDomain.BaseDirectory;
 
         /// <summary>
         ///  Globals which should be set before calling this function:
