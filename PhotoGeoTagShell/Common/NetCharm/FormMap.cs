@@ -12,7 +12,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-
+using Fotofly;
+using Fotofly.BitmapMetadataTools;
 using GMap.NET;
 using GMap.NET.MapProviders;
 using GMap.NET.MapProviders.AMap;
@@ -121,6 +122,7 @@ namespace NetCharm
                 gMap.MaxZoom = 20;
                 gMap.MapProvider.MaxZoom = gMap.MaxZoom;
             }
+            //GMaps.Instance.Mode = gMap.Manager.Mode;
 
             trackZoom.Maximum = gMap.MaxZoom;
             if ( gMap.Zoom > gMap.MaxZoom ) gMap.Zoom = gMap.MaxZoom;
@@ -349,53 +351,6 @@ namespace NetCharm
             tsProgress.Maximum = photos.Count;
 
             bgwShowImage.RunWorkerAsync(imgs);
-            //PointLatLng pos = gMap.Position;
-
-            //photos.Clear();
-            //photos.AddRange( imgs );
-
-            //OverlayPhotosWGS.Markers.Clear();
-            //OverlayPhotosMAR.Markers.Clear();
-            //foreach ( KeyValuePair<Image, string> img in imgs)
-            //{
-            //    using ( Image photo = new Bitmap( img.Value ) )
-            //    {
-            //        pos.Lat = EXIF.GetLatitude( photo );
-            //        pos.Lng = EXIF.GetLongitude( photo );
-
-            //        photo.Dispose();
-            //    }
-
-            //    if ( double.IsNaN( pos.Lat ) || double.IsNaN( pos.Lng ) ) continue;
-
-            //    double lat = pos.Lat, lng = pos.Lng;
-            //    PosShift.Convert2Mars( pos.Lng, pos.Lat, out lng, out lat );
-
-            //    GMarkerGoogle marker_wgs = new GMarkerGoogle( pos, GMarkerGoogleType.green_dot );
-            //    GMapImageToolTip tooltip_wgs = new GMapImageToolTip( marker_wgs );
-            //    tooltip_wgs.Image = img.Key;
-            //    tooltip_wgs.Offset = new Point( 0, -12 );
-            //    tooltip_wgs.Font = new Font( "Segoe UI", 8 );
-            //    tooltip_wgs.Stroke = new System.Drawing.Pen( System.Drawing.Color.LightCoral, 2 );
-            //    tooltip_wgs.Fill = new SolidBrush( System.Drawing.Color.Snow );
-            //    marker_wgs.ToolTip = tooltip_wgs;
-            //    marker_wgs.ToolTipText = Path.GetFileName( img.Value );
-            //    marker_wgs.Tag = pos;
-            //    OverlayPhotosWGS.Markers.Add( marker_wgs );
-
-            //    GMarkerGoogle marker_mar = new GMarkerGoogle( new PointLatLng( lat, lng ), GMarkerGoogleType.green_dot );
-            //    GMapImageToolTip tooltip_mar = new GMapImageToolTip( marker_mar );
-            //    tooltip_mar.Image = img.Key;
-            //    tooltip_mar.Offset = new Point( 0, -12 );
-            //    tooltip_mar.Font = new Font( "Segoe UI", 8 );
-            //    tooltip_mar.Stroke = new System.Drawing.Pen( System.Drawing.Color.SlateBlue, 2 );
-            //    tooltip_mar.Fill = new SolidBrush( System.Drawing.Color.Snow );
-            //    marker_mar.ToolTip = tooltip_mar;
-            //    marker_mar.ToolTipText = Path.GetFileName( img.Value );
-            //    marker_mar.Tag = new PointLatLng( lat, lng );
-            //    OverlayPhotosMAR.Markers.Add( marker_mar );
-            //}
-            //updatePositions( OverlayPhotos, true );
         }
 
         private ImageCodecInfo GetEncoder( ImageFormat format )
@@ -426,57 +381,196 @@ namespace NetCharm
             return null;
         }
 
-        public void SetImageGeoTag( PointLatLng pos, string image )
+        public DateTime SetImageGeoTag_WPF( double lat, double lng, string image, DateTime dt )
         {
-            #region calc position for wgs & mars
-            double lat = pos.Lat, lng = pos.Lng;
-            double lat_mar = lat, lng_mar = lng;
-            double lat_wgs = lat, lng_wgs = lng;
-            if ( chkMapShift.Checked )
+            #region Direct Using WIC
+            /*
+            using ( FileStream fs = new FileStream( image, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite ) )
             {
-                PosShift.Convert2WGS( pos.Lng, pos.Lat, out lng, out lat );
-                lat_wgs = lat;
-                lng_wgs = lng;
+                #region using media.image modify geotag
+                fs.Seek( 0, SeekOrigin.Begin );
+                //var decoder = new JpegBitmapDecoder(fs, BitmapCreateOptions.None, BitmapCacheOption.None);
+                BitmapDecoder decoder = new JpegBitmapDecoder(fs, BitmapCreateOptions.None, BitmapCacheOption.None);
+                //var metadata = decoder.Frames[0].Metadata as BitmapMetadata;
+                InPlaceBitmapMetadataWriter metadata = decoder.Frames[0].CreateInPlaceBitmapMetadataWriter();
+                if ( metadata != null )
+                {
+                    HashSet<string> keywords = new HashSet<string>();
+                    foreach ( string keyword in metadata.Keywords )
+                    {
+                        keywords.Add( keyword.Trim() );
+                    }
+                    var iptckeywords = metadata.GetQuery( META.TagIptcKeywords );
+                    if ( iptckeywords != null )
+                    {
+                        foreach ( string keyword in (string[]) iptckeywords )
+                        {
+                            keywords.Add( keyword.Trim() );
+                        }
+                    }
+                    BitmapMetadata xmpsubjects = metadata.GetQuery( META.TagXmpSubject ) as BitmapMetadata;
+                    if ( xmpsubjects != null )
+                    {
+                        foreach ( string query in xmpsubjects.ToList() )
+                        {
+                            string keyword = xmpsubjects.GetQuery( query ) as string;
+                            keywords.Add( keyword.Trim() );
+                        }
+                    }
+
+                    if ( !metadata.IsFrozen && metadata.TrySave() )
+                    {
+                        //metadata = metadata.Clone();
+                        //metadata.SetQuery( META.paddingApp13, (uint)4096 );
+                        //metadata.SetQuery( META.paddinIrb, (uint) 4096 );
+                        //metadata.SetQuery( META.padding8bimiptc, (uint) 4096 );
+                        //metadata.SetQuery( META.paddingIptc, (uint) 4096 );
+                        metadata.SetQuery( META.paddingXmp, (uint) 4096 );
+                        ulong idx = 0;
+                        foreach ( string keyword in keywords )
+                        {
+                            string query = $"{META.TagXmpSubject}/{{ulong={idx}}}";
+                            metadata.SetQuery( query, keyword );
+                            idx++;
+                        }
+                        metadata.SetQuery( META.TagIptcKeywords, keywords.ToArray() );
+                    }
+                    metadata.TrySave();
+                }
+
+                if ( !DateTime.TryParse( metadata.DateTaken, CultureInfo.CurrentCulture, DateTimeStyles.None, out dt ) )
+                {
+                }
+
+                #endregion
+                fs.Close();
             }
-            else
+            */
+            #endregion
+
+            #region Using Fotofly library ( WIC wrapper )
+            using ( WpfFileManager wpfFileManager = new WpfFileManager( image, true ) )
             {
-                PosShift.Convert2Mars( pos.Lng, pos.Lat, out lng, out lat );
-                lat_mar = lat;
-                lng_mar = lng;
+                var metadata = wpfFileManager.BitmapMetadata;
+                HashSet<string> keywords = new HashSet<string>();
+
+                #region Get DateTaken
+                if ( !DateTime.TryParse( metadata.DateTaken, CultureInfo.CurrentCulture, DateTimeStyles.None, out dt ) )
+                {
+                }
+                #endregion
+
+                #region Get Keywords
+                if ( metadata != null )
+                {
+                    if( metadata.Keywords != null)
+                    {
+                        foreach ( string keyword in metadata.Keywords )
+                        {
+                            keywords.Add( keyword.Trim() );
+                        }
+                    }
+                    var iptckeywords = metadata.GetQuery( META.TagIptcKeywords );
+                    if ( iptckeywords != null )
+                    {
+                        foreach ( string keyword in (string[]) iptckeywords )
+                        {
+                            keywords.Add( keyword.Trim() );
+                        }
+                    }
+                    BitmapMetadata xmpsubjects = metadata.GetQuery( META.TagXmpSubject ) as BitmapMetadata;
+                    if ( xmpsubjects != null )
+                    {
+                        foreach ( string query in xmpsubjects.ToList() )
+                        {
+                            string keyword = xmpsubjects.GetQuery( query ) as string;
+                            keywords.Add( keyword.Trim() );
+                        }
+                    }
+                }
+                #endregion
+
+                if(metadata.IsFrozen)
+                {
+                    //metadata = metadata.Clone();
+                }
+
+                #region Set Title & Subject
+                var title = metadata.GetQuery( META.TagExifXPTitle );
+                if(title != null)
+                {
+                    wpfFileManager.BitmapMetadata.Title = title.ToString();
+                }
+                var subject = metadata.GetQuery( META.TagExifXPSubject );
+                if ( subject != null )
+                {
+                    wpfFileManager.BitmapMetadata.Subject = subject.ToString();
+                }
+                #endregion
+
+                #region Set GPS Info
+                char latHemisphere = 'N';
+                if ( lat < 0 )
+                {
+                    latHemisphere = 'S';
+                    lat = -lat;
+                }
+                char lngHemisphere = 'E';
+                if ( lng < 0 )
+                {
+                    lngHemisphere = 'W';
+                    lng = -lng;
+                }
+                GpsCoordinate glat = new GpsCoordinate(GpsCoordinate.LatOrLons.Latitude, lat);
+                GpsCoordinate glng = new GpsCoordinate(GpsCoordinate.LatOrLons.Longitude, lng);
+
+                ulong factor = 10000000;
+
+                ulong[] ulat = new ulong[3] {
+                    Convert.ToUInt64( glat.Degrees ) + 0x0000000100000000L,
+                    Convert.ToUInt64( glat.Minutes ) + 0x0000000100000000L,
+                    Convert.ToUInt64( (( glat.Numeric - glat.Degrees ) * 60 - glat.Minutes ) * 60 * factor ) + 0x0098968000000000L
+                };
+                ulong[] ulng = new ulong[3] {
+                    Convert.ToUInt64( glng.Degrees ) + 0x0000000100000000L,
+                    Convert.ToUInt64( glng.Minutes ) + 0x0000000100000000L,
+                    Convert.ToUInt64( (( glng.Numeric - glng.Degrees ) * 60 - glng.Minutes ) * 60 * factor ) + 0x0098968000000000L
+                };
+
+                metadata.SetQuery( "/app1/ifd/Gps/subifd:{uint=1}", latHemisphere );
+                metadata.SetQuery( "/app1/ifd/Gps/subifd:{uint=2}", ulat );
+                metadata.SetQuery( "/app1/ifd/Gps/subifd:{uint=3}", lngHemisphere );
+                metadata.SetQuery( "/app1/ifd/Gps/subifd:{uint=4}", ulng );
+
+                #endregion
+
+                #region Set Keywords
+                ulong idx = 0;
+                foreach ( string keyword in keywords )
+                {
+                    string query = $"{META.TagXmpSubject}/{{ulong={idx}}}";
+                    metadata.SetQuery( query, keyword );
+                    idx++;
+                }
+                metadata.SetQuery( META.TagIptcKeywords, keywords.ToArray() );
+                #endregion
+
+                wpfFileManager.WriteMetadata();
             }
             #endregion
 
-            #region update modified marker position
-            GMapImageToolTip currentTooltip = (GMapImageToolTip)(currentMarker.ToolTip);
-            foreach ( GMarkerGoogle marker in OverlayPhotosWGS.Markers)
-            {
-                GMapImageToolTip markerTooltip = (GMapImageToolTip)(marker.ToolTip);
-                if ( markerTooltip.Image == currentTooltip.Image )
-                {
-                    marker.Position = new PointLatLng( lat_wgs, lng_wgs);
-                    break;
-                }
-            }
+            return ( dt );
+        }
 
-            foreach ( GMarkerGoogle marker in OverlayPhotosMAR.Markers )
+        public DateTime SetImageGeoTag_GDI( double lat, double lng, string image, DateTime dt )
+        {
+            using ( FileStream fs = new FileStream( image, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite ) )
             {
-                GMapImageToolTip markerTooltip = (GMapImageToolTip)(marker.ToolTip);
-                if ( markerTooltip.Image == currentTooltip.Image )
-                {
-                    marker.Position = new PointLatLng( lat_mar, lng_mar );
-                    break;
-                }
-            }
-            #endregion
 
-            #region Touch file datetime to DateTaken/DateOriginal
-            FileInfo fi = new FileInfo( image );
-            DateTime dt = DateTime.Now;
-
-            using ( FileStream fs = new FileStream( image, FileMode.Open, FileAccess.Read ) )
-            {
+                fs.Seek( 0, SeekOrigin.Begin );
                 Image photo = Image.FromStream( fs, true, true );
-                photo = EXIF.Geotag( photo, lat_wgs, lng_wgs );
+                photo = EXIF.Geotag( photo, lat, lng );
+
                 fs.Close();
 
                 try
@@ -501,22 +595,72 @@ namespace NetCharm
                 ImageCodecInfo jpgEncoder = GetEncoder(ImageFormat.Jpeg);
                 System.Drawing.Imaging.Encoder myEncoder = System.Drawing.Imaging.Encoder.Quality;
                 EncoderParameters myEncoderParameters = new EncoderParameters(1);
-                EncoderParameter myEncoderParameter = new EncoderParameter(myEncoder, 92L);
+                EncoderParameter myEncoderParameter = new EncoderParameter(myEncoder, 95L);
                 myEncoderParameters.Param[0] = myEncoderParameter;
 
                 photo.Save( image, jpgEncoder, myEncoderParameters );
                 photo.Dispose();
             }
+            return ( dt );
+        }
+
+        public void SetImageGeoTag( PointLatLng pos, string image )
+        {
+            #region calc position for wgs & mars
+            double lat = pos.Lat, lng = pos.Lng;
+            double lat_mar = lat, lng_mar = lng;
+            double lat_wgs = lat, lng_wgs = lng;
+            if ( chkMapShift.Checked )
+            {
+                PosShift.Convert2WGS( pos.Lng, pos.Lat, out lng, out lat );
+                lat_wgs = lat;
+                lng_wgs = lng;
+            }
+            else
+            {
+                PosShift.Convert2Mars( pos.Lng, pos.Lat, out lng, out lat );
+                lat_mar = lat;
+                lng_mar = lng;
+            }
+            #endregion
+
+            #region update modified marker position
+            GMapImageToolTip currentTooltip = (GMapImageToolTip)(currentMarker.ToolTip);
+            foreach ( GMarkerGoogle marker in OverlayPhotosWGS.Markers )
+            {
+                GMapImageToolTip markerTooltip = (GMapImageToolTip)(marker.ToolTip);
+                if ( markerTooltip.Image == currentTooltip.Image )
+                {
+                    marker.Position = new PointLatLng( lat_wgs, lng_wgs );
+                    break;
+                }
+            }
+
+            foreach ( GMarkerGoogle marker in OverlayPhotosMAR.Markers )
+            {
+                GMapImageToolTip markerTooltip = (GMapImageToolTip)(marker.ToolTip);
+                if ( markerTooltip.Image == currentTooltip.Image )
+                {
+                    marker.Position = new PointLatLng( lat_mar, lng_mar );
+                    break;
+                }
+            }
+            #endregion
+
+            #region Touch file datetime to DateTaken/DateOriginal
+            FileInfo fi = new FileInfo( image );
+            DateTime dt = fi.CreationTimeUtc.ToLocalTime();
+#if DEBUG
+            dt = SetImageGeoTag_WPF( lat_wgs, lng_wgs, image, dt );
+#else
+            dt = SetImageGeoTag_GDI( lat_wgs, lng_wgs, image, dt );
+#endif
+
             fi.LastAccessTimeUtc = dt.ToUniversalTime();
             fi.LastWriteTimeUtc = dt.ToUniversalTime();
             fi.CreationTimeUtc = dt.ToUniversalTime();
-            #endregion
+#endregion
 
-            #region using media.image modify geotag
-
-
-
-            #endregion
         }
 
         public void SetImageGeoTag( PointLatLng pos )
@@ -528,7 +672,7 @@ namespace NetCharm
             OverlayPhotosMAR.Markers.Clear();
             foreach ( KeyValuePair<Image, string> img in photos )
             {
-                #region calc position
+#region calc position
                 double lat = pos.Lat, lng = pos.Lng;
                 double lat_mar = lat, lng_mar = lng;
                 double lat_wgs = lat, lng_wgs = lng;
@@ -544,9 +688,9 @@ namespace NetCharm
                     lat_mar = lat;
                     lng_mar = lng;
                 }
-                #endregion
+#endregion
 
-                #region touch photo
+#region touch photo
                 //Image photo = new Bitmap(img.Value);
                 using ( FileStream fs = new FileStream( img.Value, FileMode.Open, FileAccess.Read ) )
                 {
@@ -590,9 +734,9 @@ namespace NetCharm
                     fi.LastWriteTimeUtc = dt.ToUniversalTime();
                     fi.CreationTimeUtc = dt.ToUniversalTime();
                 }
-                #endregion
+#endregion
 
-                #region create new marker for moved marker
+#region create new marker for moved marker
                 GMarkerGoogle marker_wgs = new GMarkerGoogle( new PointLatLng(lat_wgs, lng_wgs), GMarkerGoogleType.orange_dot );
                 GMapImageToolTip tooltip_wgs = new GMapImageToolTip( marker_wgs );
                 tooltip_wgs.Image = img.Key;
@@ -616,7 +760,7 @@ namespace NetCharm
                 marker_mar.ToolTipText = Path.GetFileName( img.Value );
                 marker_mar.Tag = new PointLatLng( lat_mar, lng_mar );
                 OverlayPhotosMAR.Markers.Add( marker_mar );
-                #endregion
+#endregion
                 if( bgwSetGeo.IsBusy )
                 {
                     bgwSetGeo.ReportProgress( OverlayPhotosMAR.Markers.Count );
@@ -646,7 +790,7 @@ namespace NetCharm
             trackZoom.Maximum = 20;
             trackZoom.Value = 12;
 
-            #region setup MapProvider
+#region setup MapProvider
             cbMapProviders.Items.Clear();
             cbMapProviders.BeginUpdate();
             foreach ( GMapProvider map in GMapProviders.List )
@@ -690,11 +834,11 @@ namespace NetCharm
             {
                 Directory.CreateDirectory( CacheFolder );
             }
-            #endregion
+#endregion
 
             picGeoRef.AllowDrop = true;
 
-            #region setup GMap
+#region setup GMap
             gMap.Manager.BoostCacheEngine = true;
             gMap.Manager.CacheOnIdleRead = true;
             gMap.Manager.UseDirectionsCache = true;
@@ -703,11 +847,12 @@ namespace NetCharm
             gMap.Manager.UsePlacemarkCache = true;
             gMap.Manager.UseRouteCache = true;
             gMap.Manager.UseUrlCache = true;
+            gMap.Manager.Mode = AccessMode.ServerAndCache;
+            
             gMap.CanDragMap = true;
             gMap.DragButton = MouseButtons.Left;
             gMap.FillEmptyTiles = true;
             gMap.MapScaleInfoEnabled = false;
-            gMap.Manager.Mode = AccessMode.ServerAndCache;
             gMap.MaxZoom = trackZoom.Maximum;
             gMap.MinZoom = trackZoom.Minimum;
             //gMap.MouseWheelZoomType = MouseWheelZoomType.MousePositionAndCenter;
@@ -733,8 +878,9 @@ namespace NetCharm
             gMap.Overlays.Add( OverlayPhotos );
             gMap.Overlays.Add( OverlayRefPos );
 
-            GMaps.Instance.Mode = AccessMode.ServerAndCache;
-            #endregion
+            //GMaps.Instance.Mode = AccessMode.ServerAndCache;
+            //GMaps.Instance.Mode = gMap.Manager.Mode;
+#endregion
         }
 
         private void FormMap_FormClosing( object sender, FormClosingEventArgs e )
@@ -863,11 +1009,30 @@ namespace NetCharm
         private void tsmiImportGPXKML_Click( object sender, EventArgs e )
         {
             //
+            dlgOpen.DefaultExt = ".gpx";
+            dlgOpen.Filter = "GPX File (*.gpx)|*.gpx|KML File (*.kml)|*.kml|All Files|*.*";
+            dlgOpen.FilterIndex = 1;
+            dlgOpen.FileName = "*.gpx";
+            //dlgOpen.InitialDirectory = LastOpenFolder;
+            if ( dlgOpen.ShowDialog( this ) == DialogResult.OK )
+            {
+                //edFileSrc.Text = dlgOpen.FileName.Trim();
+            }
+
         }
 
         private void tsmiExportGPXKML_Click( object sender, EventArgs e )
         {
-            //
+            dlgSave.DefaultExt = ".gpx";
+            dlgSave.Filter = "GPX File (*.gpx)|*.gpx|KML File (*.kml)|*.kml|All Files|*.*";
+            dlgSave.FilterIndex = 1;
+            dlgSave.FileName = "*.gpx";
+            //dlgSave.InitialDirectory = LastSaveFolder;
+            if ( dlgSave.ShowDialog(this) == DialogResult.OK )
+            {
+                //edFileDst.Text = dlgSave.FileName.Trim();
+                //LastSaveFolder = System.IO.Path.GetDirectoryName( dlgSave.FileName );
+            }
         }
 
         private void gMap_OnMapTypeChanged( GMapProvider type )

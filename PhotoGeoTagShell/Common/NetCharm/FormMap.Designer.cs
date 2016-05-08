@@ -52,6 +52,8 @@
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.bgwSetGeo = new System.ComponentModel.BackgroundWorker();
             this.bgwShowImage = new System.ComponentModel.BackgroundWorker();
+            this.dlgOpen = new System.Windows.Forms.OpenFileDialog();
+            this.dlgSave = new System.Windows.Forms.SaveFileDialog();
             this.status.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackZoom)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picGeoRef)).BeginInit();
@@ -114,7 +116,6 @@
             // status
             // 
             this.status.AutoSize = false;
-            this.status.GripStyle = System.Windows.Forms.ToolStripGripStyle.Visible;
             this.status.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsLat,
             this.tsLon,
@@ -176,12 +177,13 @@
             | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
             this.tsInfo.BorderStyle = System.Windows.Forms.Border3DStyle.SunkenOuter;
             this.tsInfo.Name = "tsInfo";
-            this.tsInfo.Size = new System.Drawing.Size(224, 17);
+            this.tsInfo.Size = new System.Drawing.Size(193, 17);
             this.tsInfo.Spring = true;
             this.tsInfo.Text = "OK";
             // 
             // tsProgress
             // 
+            this.tsProgress.AutoToolTip = true;
             this.tsProgress.Name = "tsProgress";
             this.tsProgress.Size = new System.Drawing.Size(80, 16);
             // 
@@ -323,6 +325,10 @@
             this.bgwShowImage.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bgwShowImage_ProgressChanged);
             this.bgwShowImage.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgwShowImage_RunWorkerCompleted);
             // 
+            // dlgOpen
+            // 
+            this.dlgOpen.FileName = "openFileDialog1";
+            // 
             // FormMap
             // 
             this.AllowDrop = true;
@@ -375,6 +381,8 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiImportGPXKML;
         private System.ComponentModel.BackgroundWorker bgwSetGeo;
         private System.ComponentModel.BackgroundWorker bgwShowImage;
+        private System.Windows.Forms.OpenFileDialog dlgOpen;
+        private System.Windows.Forms.SaveFileDialog dlgSave;
     }
 }
 
