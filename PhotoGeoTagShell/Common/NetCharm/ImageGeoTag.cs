@@ -5,6 +5,7 @@ using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -17,6 +18,15 @@ namespace NetCharm
     ///        .Save(@"C:\path\to\geotagged.jpg", ImageFormat.Jpeg);
     /// ======
     /// </summary>
+
+    [Serializable]
+    [ComVisible( true )]
+    public struct PointD
+    {
+        public double X;
+        public double Y;
+    }
+
     class EXIF
     {
         /// <summary>
@@ -597,44 +607,102 @@ namespace NetCharm
         public const string TagIptcOriginalTransmissionReference = "/app13/irb/8bimiptc/iptc/{str=Original Transmission Reference}";
         public const string TagIptcKeywords = "/app13/irb/8bimiptc/iptc/{str=Keywords}";
         public const string TagIptcCopyrightNotice = "/app13/irb/8bimiptc/iptc/{str=Copyright Notice}";
-        // EXIF Tags
-        public const string TagExifExposureTime = "/app/ifd/exif/{ushort=33434}";
-        public const string TagExifFNumber = "/app/ifd/exif/{ushort=33437}";
-        public const string TagExifExposureProg = "/app/ifd/exif/{ushort=34850}";
-        public const string TagExifISOSpeed = "/app/ifd/exif/{ushort=34855}";
-        public const string TagExifDTOrig = "/app/ifd/exif/{ushort=36867}";
-        public const string TagExifDTDigitized = "/app/ifd/exif/{ushort=36868}";
-        public const string TagExifShutterSpeed = "/app/ifd/exif/{ushort=37377}";
-        public const string TagExifAperture = "/app/ifd/exif/{ushort=37378}";
-        public const string TagExifExposureBias = "/app/ifd/exif/{ushort=37380}";
-        public const string TagExifMaxAperture = "/app/ifd/exif/{ushort=37381}";
-        public const string TagExifMeteringMode = "/app/ifd/exif/{ushort=37383}";
-        public const string TagExifLightSource = "/app/ifd/exif/{ushort=37384}";
-        public const string TagExifFlash = "/app/ifd/exif/{ushort=37385}";
-        public const string TagExifFocalLength = "/app/ifd/exif/{ushort=37386}";
-        public const string TagExifUserComment = "/app/ifd/exif/{ushort=37510}";
-        public const string TagExifDTSubsec = "/app/ifd/exif/{ushort=37520}";
-        public const string TagExifDTOrigSS = "/app/ifd/exif/{ushort=37521}";
-        public const string TagExifDTDigSS = "/app/ifd/exif/{ushort=37522}";
-        public const string TagExifColorSpace = "/app/ifd/exif/{ushort=40961}";
-        public const string TagExifPixXDim = "/app/ifd/exif/{ushort=40962}";
-        public const string TagExifPixYDim = "/app/ifd/exif/{ushort=40963}";
-        public const string TagExifSensingMethod = "/app/ifd/exif/{ushort=41495}";
-        public const string TagExifFileSource = "/app/ifd/exif/{ushort=41728}";
-        public const string TagExifSceneType = "/app/ifd/exif/{ushort=41729}";
-        public const string TagExifCfaPattern = "/app/ifd/exif/{ushort=41730}";
-        public const string TagExifCustomRendered = "/app/ifd/exif/{ushort=41985}";
-        public const string TagExifExposureMode = "/app/ifd/exif/{ushort=41986}";
-        public const string TagExifWhiteBalance = "/app/ifd/exif/{ushort=41987}";
-        public const string TagExifDigitalZoomRatio = "/app/ifd/exif/{ushort=41988}";
-        public const string TagExifFocalLengthIn35mmFilm = "/app/ifd/exif/{ushort=41989}";
-        public const string TagExifSceneCaptureType = "/app/ifd/exif/{ushort=41990}";
-        public const string TagExifGainControl = "/app/ifd/exif/{ushort=41991}";
-        public const string TagExifContrast = "/app/ifd/exif/{ushort=41992}";
-        public const string TagExifSaturation = "/app/ifd/exif/{ushort=41993}";
-        public const string TagExifSharpness = "/app/ifd/exif/{ushort=41994}";
-        public const string TagExifSubjectDistanceRange = "/app/ifd/exif/{ushort=41996}";
 
+        // EXIF Tags
+        public const string TagExifExposureTime = "/app1/ifd/exif/{ushort=33434}";
+        public const string TagExifFNumber = "/app1/ifd/exif/{ushort=33437}";
+        public const string TagExifExposureProg = "/app1/ifd/exif/{ushort=34850}";
+        public const string TagExifISOSpeed = "/app1/ifd/exif/{ushort=34855}";
+        public const string TagExifDTOrig = "/app1/ifd/exif/{ushort=36867}";
+        public const string TagExifDTDigitized = "/app1/ifd/exif/{ushort=36868}";
+        public const string TagExifShutterSpeed = "/app1/ifd/exif/{ushort=37377}";
+        public const string TagExifAperture = "/app1/ifd/exif/{ushort=37378}";
+        public const string TagExifExposureBias = "/app1/ifd/exif/{ushort=37380}";
+        public const string TagExifMaxAperture = "/app1/ifd/exif/{ushort=37381}";
+        public const string TagExifMeteringMode = "/app1/ifd/exif/{ushort=37383}";
+        public const string TagExifLightSource = "/app1/ifd/exif/{ushort=37384}";
+        public const string TagExifFlash = "/app1/ifd/exif/{ushort=37385}";
+        public const string TagExifFocalLength = "/app1/ifd/exif/{ushort=37386}";
+        public const string TagExifUserComment = "/app1/ifd/exif/{ushort=37510}";
+        public const string TagExifDTSubsec = "/app1/ifd/exif/{ushort=37520}";
+        public const string TagExifDTOrigSS = "/app1/ifd/exif/{ushort=37521}";
+        public const string TagExifDTDigSS = "/app1/ifd/exif/{ushort=37522}";
+        public const string TagExifColorSpace = "/app1/ifd/exif/{ushort=40961}";
+        public const string TagExifPixXDim = "/app1/ifd/exif/{ushort=40962}";
+        public const string TagExifPixYDim = "/app1/ifd/exif/{ushort=40963}";
+        public const string TagExifSensingMethod = "/app1/ifd/exif/{ushort=41495}";
+        public const string TagExifFileSource = "/app1/ifd/exif/{ushort=41728}";
+        public const string TagExifSceneType = "/app1/ifd/exif/{ushort=41729}";
+        public const string TagExifCfaPattern = "/app1/ifd/exif/{ushort=41730}";
+        public const string TagExifCustomRendered = "/app1/ifd/exif/{ushort=41985}";
+        public const string TagExifExposureMode = "/app1/ifd/exif/{ushort=41986}";
+        public const string TagExifWhiteBalance = "/app1/ifd/exif/{ushort=41987}";
+        public const string TagExifDigitalZoomRatio = "/app1/ifd/exif/{ushort=41988}";
+        public const string TagExifFocalLengthIn35mmFilm = "/app1/ifd/exif/{ushort=41989}";
+        public const string TagExifSceneCaptureType = "/app1/ifd/exif/{ushort=41990}";
+        public const string TagExifGainControl = "/app1/ifd/exif/{ushort=41991}";
+        public const string TagExifContrast = "/app1/ifd/exif/{ushort=41992}";
+        public const string TagExifSaturation = "/app1/ifd/exif/{ushort=41993}";
+        public const string TagExifSharpness = "/app1/ifd/exif/{ushort=41994}";
+        public const string TagExifSubjectDistanceRange = "/app1/ifd/exif/{ushort=41996}";
+
+        // GPS Info
+        public const string TagExifGpsLatitudeRef = "/app1/ifd/Gps/subifd:{uint=1}";
+        public const string TagExifGpsLatitude = "/app1/ifd/Gps/subifd:{uint=2}";
+        public const string TagExifGpsLongitudeRef = "/app1/ifd/Gps/subifd:{uint=3}";
+        public const string TagExifGpsLongitude = "/app1/ifd/Gps/subifd:{uint=4}";
+        public const string TagExifGpsAltitudeRef = "/app1/ifd/Gps/subifd:{uint=5}";
+        public const string TagExifGpsAltitude = "/app1/ifd/Gps/subifd:{uint=6}";
+        public const string TagExifGpsTimeStamp = "/app1/ifd/Gps/subifd:{uint=7}";
+        public const string TagExifGpsSatellites = "/app1/ifd/Gps/subifd:{uint=8}";
+        public const string TagExifGpsStatus = "/app1/ifd/Gps/subifd:{uint=9}";
+        public const string TagExifGpsMeasureMode = "/app1/ifd/Gps/subifd:{uint=10}";
+        public const string TagExifGpsDop = "/app1/ifd/Gps/subifd:{uint=11}";
+        public const string TagExifGpsSpeedRef = "/app1/ifd/Gps/subifd:{uint=12}";
+        public const string TagExifGpsSpeed = "/app1/ifd/Gps/subifd:{uint=13}";
+        public const string TagExifGpsTrackRef = "/app1/ifd/Gps/subifd:{uint=14}";
+        public const string TagExifGpsTrack = "/app1/ifd/Gps/subifd:{uint=15}";
+        public const string TagExifGpsImgDirectionRef = "/app1/ifd/Gps/subifd:{uint=16}";
+        public const string TagExifGpsImgDirection = "/app1/ifd/Gps/subifd:{uint=17}";
+        public const string TagExifGpsMapDatum = "/app1/ifd/Gps/subifd:{uint=18}";
+        public const string TagExifGpsDestLatitudeRef = "/app1/ifd/Gps/subifd:{uint=19}";
+        public const string TagExifGpsDestLatitude = "/app1/ifd/Gps/subifd:{uint=20}";
+        public const string TagExifGpsDestLongitudeRef = "/app1/ifd/Gps/subifd:{uint=21}";
+        public const string TagExifGpsDestLongitude = "/app1/ifd/Gps/subifd:{uint=22}";
+        public const string TagExifGpsDestBearingRef = "/app1/ifd/Gps/subifd:{uint=23}";
+        public const string TagExifGpsDestBearing = "/app1/ifd/Gps/subifd:{uint=24}";
+        public const string TagExifGpsDestDistanceRef = "/app1/ifd/Gps/subifd:{uint=25}";
+        public const string TagExifGpsDestDistance = "/app1/ifd/Gps/subifd:{uint=26}";
+        public const string TagExifGpsProcessingMethod = "/app1/ifd/Gps/subifd:{uint=27}";
+        public const string TagExifGpsAreaInformation = "/app1/ifd/Gps/subifd:{uint=28}";
+        public const string TagExifGpsDateStamp = "/app1/ifd/Gps/subifd:{uint=29}";
+        public const string TagExifGpsDifferential = "/app1/ifd/Gps/subifd:{uint=30}";
+
+
+        // alt query string
+        public const string TagIptcKeywordsAlt = "/app13/{ushort=0}/{ulonglong=61857348781060}/iptc/{str=Keywords}";
+
+        // XP System Property
+        public const string TagExifImageDescription = "/app1/ifd/exif/{ushort=270}"; 
+        public const string TagExifXPTitle = "/app1/ifd/exif/{ushort=40091}";
+        public const string TagExifXPComment = "/app1/ifd/exif/{ushort=40092}";
+        public const string TagExifXPAuthor = "/app1/ifd/exif/{ushort=40093}";
+        public const string TagExifXPKeywords = "/app1/ifd/exif/{ushort=40094}";
+        public const string TagExifXPSubject = "/app1/ifd/exif/{ushort=40095}";
+
+
+        // XMP Query Path
+        public const string TagXmpSubject = "/xmp/dc:subject";
+
+        // Extentions for metadata padding
+        // Queries for the EXIF, IFD & XMP Padding
+        public const string paddingExif = "/app1/ifd/exif/PaddingSchema:Padding";
+        public const string paddingIfd = "/app1/ifd/PaddingSchema:Padding";
+        public const string paddingXmp = "/xmp/PaddingSchema:Padding";    // Queries for the EXIF, IFD & XMP Padding
+        public const string paddingIptc = "/app13/irb/8bimiptc/iptc/PaddingSchema:Padding";
+        public const string padding8bimiptc = "/app13/irb/8bimiptc/PaddingSchema:Padding";
+        public const string paddinIrb = "/app13/irb//PaddingSchema:Padding";
+        public const string paddingApp13 = "/app13/PaddingSchema:Padding";
         #endregion
 
     }
