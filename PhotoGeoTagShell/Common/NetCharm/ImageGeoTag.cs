@@ -591,22 +591,24 @@ namespace NetCharm
         /// "they" could have made it much easier...I would still have some hair left in if they did !!
         ///
         // IPTC Tags
-        public const string TagIptcRecordVersion = "/app13/irb/8bimiptc/iptc/{ str = Record Version}";
-        public const string TagIptcWriterEditor = "/app13/irb/8bimiptc/iptc/{str=Writer/Editor}";
-        public const string TagIptcHeadline = "/app13/irb/8bimiptc/iptc/{str=Headline}";
-        public const string TagIptcSpecialInstructions = "/app13/irb/8bimiptc/iptc/{str=Special Instructions}";
         public const string TagIptcByline = "/app13/irb/8bimiptc/iptc/{str=By-line}";
         public const string TagIptcBylineTitle = "/app13/irb/8bimiptc/iptc/{str=By-line Title}";
-        public const string TagIptcCredit = "/app13/irb/8bimiptc/iptc/{str=Credit}";
-        public const string TagIptcSource = "/app13/irb/8bimiptc/iptc/{str=Source}";
-        public const string TagIptcObjectName = "/app13/irb/8bimiptc/iptc/{str=Object Name}";
-        public const string TagIptcDateCreated = "/app13/irb/8bimiptc/iptc/{str=Date Created}";
+        public const string TagIptcCaption = "/app13/irb/8bimiptc/iptc/{str=Caption}";
         public const string TagIptcCity = "/app13/irb/8bimiptc/iptc/{str=City}";
-        public const string TagIptcState = "/app13/irb/8bimiptc/iptc/{str=Province/State}";
-        public const string TagIptcCountryPrimaryLocationName = "/app13/irb/8bimiptc/iptc/{str=Country/Primary Location Name}";
-        public const string TagIptcOriginalTransmissionReference = "/app13/irb/8bimiptc/iptc/{str=Original Transmission Reference}";
-        public const string TagIptcKeywords = "/app13/irb/8bimiptc/iptc/{str=Keywords}";
         public const string TagIptcCopyrightNotice = "/app13/irb/8bimiptc/iptc/{str=Copyright Notice}";
+        public const string TagIptcCountryPrimaryLocationName = "/app13/irb/8bimiptc/iptc/{str=Country/Primary Location Name}";
+        public const string TagIptcCredit = "/app13/irb/8bimiptc/iptc/{str=Credit}";
+        public const string TagIptcDateCreated = "/app13/irb/8bimiptc/iptc/{str=Date Created}";
+        public const string TagIptcDescription = "/app13/irb/8bimiptc/iptc/{str=Description}"; 
+        public const string TagIptcHeadline = "/app13/irb/8bimiptc/iptc/{str=Headline}";
+        public const string TagIptcKeywords = "/app13/irb/8bimiptc/iptc/{str=Keywords}";
+        public const string TagIptcObjectName = "/app13/irb/8bimiptc/iptc/{str=Object Name}";
+        public const string TagIptcOriginalTransmissionReference = "/app13/irb/8bimiptc/iptc/{str=Original Transmission Reference}";
+        public const string TagIptcRecordVersion = "/app13/irb/8bimiptc/iptc/{str=Record Version}";
+        public const string TagIptcSource = "/app13/irb/8bimiptc/iptc/{str=Source}";
+        public const string TagIptcState = "/app13/irb/8bimiptc/iptc/{str=Province/State}";
+        public const string TagIptcSpecialInstructions = "/app13/irb/8bimiptc/iptc/{str=Special Instructions}";
+        public const string TagIptcWriterEditor = "/app13/irb/8bimiptc/iptc/{str=Writer/Editor}";
 
         // EXIF Tags
         public const string TagExifExposureTime = "/app1/ifd/exif/{ushort=33434}";
@@ -646,6 +648,11 @@ namespace NetCharm
         public const string TagExifSharpness = "/app1/ifd/exif/{ushort=41994}";
         public const string TagExifSubjectDistanceRange = "/app1/ifd/exif/{ushort=41996}";
 
+        // Exif others
+        public const string TagExifTitle = "/app1/ifd/{ushort=270}";
+        public const string TagExifArtist = "/app1/ifd/{ushort=315}";
+        public const string TagExifCopyright = "/app1/ifd/{ushort=33432}";
+
         // GPS Info
         public const string TagExifGpsLatitudeRef = "/app1/ifd/Gps/subifd:{uint=1}";
         public const string TagExifGpsLatitude = "/app1/ifd/Gps/subifd:{uint=2}";
@@ -683,12 +690,12 @@ namespace NetCharm
         public const string TagIptcKeywordsAlt = "/app13/{ushort=0}/{ulonglong=61857348781060}/iptc/{str=Keywords}";
 
         // XP System Property
-        public const string TagExifImageDescription = "/app1/ifd/exif/{ushort=270}"; 
-        public const string TagExifXPTitle = "/app1/ifd/exif/{ushort=40091}";
-        public const string TagExifXPComment = "/app1/ifd/exif/{ushort=40092}";
-        public const string TagExifXPAuthor = "/app1/ifd/exif/{ushort=40093}";
-        public const string TagExifXPKeywords = "/app1/ifd/exif/{ushort=40094}";
-        public const string TagExifXPSubject = "/app1/ifd/exif/{ushort=40095}";
+        public const string TagExifImageDescription = "/app1/ifd/{ushort=270}"; 
+        public const string TagExifXPTitle = "/app1/ifd/exif:{ushort=40091}";
+        public const string TagExifXPComment = "/app1/ifd/exif:{ushort=40092}";
+        public const string TagExifXPAuthor = "/app1/ifd/exif:{ushort=40093}";
+        public const string TagExifXPKeywords = "/app1/ifd/exif:{ushort=40094}";
+        public const string TagExifXPSubject = "/app1/ifd/exif:{ushort=40095}";
 
 
         // XMP Query Path
