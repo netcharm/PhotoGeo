@@ -8,6 +8,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Media;
@@ -453,6 +454,7 @@ namespace NetCharm
             {
                 var metadata = wpfFileManager.BitmapMetadata;
                 HashSet<string> keywords = new HashSet<string>();
+                HashSet<string> authors = new HashSet<string>();
 
                 #region Get DateTaken
                 if ( !DateTime.TryParse( metadata.DateTaken, CultureInfo.CurrentCulture, DateTimeStyles.None, out dt ) )
@@ -473,9 +475,16 @@ namespace NetCharm
                     var iptckeywords = metadata.GetQuery( META.TagIptcKeywords );
                     if ( iptckeywords != null )
                     {
-                        foreach ( string keyword in (string[]) iptckeywords )
+                        if( iptckeywords as string[] == null )
                         {
-                            keywords.Add( keyword.Trim() );
+                            keywords.Add( ( iptckeywords as string ).Trim() );
+                        }
+                        else
+                        {
+                            foreach ( string keyword in ( iptckeywords as string[] ) )
+                            {
+                                keywords.Add( keyword.Trim() );
+                            }
                         }
                     }
                     BitmapMetadata xmpsubjects = metadata.GetQuery( META.TagXmpSubject ) as BitmapMetadata;
@@ -487,24 +496,69 @@ namespace NetCharm
                             keywords.Add( keyword.Trim() );
                         }
                     }
+                    var xpkeywords = metadata.GetQuery( META.TagExifXPKeywords );
+                    if ( xpkeywords != null )
+                    {
+                        string xpkeywords_str = Encoding.Unicode.GetString( (byte[]) xpkeywords ).Trim( new char[] { ' ', '\0' } );
+                        foreach ( string key in xpkeywords_str.Split( ';' ) )
+                        {
+                            keywords.Add( key.Trim() );
+                        }
+                    }
                 }
                 #endregion
 
-                if(metadata.IsFrozen)
+                if ( metadata.IsFrozen)
                 {
                     //metadata = metadata.Clone();
                 }
 
-                #region Set Title & Subject
-                var title = metadata.GetQuery( META.TagExifXPTitle );
-                if(title != null)
+                #region Get Authors
+                var artist = metadata.GetQuery( META.TagExifArtist );
+                if ( artist != null )
                 {
-                    wpfFileManager.BitmapMetadata.Title = title.ToString();
+                    foreach ( string art in (artist as string).Split(';') )
+                    {
+                        authors.Add( art.Trim( new char[] { ' ', '\0' } ) );
+                    }
                 }
-                var subject = metadata.GetQuery( META.TagExifXPSubject );
-                if ( subject != null )
+                if ( wpfFileManager.BitmapMetadata.Author != null )
                 {
-                    wpfFileManager.BitmapMetadata.Subject = subject.ToString();
+                    foreach ( string art in wpfFileManager.BitmapMetadata.Author )
+                    {
+                        authors.Add( art.Trim( new char[] { ' ', '\0' } ) );
+                    }
+                }
+                var xpauthor = metadata.GetQuery( META.TagExifXPAuthor );
+                if ( xpauthor != null )
+                {
+                    string xpauthor_str = Encoding.Unicode.GetString( (byte[]) xpauthor ).Trim( new char[] { ' ', '\0' } );
+                    //metadata.SetQuery( META.TagIptcByline, xpauthor_str );
+                    foreach ( string art in xpauthor_str.Split( ';' ) )
+                    {
+                        authors.Add( art.Trim( new char[] { ' ', '\0' } ) );
+                    }
+                }
+                #endregion
+
+                #region Set Title & Subject
+                var xptitle = metadata.GetQuery( META.TagExifXPTitle );
+                if( xptitle != null)
+                {
+                    string xptitle_str = Encoding.Unicode.GetString( (byte[]) xptitle ).Trim(new char[] { ' ', '\0' } );
+                    metadata.SetQuery( META.TagIptcCaption, xptitle_str);
+                }
+                var xpcomment = metadata.GetQuery( META.TagExifXPComment );
+                if ( xpcomment != null )
+                {
+                    string xpcomment_str = Encoding.Unicode.GetString( (byte[]) xpcomment ).Trim( new char[] { ' ', '\0' } );
+                    //metadata.SetQuery( META.TagIptcDescription, xpcomment_str );
+                }
+                var xpsubject = metadata.GetQuery( META.TagExifXPSubject );
+                if ( xpsubject != null )
+                {
+                    string xpsubject_str = Encoding.Unicode.GetString( (byte[]) xpsubject ).Trim( new char[] { ' ', '\0' } );
+                    metadata.SetQuery( META.TagIptcHeadline, xpsubject_str );
                 }
                 #endregion
 
@@ -544,7 +598,7 @@ namespace NetCharm
 
                 #endregion
 
-                #region Set Keywords
+                #region Set Keywords & Authors
                 ulong idx = 0;
                 foreach ( string keyword in keywords )
                 {
@@ -553,6 +607,8 @@ namespace NetCharm
                     idx++;
                 }
                 metadata.SetQuery( META.TagIptcKeywords, keywords.ToArray() );
+
+                metadata.SetQuery( META.TagIptcByline, string.Join( ";", authors ) );
                 #endregion
 
                 wpfFileManager.WriteMetadata();
@@ -665,14 +721,11 @@ namespace NetCharm
 
         public void SetImageGeoTag( PointLatLng pos )
         {
-            //PointLatLng pos = gMap.Position;
-            //return;
-
             OverlayPhotosWGS.Markers.Clear();
             OverlayPhotosMAR.Markers.Clear();
             foreach ( KeyValuePair<Image, string> img in photos )
             {
-#region calc position
+                #region calc position for wgs & mars
                 double lat = pos.Lat, lng = pos.Lng;
                 double lat_mar = lat, lng_mar = lng;
                 double lat_wgs = lat, lng_wgs = lng;
@@ -688,55 +741,22 @@ namespace NetCharm
                     lat_mar = lat;
                     lng_mar = lng;
                 }
-#endregion
+                #endregion
 
-#region touch photo
-                //Image photo = new Bitmap(img.Value);
-                using ( FileStream fs = new FileStream( img.Value, FileMode.Open, FileAccess.Read ) )
-                {
-                    Image photo = Image.FromStream( fs, true, true );
-                    photo = EXIF.Geotag( photo, lat_wgs, lng_wgs );
-                    fs.Close();
+                #region touch photo
+                FileInfo fi = new FileInfo( img.Value );
+                DateTime dt = fi.CreationTimeUtc.ToLocalTime();
+#if DEBUG
+                dt = SetImageGeoTag_WPF( lat_wgs, lng_wgs, img.Value, dt );
+#else
+                dt = SetImageGeoTag_GDI( lat_wgs, lng_wgs, img.Value, dt );
+#endif
+                fi.LastAccessTimeUtc = dt.ToUniversalTime();
+                fi.LastWriteTimeUtc = dt.ToUniversalTime();
+                fi.CreationTimeUtc = dt.ToUniversalTime();
+                #endregion
 
-                    ImageCodecInfo jpgEncoder = GetEncoder(ImageFormat.Jpeg);
-                    System.Drawing.Imaging.Encoder myEncoder = System.Drawing.Imaging.Encoder.Quality;
-                    EncoderParameters myEncoderParameters = new EncoderParameters(1);
-                    EncoderParameter myEncoderParameter = new EncoderParameter(myEncoder, 92L);
-                    myEncoderParameters.Param[0] = myEncoderParameter;
-
-                    photo.Save(img.Value, jpgEncoder, myEncoderParameters);
-                    photo.Dispose();
-                }
-
-                Dictionary<string, string> properties = (Dictionary<string, string>)img.Key.Tag;
-                if(properties != null)
-                {
-                    FileInfo fi = new FileInfo( img.Value );
-                    DateTime dt = DateTime.Now;
-
-                    if ( !string.IsNullOrEmpty( properties["DateTaken"] ) )
-                    {
-                        dt = DateTime.Parse( properties["DateTaken"] );
-                    }
-                    else if ( !string.IsNullOrEmpty( properties["DateCreated"] ) )
-                    {
-                        dt = DateTime.Parse( properties["DateCreated"] );
-                    }
-                    else if ( !string.IsNullOrEmpty( properties["DateModified"] ) )
-                    {
-                        dt = DateTime.Parse( properties["DateModified"] );
-                    }
-                    else if ( !string.IsNullOrEmpty( properties["DateAccessed"] ) )
-                    {
-                        dt = DateTime.Parse( properties["DateAccessed"] );
-                    }
-                    fi.LastAccessTimeUtc = dt.ToUniversalTime();
-                    fi.LastWriteTimeUtc = dt.ToUniversalTime();
-                    fi.CreationTimeUtc = dt.ToUniversalTime();
-                }
-#endregion
-
-#region create new marker for moved marker
+                #region create new marker for moved marker
                 GMarkerGoogle marker_wgs = new GMarkerGoogle( new PointLatLng(lat_wgs, lng_wgs), GMarkerGoogleType.orange_dot );
                 GMapImageToolTip tooltip_wgs = new GMapImageToolTip( marker_wgs );
                 tooltip_wgs.Image = img.Key;
@@ -760,7 +780,8 @@ namespace NetCharm
                 marker_mar.ToolTipText = Path.GetFileName( img.Value );
                 marker_mar.Tag = new PointLatLng( lat_mar, lng_mar );
                 OverlayPhotosMAR.Markers.Add( marker_mar );
-#endregion
+                #endregion
+
                 if( bgwSetGeo.IsBusy )
                 {
                     bgwSetGeo.ReportProgress( OverlayPhotosMAR.Markers.Count );
@@ -770,7 +791,7 @@ namespace NetCharm
             {
                 OverlayRefPos.Markers.RemoveAt( OverlayRefPos.Markers.Count - 1 );
             }
-            updatePositions( OverlayPhotos, true );
+            //updatePositions( OverlayPhotos, true );
         }
 
         public FormMap()
@@ -790,7 +811,7 @@ namespace NetCharm
             trackZoom.Maximum = 20;
             trackZoom.Value = 12;
 
-#region setup MapProvider
+            #region setup MapProvider
             cbMapProviders.Items.Clear();
             cbMapProviders.BeginUpdate();
             foreach ( GMapProvider map in GMapProviders.List )
@@ -834,11 +855,11 @@ namespace NetCharm
             {
                 Directory.CreateDirectory( CacheFolder );
             }
-#endregion
+            #endregion
 
             picGeoRef.AllowDrop = true;
 
-#region setup GMap
+            #region setup GMap
             gMap.Manager.BoostCacheEngine = true;
             gMap.Manager.CacheOnIdleRead = true;
             gMap.Manager.UseDirectionsCache = true;
@@ -880,7 +901,7 @@ namespace NetCharm
 
             //GMaps.Instance.Mode = AccessMode.ServerAndCache;
             //GMaps.Instance.Mode = gMap.Manager.Mode;
-#endregion
+            #endregion
         }
 
         private void FormMap_FormClosing( object sender, FormClosingEventArgs e )
