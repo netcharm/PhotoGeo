@@ -69,6 +69,7 @@
             this.tsProgress});
             this.status.Location = new System.Drawing.Point(0, 551);
             this.status.Name = "status";
+            this.status.ShowItemToolTips = true;
             this.status.Size = new System.Drawing.Size(802, 22);
             this.status.TabIndex = 0;
             this.status.Text = "status";

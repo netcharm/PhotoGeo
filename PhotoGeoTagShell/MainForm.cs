@@ -169,118 +169,122 @@ namespace PhotoGeoTagShell
             }
             else selection_changed = true;
             #endregion
-
-            BeginInvoke( new MethodInvoker( delegate ()
+            //lock ( explorerBrowser.SelectedItems )
             {
-                #region get properties to
-                if ( !force && !selection_changed ) return;
-                selection_changed = false;
-
-                List<KeyValuePair<Image, string>> imgs = new List<KeyValuePair<Image, string>>();
-                try
+                BeginInvoke( new MethodInvoker( delegate ()
                 {
-                    lastSelections.Clear();
-                    foreach ( ShellObject item in explorerBrowser.SelectedItems )
+                    #region get properties to
+                    if ( !force && !selection_changed ) return;
+                    selection_changed = false;
+
+                    List<KeyValuePair<Image, string>> imgs = new List<KeyValuePair<Image, string>>();
+                    try
                     {
-                        if ( !item.IsFileSystemObject || item.IsLink ) continue;
-                        if ( lastSelections.Contains( item.Name ) ) continue;
+                        lastSelections.Clear();
+                        foreach ( ShellObject item in explorerBrowser.SelectedItems )
+                        {
+                            if ( !item.IsFileSystemObject || item.IsLink ) continue;
+                            if ( lastSelections.Contains( item.Name ) ) continue;
 
                         #region get property
                         string dn = item.Name;
-                        string dp = item.ParsingName;
-                        string ext = Path.GetExtension(dp);
-                        if ( !File.GetAttributes( dp ).HasFlag( FileAttributes.Directory ) )
-                        {
-                            if ( PhotoExts.Contains( ext, StringComparer.CurrentCultureIgnoreCase ) )
+                            string dp = item.ParsingName;
+                            string ext = Path.GetExtension(dp);
+                            if ( !File.GetAttributes( dp ).HasFlag( FileAttributes.Directory ) )
                             {
-                                lastSelections.Add( item.Name );
-
-                                Image thumb = new Bitmap(item.Thumbnail.MediumBitmap);
-                                ShellPropertyCollection props = item.Properties.DefaultPropertyCollection;
-
-                                Dictionary<string, string> properties = new Dictionary<string, string>();
-                                for ( int i = 0; i < props.Count; i++ )
+                                if ( PhotoExts.Contains( ext, StringComparer.CurrentCultureIgnoreCase ) )
                                 {
-                                    if ( props[i].CanonicalName == null ) continue;
-                                    string key = props[i].CanonicalName.Replace("System.", "");
-                                    string value = "";
+                                    lastSelections.Add( item.Name );
 
-                                    if ( !key.StartsWith( "Date" ) && !key.StartsWith( "Photo.Date" ) && !key.StartsWith( "ItemPathDisplay" ) ) continue;
+                                    Image thumb = new Bitmap(item.Thumbnail.MediumBitmap);
+                                    ShellPropertyCollection props = item.Properties.DefaultPropertyCollection;
 
-                                    object objValue = props[i].ValueAsObject;
+                                    Dictionary<string, string> properties = new Dictionary<string, string>();
+                                //if (props.Contains( "System.Artist" ))
+                                //{
+
+                                //}
+
+                                for ( int i = 0; i < props.Count; i++ )
+                                    {
+                                        if ( props[i].CanonicalName == null ) continue;
+                                        string key = props[i].CanonicalName.Replace("System.", "");
+                                        string value = "";
+
+                                    //if ( !key.StartsWith( "Date" ) && !key.StartsWith( "Photo.Date" ) && !key.StartsWith( "ItemPathDisplay" ) ) continue;
+                                    if ( !key.StartsWith( "Photo.Date" ) && !key.StartsWith( "ItemPathDisplay" ) ) continue;
+
+                                        object objValue = props[i].ValueAsObject;
                                     //object objValue = new object();
                                     //continue;
 
                                     if ( objValue != null )
-                                    {
-                                        if ( props[i].ValueType == typeof( string[] ) )
                                         {
-                                            value = string.Join( " ; ", (string[]) objValue );
+                                            if ( props[i].ValueType == typeof( string[] ) )
+                                            {
+                                                value = string.Join( " ; ", (string[]) objValue );
+                                            }
+                                            else if ( props[i].ValueType == typeof( uint[] ) )
+                                            {
+                                                value = string.Join( " , ", (uint[]) objValue );
+                                            }
+                                            else if ( props[i].ValueType == typeof( double[] ) )
+                                            {
+                                                value = string.Join( " , ", (double[]) objValue );
+                                            }
+                                            else
+                                            {
+                                                value = objValue.ToString();
+                                            }
                                         }
-                                        else if ( props[i].ValueType == typeof( uint[] ) )
-                                        {
-                                            value = string.Join( " , ", (uint[]) objValue );
-                                        }
-                                        else if ( props[i].ValueType == typeof( double[] ) )
-                                        {
-                                            value = string.Join( " , ", (double[]) objValue );
-                                        }
-                                        else
-                                        {
-                                            value = objValue.ToString();
-                                        }
+                                        properties.Add( key, value );
                                     }
-                                    properties.Add( key, value );
-                                }
-                                properties.Add( "Artist", properties.ContainsKey( "Author" ) ? properties["Author"] : "" );
+                                //properties.Add( "Artist", properties.ContainsKey( "Author" ) ? properties["Author"] : "" );
                                 //properties.Add( "Copyright", properties.ContainsKey( "Copyright" ) ? properties["Copyright"] : "" );
-                                //properties.Add( "DateAccessed", properties.ContainsKey( "DateAccessed" ) ? properties["DateAccessed"] : "" );
-                                //properties.Add( "DateCreated", properties.ContainsKey( "DateCreated" ) ? properties["DateCreated"] : "" );
-                                //properties.Add( "DateModified", properties.ContainsKey( "DateModified" ) ? properties["DateModified"] : "" );
-                                properties.Add( "ImageDescription", properties.ContainsKey( "Subject" ) ? properties["Subject"] : "" );
-                                properties.Add( "Software", properties.ContainsKey( "ApplicationName" ) ? properties["ApplicationName"] : "" );
+                                //properties.Add( "ImageDescription", properties.ContainsKey( "Subject" ) ? properties["Subject"] : "" );
+                                //properties.Add( "Software", properties.ContainsKey( "ApplicationName" ) ? properties["ApplicationName"] : "" );
                                 properties.Add( "FileSize", properties.ContainsKey( "Size" ) ? properties["Size"] : "" );
                                 //properties.Add( "FileName", properties.ContainsKey( "ItemPathDisplay" ) ? properties["ItemPathDisplay"] : "" );
                                 properties.Add( "FilePath", properties.ContainsKey( "ItemPathDisplay" ) ? properties["ItemPathDisplay"] : "" );
-                                properties.Add( "FolderName", properties.ContainsKey( "ItemFolderPathDisplay" ) ? properties["ItemFolderPathDisplay"] : "" );
-                                properties.Add( "FileType", properties.ContainsKey( "ItemTypeText" ) ? properties["ItemTypeText"] : "" );
-                                properties.Add( "Dimensions", properties.ContainsKey( "Image.Dimensions" ) ? properties["Image.Dimensions"] : "" );
-                                properties.Add( "Resolution", properties.ContainsKey( "Image.HorizontalResolution" ) && properties.ContainsKey( "Image.VerticalResolution" ) ? $"{properties["Image.HorizontalResolution"]} x {properties["Image.VerticalResolution"]}" : "" );
-                                properties.Add( "EquipmentModel", properties.ContainsKey( "Photo.CameraModel" ) ? properties["Photo.CameraModel"] : "" );
-                                properties.Add( "DateTaken", properties.ContainsKey( "Photo.DateTaken" ) ? properties["Photo.DateTaken"] : "" );
-                                properties.Add( "ExposureTime", properties.ContainsKey( "Photo.ExposureTime" ) ? properties["Photo.ExposureTime"] : "" );
-                                properties.Add( "FNumber", properties.ContainsKey( "Photo.FNumber" ) ? properties["Photo.FNumber"] : "" );
-                                properties.Add( "FocalLength", properties.ContainsKey( "Photo.FocalLength" ) ? properties["Photo.FocalLength"] : "" );
-                                properties.Add( "ISOSpeed", properties.ContainsKey( "Photo.ISOSpeed" ) ? properties["Photo.ISOSpeed"] : "" );
+                                    properties.Add( "FolderName", properties.ContainsKey( "ItemFolderPathDisplay" ) ? properties["ItemFolderPathDisplay"] : "" );
+                                    properties.Add( "FileType", properties.ContainsKey( "ItemTypeText" ) ? properties["ItemTypeText"] : "" );
+                                //properties.Add( "Dimensions", properties.ContainsKey( "Image.Dimensions" ) ? properties["Image.Dimensions"] : "" );
+                                //properties.Add( "Resolution", properties.ContainsKey( "Image.HorizontalResolution" ) && properties.ContainsKey( "Image.VerticalResolution" ) ? $"{properties["Image.HorizontalResolution"]} x {properties["Image.VerticalResolution"]}" : "" );
+                                //properties.Add( "EquipmentModel", properties.ContainsKey( "Photo.CameraModel" ) ? properties["Photo.CameraModel"] : "" );
+                                //properties.Add( "ExposureTime", properties.ContainsKey( "Photo.ExposureTime" ) ? properties["Photo.ExposureTime"] : "" );
+                                //properties.Add( "FNumber", properties.ContainsKey( "Photo.FNumber" ) ? properties["Photo.FNumber"] : "" );
+                                //properties.Add( "FocalLength", properties.ContainsKey( "Photo.FocalLength" ) ? properties["Photo.FocalLength"] : "" );
+                                //properties.Add( "ISOSpeed", properties.ContainsKey( "Photo.ISOSpeed" ) ? properties["Photo.ISOSpeed"] : "" );
                                 //properties.Add( "ImageDescription", properties.ContainsKey( "Title" ) ? properties["Title"] : "" );
-                                properties.Add( "Rating", "" );
-                                properties.Add( "StarRating", "" );
-                                properties.Add( "UserComment", "" );
+                                properties.Add( "DateTaken", properties.ContainsKey( "Photo.DateTaken" ) ? properties["Photo.DateTaken"] : "" );
+                                //properties.Add( "Rating", "" );
+                                //properties.Add( "StarRating", "" );
+                                //properties.Add( "UserComment", "" );
                                 thumb.Tag = properties;
                                 //if ( item.Properties != null )
                                 //{
                                 //    thumb.Tag = item.Properties.DefaultPropertyCollection;
                                 //}
                                 imgs.Add( new KeyValuePair<Image, string>( thumb, dp ) );
+                                }
                             }
-                        }
                         #endregion
+                        }
                     }
+                    catch { };
+                    tsFilesSelected.Text = $"Selected: {imgs.Count}";
 
-                }
-                catch { };
-                tsFilesSelected.Text = $"Selected: {imgs.Count}";
-
-                try
-                {
-                    if ( MapViewer != null && MapViewer.Visible )
+                    try
                     {
-                        MapViewer.ShowImage( imgs );
+                        if ( MapViewer != null && MapViewer.Visible )
+                        {
+                            MapViewer.ShowImage( imgs );
+                        }
                     }
-                }
-                catch { };
-                #endregion
-            } ) );
+                    catch { };
+                    #endregion
+                } ) );
+            }
         }
 
         public MainForm()
