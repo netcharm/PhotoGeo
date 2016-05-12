@@ -341,8 +341,36 @@ namespace NetCharm
                 try
                 {
                     if ( photo.PropertyIdList.Contains( EXIF.PropertyTagExifDTOrig ) ||
-                         photo.PropertyIdList.Contains( EXIF.PropertyTagExifDTDigitized ) )
+                         photo.PropertyIdList.Contains( EXIF.PropertyTagExifDTDigitized ) ||
+                         photo.PropertyIdList.Contains( EXIF.PropertyTagDateTime ) )
                     {
+                        PropertyItem dtOrigProp = photo.PropertyIdList.Contains( EXIF.PropertyTagExifDTOrig ) ? photo.GetPropertyItem( EXIF.PropertyTagExifDTOrig ) : null;
+                        PropertyItem dtDigiProp = photo.PropertyIdList.Contains( EXIF.PropertyTagExifDTDigitized ) ? photo.GetPropertyItem( EXIF.PropertyTagExifDTDigitized ) : null;
+                        PropertyItem dtExifProp = photo.PropertyIdList.Contains( EXIF.PropertyTagDateTime ) ? photo.GetPropertyItem( EXIF.PropertyTagDateTime ) : null;
+
+                        PropertyItem DT = null;
+                        if      ( dtOrigProp != null ) DT = dtOrigProp;
+                        else if ( dtDigiProp != null ) DT = dtDigiProp;
+                        else if ( dtExifProp != null ) DT = dtExifProp;
+                        else                           DT = null;
+
+                        if ( DT != null )
+                        {
+                            ASCIIEncoding encode = new ASCIIEncoding();
+                            string dateText = encode.GetString( DT.Value, 0, DT.Len - 1 );
+
+                            if ( !string.IsNullOrEmpty( dateText ) )
+                            {
+                                if ( !DateTime.TryParseExact( dateText, "yyyy:MM:dd HH:mm:ss", CultureInfo.CurrentCulture, DateTimeStyles.None, out dt ) )
+                                {
+                                    return;
+                                }
+                            }
+                            else return;
+                        }
+
+                        /*
+
                         PropertyItem DTOrig = photo.PropertyIdList.Contains( EXIF.PropertyTagExifDTOrig ) ? photo.GetPropertyItem( EXIF.PropertyTagExifDTOrig ) : photo.GetPropertyItem( EXIF.PropertyTagExifDTDigitized );
                         //PropertyItem DTDigital = photo.GetPropertyItem(PropertyTagExifDTDigitized);
                         //PropertyItem DTOrig = photo.GetPropertyItem(PropertyTagExifDTOrig);
@@ -354,18 +382,18 @@ namespace NetCharm
                         {
                             if ( !DateTime.TryParseExact( dateTakenText, "yyyy:MM:dd HH:mm:ss", CultureInfo.CurrentCulture, DateTimeStyles.None, out dt ) )
                             {
-                                //dt = DateTime.ParseExact( dateTakenText, "yyyy:MM:dd HH:mm:ss", CultureInfo.CurrentCulture, DateTimeStyles.None );
                                 return;
                             }
                         }
                         else return;
+                        */
                     }
                 }
                 catch { }
             }
             else
             {
-                dt = DateTime.Parse( touch );
+                if ( !DateTime.TryParse( touch, out dt ) ) return;
             }
             fi.LastAccessTimeUtc = dt.ToUniversalTime();
             fi.LastWriteTimeUtc = dt.ToUniversalTime();
@@ -650,6 +678,7 @@ namespace NetCharm
 
         // Exif others
         public const string TagExifTitle = "/app1/ifd/{ushort=270}";
+        public const string TagExifDateTime = "/app1/ifd/{ushort=306}";
         public const string TagExifArtist = "/app1/ifd/{ushort=315}";
         public const string TagExifCopyright = "/app1/ifd/{ushort=33432}";
 
