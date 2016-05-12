@@ -125,6 +125,7 @@
             this.tsbtnFunction});
             this.status.Location = new System.Drawing.Point(0, 501);
             this.status.Name = "status";
+            this.status.ShowItemToolTips = true;
             this.status.Size = new System.Drawing.Size(652, 22);
             this.status.TabIndex = 2;
             this.status.Text = "OK";
@@ -136,10 +137,10 @@
             this.tsLat.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
             | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
             | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
-            this.tsLat.BorderStyle = System.Windows.Forms.Border3DStyle.SunkenInner;
+            this.tsLat.BorderStyle = System.Windows.Forms.Border3DStyle.SunkenOuter;
             this.tsLat.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.tsLat.Name = "tsLat";
-            this.tsLat.Size = new System.Drawing.Size(110, 17);
+            this.tsLat.Size = new System.Drawing.Size(104, 17);
             this.tsLat.Text = "Lat:";
             this.tsLat.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
@@ -150,7 +151,7 @@
             this.tsLon.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
             | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
             | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
-            this.tsLon.BorderStyle = System.Windows.Forms.Border3DStyle.SunkenInner;
+            this.tsLon.BorderStyle = System.Windows.Forms.Border3DStyle.SunkenOuter;
             this.tsLon.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.tsLon.Name = "tsLon";
             this.tsLon.Size = new System.Drawing.Size(110, 17);
@@ -164,7 +165,8 @@
             this.tsZoom.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
             | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
             | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
-            this.tsZoom.BorderStyle = System.Windows.Forms.Border3DStyle.SunkenInner;
+            this.tsZoom.BorderStyle = System.Windows.Forms.Border3DStyle.SunkenOuter;
+            this.tsZoom.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.tsZoom.Name = "tsZoom";
             this.tsZoom.Size = new System.Drawing.Size(60, 17);
             this.tsZoom.Text = "Zoom:";
@@ -172,12 +174,14 @@
             // 
             // tsInfo
             // 
+            this.tsInfo.AutoToolTip = true;
             this.tsInfo.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
             | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
             | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
             this.tsInfo.BorderStyle = System.Windows.Forms.Border3DStyle.SunkenOuter;
+            this.tsInfo.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.tsInfo.Name = "tsInfo";
-            this.tsInfo.Size = new System.Drawing.Size(193, 17);
+            this.tsInfo.Size = new System.Drawing.Size(199, 17);
             this.tsInfo.Spring = true;
             this.tsInfo.Text = "OK";
             // 
@@ -344,6 +348,7 @@
             this.Controls.Add(this.cbMapProviders);
             this.Controls.Add(this.gMap);
             this.DoubleBuffered = true;
+            this.MinimumSize = new System.Drawing.Size(640, 480);
             this.Name = "FormMap";
             this.Text = "Maps";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormMap_FormClosing);

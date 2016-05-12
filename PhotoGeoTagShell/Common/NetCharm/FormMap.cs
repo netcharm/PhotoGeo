@@ -350,6 +350,7 @@ namespace NetCharm
 
             tsProgress.Minimum = 0;
             tsProgress.Maximum = photos.Count;
+            tsProgress.Value = tsProgress.Minimum;
 
             bgwShowImage.RunWorkerAsync(imgs);
         }
@@ -384,77 +385,15 @@ namespace NetCharm
 
         public DateTime SetImageGeoTag_WPF( double lat, double lng, string image, DateTime dt )
         {
-            #region Direct Using WIC
-            /*
-            using ( FileStream fs = new FileStream( image, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite ) )
-            {
-                #region using media.image modify geotag
-                fs.Seek( 0, SeekOrigin.Begin );
-                //var decoder = new JpegBitmapDecoder(fs, BitmapCreateOptions.None, BitmapCacheOption.None);
-                BitmapDecoder decoder = new JpegBitmapDecoder(fs, BitmapCreateOptions.None, BitmapCacheOption.None);
-                //var metadata = decoder.Frames[0].Metadata as BitmapMetadata;
-                InPlaceBitmapMetadataWriter metadata = decoder.Frames[0].CreateInPlaceBitmapMetadataWriter();
-                if ( metadata != null )
-                {
-                    HashSet<string> keywords = new HashSet<string>();
-                    foreach ( string keyword in metadata.Keywords )
-                    {
-                        keywords.Add( keyword.Trim() );
-                    }
-                    var iptckeywords = metadata.GetQuery( META.TagIptcKeywords );
-                    if ( iptckeywords != null )
-                    {
-                        foreach ( string keyword in (string[]) iptckeywords )
-                        {
-                            keywords.Add( keyword.Trim() );
-                        }
-                    }
-                    BitmapMetadata xmpsubjects = metadata.GetQuery( META.TagXmpSubject ) as BitmapMetadata;
-                    if ( xmpsubjects != null )
-                    {
-                        foreach ( string query in xmpsubjects.ToList() )
-                        {
-                            string keyword = xmpsubjects.GetQuery( query ) as string;
-                            keywords.Add( keyword.Trim() );
-                        }
-                    }
-
-                    if ( !metadata.IsFrozen && metadata.TrySave() )
-                    {
-                        //metadata = metadata.Clone();
-                        //metadata.SetQuery( META.paddingApp13, (uint)4096 );
-                        //metadata.SetQuery( META.paddinIrb, (uint) 4096 );
-                        //metadata.SetQuery( META.padding8bimiptc, (uint) 4096 );
-                        //metadata.SetQuery( META.paddingIptc, (uint) 4096 );
-                        metadata.SetQuery( META.paddingXmp, (uint) 4096 );
-                        ulong idx = 0;
-                        foreach ( string keyword in keywords )
-                        {
-                            string query = $"{META.TagXmpSubject}/{{ulong={idx}}}";
-                            metadata.SetQuery( query, keyword );
-                            idx++;
-                        }
-                        metadata.SetQuery( META.TagIptcKeywords, keywords.ToArray() );
-                    }
-                    metadata.TrySave();
-                }
-
-                if ( !DateTime.TryParse( metadata.DateTaken, CultureInfo.CurrentCulture, DateTimeStyles.None, out dt ) )
-                {
-                }
-
-                #endregion
-                fs.Close();
-            }
-            */
-            #endregion
-
             #region Using Fotofly library ( WIC wrapper )
             using ( WpfFileManager wpfFileManager = new WpfFileManager( image, true ) )
             {
                 var metadata = wpfFileManager.BitmapMetadata;
                 HashSet<string> keywords = new HashSet<string>();
                 HashSet<string> authors = new HashSet<string>();
+                HashSet<string> titles = new HashSet<string>();
+                HashSet<string> copyrights = new HashSet<string>();
+                HashSet<string> comments = new HashSet<string>();
 
                 #region Get DateTaken
                 if ( !DateTime.TryParse( metadata.DateTaken, CultureInfo.CurrentCulture, DateTimeStyles.None, out dt ) )
@@ -508,16 +447,11 @@ namespace NetCharm
                 }
                 #endregion
 
-                if ( metadata.IsFrozen)
-                {
-                    //metadata = metadata.Clone();
-                }
-
                 #region Get Authors
                 var artist = metadata.GetQuery( META.TagExifArtist );
                 if ( artist != null )
                 {
-                    foreach ( string art in (artist as string).Split(';') )
+                    foreach ( string art in ( artist as string ).Split( ';' ) )
                     {
                         authors.Add( art.Trim( new char[] { ' ', '\0' } ) );
                     }
@@ -540,6 +474,24 @@ namespace NetCharm
                     }
                 }
                 #endregion
+
+                #region Get Title
+
+                #endregion
+
+                #region Get Copyright
+
+                #endregion
+
+                #region Get Comments
+
+                #endregion
+
+                if ( metadata.IsFrozen)
+                {
+                    //metadata = metadata.Clone();
+                }
+
 
                 #region Set Title & Subject
                 var xptitle = metadata.GetQuery( META.TagExifXPTitle );
@@ -611,6 +563,12 @@ namespace NetCharm
                 metadata.SetQuery( META.TagIptcByline, string.Join( ";", authors ) );
                 #endregion
 
+                #region Set Image.Datetime to Taken datetime
+                if(!string.IsNullOrEmpty( metadata.DateTaken ) )
+                {
+                    metadata.SetQuery( META.TagExifDateTime, metadata.DateTaken );
+                }
+                #endregion
                 wpfFileManager.WriteMetadata();
             }
             #endregion
@@ -706,7 +664,7 @@ namespace NetCharm
             #region Touch file datetime to DateTaken/DateOriginal
             FileInfo fi = new FileInfo( image );
             DateTime dt = fi.CreationTimeUtc.ToLocalTime();
-#if DEBUG
+#if DEBUG || NETCHARM
             dt = SetImageGeoTag_WPF( lat_wgs, lng_wgs, image, dt );
 #else
             dt = SetImageGeoTag_GDI( lat_wgs, lng_wgs, image, dt );
@@ -746,7 +704,7 @@ namespace NetCharm
                 #region touch photo
                 FileInfo fi = new FileInfo( img.Value );
                 DateTime dt = fi.CreationTimeUtc.ToLocalTime();
-#if DEBUG
+#if DEBUG || NETCHARM
                 dt = SetImageGeoTag_WPF( lat_wgs, lng_wgs, img.Value, dt );
 #else
                 dt = SetImageGeoTag_GDI( lat_wgs, lng_wgs, img.Value, dt );
@@ -957,6 +915,7 @@ namespace NetCharm
                 PointLatLng pos = gMap.Position;
                 this.Cursor = Cursors.WaitCursor;
                 tsProgress.Style = ProgressBarStyle.Marquee;
+                tsProgress.MarqueeAnimationSpeed = 20;
                 if ( gMap.SetPositionByKeywords( edQuery.Text ) != GeoCoderStatusCode.G_GEO_SUCCESS )
                 {
                     gMap.Position = pos;
@@ -1082,19 +1041,22 @@ namespace NetCharm
             }
             string refLat = lat < 0 ? "S" : "N";
             string refLng = lng < 0 ? "W" : "E";
-            tsLat.Text = $"Lat: {lat.ToString( "F6" )} {refLat}";
-            tsLon.Text = $"Lon: {lng.ToString( "F6" )} {refLng}";
+            //tsLat.Text = $"Lat: {lat.ToString( "F6" )} {refLat}";
+            //tsLon.Text = $"Lon: {lng.ToString( "F6" )} {refLng}";
+            tsLat.Text = $"Lat: {lat.ToString( "###.######" )} {refLat}";
+            tsLon.Text = $"Lon: {lng.ToString( "###.######" )} {refLng}";
         }
 
         private void gMap_OnTileLoadStart()
         {
-            tsProgress.Value = 0;
+            //tsProgress.Value = tsProgress.Minimum;
         }
 
         private void gMap_OnTileLoadComplete( long ElapsedMilliseconds )
         {
-            //tsInfo.Text = $"Load Time: { (ElapsedMilliseconds / 1000F).ToString("F6") } s";               
-            //tsProgress.Value = 100;
+            tsInfo.Text = $"Loaded Time: { (ElapsedMilliseconds / 1000F).ToString("F6") } s";               
+            //tsProgress.Value = tsProgress.Minimum;
+            //tsProgress.Value = tsProgress.Maximum;
         }
 
         private void gMap_OnMarkerEnter( GMapMarker item )
@@ -1134,13 +1096,6 @@ namespace NetCharm
                 if ( bgwSetGeo.IsBusy ) return;
                 if ( MessageBox.Show( this, "Place photo(s) to here?", "Warning", MessageBoxButtons.OKCancel, MessageBoxIcon.Question ) == DialogResult.OK )
                 {
-                    //PointLatLng pos = gMap.FromLocalToLatLng( e.X, e.Y );
-                    //GMapImageToolTip currentTooltip = (GMapImageToolTip)(currentMarker.ToolTip);
-                    //currentMarker.Tag = pos;
-                    //KeyValuePair<PointLatLng, GMapImageToolTip> param = new KeyValuePair<PointLatLng, GMapImageToolTip>(pos, currentTooltip);
-                    //bgwSetGeo.RunWorkerAsync( param );
-
-                    //currentMarker.Tag = new PointLatLng( e.X, e.Y );
                     currentMarker.Tag = currentMarker.Position;
                     if ( pinMarker != null )
                     {                        
@@ -1148,9 +1103,9 @@ namespace NetCharm
                         PointLatLng pos = gMap.FromLocalToLatLng( e.X, e.Y );
                         //SetImageGeoTag( pos );
 
-                        //tsProgress.Visible = true;
                         tsProgress.Minimum = 0;
                         tsProgress.Maximum = photos.Count;
+                        tsProgress.Value = tsProgress.Minimum;
                         bgwSetGeo.RunWorkerAsync( pos );
                     }
                     else
@@ -1166,8 +1121,6 @@ namespace NetCharm
                             }
                         }
                     }
-                    //currentMarker = null;
-                    //pinMarker = null;
                 }
             }
             currentMarker = null;
@@ -1185,6 +1138,8 @@ namespace NetCharm
             string refLat = lat < 0 ? "S" : "N";
             string refLng = lng < 0 ? "W" : "E";
             tsInfo.Text = $"Lat: {lat.ToString( "F6" )} {refLat}, Lon: {lng.ToString( "F6" )} {refLng}";
+            //tsInfo.ToolTipText = $"Lat: {lat.ToString( "F6" )} {refLat} \nLon: {lng.ToString( "F6" )} {refLng}";
+            tsInfo.ToolTipText = $"Lat: {lat.ToString( " #0.000000" )} {refLat} \nLon: {lng.ToString( "##0.000000" )} {refLng}";
 
             if ( mouse_down && currentMarker != null )
             {
@@ -1206,7 +1161,7 @@ namespace NetCharm
         {
             if ( e.ProgressPercentage >= tsProgress.Maximum )
                 tsProgress.Value = tsProgress.Maximum;
-            else if ( e.ProgressPercentage < tsProgress.Minimum )
+            else if ( e.ProgressPercentage <= tsProgress.Minimum )
                 tsProgress.Value = tsProgress.Minimum;
             else
                 tsProgress.Value = e.ProgressPercentage;
@@ -1214,9 +1169,9 @@ namespace NetCharm
 
         private void bgwSetGeo_RunWorkerCompleted( object sender, RunWorkerCompletedEventArgs e )
         {
-            pinMarker = null;
-            //tsProgress.Visible = false;
+            pinMarker = null;            
             updatePositions( true );
+            tsProgress.Value = tsProgress.Maximum;
         }
 
         private void bgwShowImage_DoWork( object sender, DoWorkEventArgs e )
@@ -1277,7 +1232,7 @@ namespace NetCharm
         {
             if( e.ProgressPercentage >= tsProgress.Maximum)
                 tsProgress.Value = tsProgress.Maximum;
-            else if ( e.ProgressPercentage < tsProgress.Minimum )
+            else if ( e.ProgressPercentage <= tsProgress.Minimum )
                 tsProgress.Value = tsProgress.Minimum;
             else
                 tsProgress.Value = e.ProgressPercentage;
@@ -1286,6 +1241,7 @@ namespace NetCharm
         private void bgwShowImage_RunWorkerCompleted( object sender, RunWorkerCompletedEventArgs e )
         {
             updatePositions( true );
+            tsProgress.Value = tsProgress.Maximum;
         }
     }
 }
