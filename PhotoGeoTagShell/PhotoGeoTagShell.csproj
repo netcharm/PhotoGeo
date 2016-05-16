@@ -58,12 +58,14 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'netcharm|AnyCPU'">
     <OutputPath>bin\netcharm\</OutputPath>
-    <DefineConstants>TRACE;NETCHARM</DefineConstants>
+    <DefineConstants>NETCHARM</DefineConstants>
     <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
+    <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Fotofly, Version=0.6.5972.26101, Culture=neutral, processorArchitecture=MSIL">
@@ -166,6 +168,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\search-poi-png-24.png" />
+    <None Include="Resources\search-poi-png-32.png" />
+    <None Include="Resources\search-poi-png-128.png" />
     <None Include="Resources\map-pin-md.png" />
     <None Include="Resources\map-pin-md_32x32.png" />
     <Content Include="exivsimple.dll" />

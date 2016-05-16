@@ -908,21 +908,26 @@ namespace NetCharm
             pinMarker = marker;
         }
 
+        private void btnPoiQuery_Click( object sender, EventArgs e )
+        {
+            PointLatLng pos = gMap.Position;
+            this.Cursor = Cursors.WaitCursor;
+            tsProgress.Style = ProgressBarStyle.Marquee;
+            tsProgress.MarqueeAnimationSpeed = 20;
+            if ( gMap.SetPositionByKeywords( edPoiQuery.Text ) != GeoCoderStatusCode.G_GEO_SUCCESS )
+            {
+                gMap.Position = pos;
+            }
+            else trackZoom.Value = (int) gMap.Zoom;
+            tsProgress.Style = ProgressBarStyle.Blocks;
+            this.Cursor = Cursors.Default;
+        }
+
         private void edQuery_KeyPress( object sender, KeyPressEventArgs e )
         {
             if ( e.KeyChar == Convert.ToChar( Keys.Enter ) )
             {
-                PointLatLng pos = gMap.Position;
-                this.Cursor = Cursors.WaitCursor;
-                tsProgress.Style = ProgressBarStyle.Marquee;
-                tsProgress.MarqueeAnimationSpeed = 20;
-                if ( gMap.SetPositionByKeywords( edQuery.Text ) != GeoCoderStatusCode.G_GEO_SUCCESS )
-                {
-                    gMap.Position = pos;
-                }
-                else trackZoom.Value = (int) gMap.Zoom;
-                tsProgress.Style = ProgressBarStyle.Blocks;
-                this.Cursor = Cursors.Default;
+                btnPoiQuery.PerformClick();
             }
         }
 
@@ -1243,5 +1248,6 @@ namespace NetCharm
             updatePositions( true );
             tsProgress.Value = tsProgress.Maximum;
         }
+
     }
 }

@@ -38,22 +38,23 @@
             this.tsZoom = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsInfo = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsProgress = new System.Windows.Forms.ToolStripProgressBar();
+            this.trackZoom = new System.Windows.Forms.TrackBar();
+            this.chkMapShift = new System.Windows.Forms.CheckBox();
+            this.edPoiQuery = new System.Windows.Forms.TextBox();
+            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.bgwSetGeo = new System.ComponentModel.BackgroundWorker();
+            this.bgwShowImage = new System.ComponentModel.BackgroundWorker();
+            this.dlgOpen = new System.Windows.Forms.OpenFileDialog();
+            this.dlgSave = new System.Windows.Forms.SaveFileDialog();
+            this.btnPoiQuery = new System.Windows.Forms.Button();
+            this.btnPinPhoto = new System.Windows.Forms.Button();
+            this.picGeoRef = new System.Windows.Forms.PictureBox();
             this.tsbtnFunction = new System.Windows.Forms.ToolStripSplitButton();
             this.tsmiResetMap = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiShiftMap = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.tsmiExportGPXKML = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiImportGPXKML = new System.Windows.Forms.ToolStripMenuItem();
-            this.trackZoom = new System.Windows.Forms.TrackBar();
-            this.chkMapShift = new System.Windows.Forms.CheckBox();
-            this.btnPinPhoto = new System.Windows.Forms.Button();
-            this.picGeoRef = new System.Windows.Forms.PictureBox();
-            this.edQuery = new System.Windows.Forms.TextBox();
-            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.bgwSetGeo = new System.ComponentModel.BackgroundWorker();
-            this.bgwShowImage = new System.ComponentModel.BackgroundWorker();
-            this.dlgOpen = new System.Windows.Forms.OpenFileDialog();
-            this.dlgSave = new System.Windows.Forms.SaveFileDialog();
             this.status.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackZoom)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picGeoRef)).BeginInit();
@@ -181,7 +182,7 @@
             this.tsInfo.BorderStyle = System.Windows.Forms.Border3DStyle.SunkenOuter;
             this.tsInfo.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.tsInfo.Name = "tsInfo";
-            this.tsInfo.Size = new System.Drawing.Size(199, 17);
+            this.tsInfo.Size = new System.Drawing.Size(230, 17);
             this.tsInfo.Spring = true;
             this.tsInfo.Text = "OK";
             // 
@@ -190,6 +191,109 @@
             this.tsProgress.AutoToolTip = true;
             this.tsProgress.Name = "tsProgress";
             this.tsProgress.Size = new System.Drawing.Size(80, 16);
+            // 
+            // trackZoom
+            // 
+            this.trackZoom.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.trackZoom.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.trackZoom.LargeChange = 2;
+            this.trackZoom.Location = new System.Drawing.Point(123, 455);
+            this.trackZoom.Name = "trackZoom";
+            this.trackZoom.Size = new System.Drawing.Size(171, 42);
+            this.trackZoom.TabIndex = 4;
+            this.trackZoom.TickStyle = System.Windows.Forms.TickStyle.Both;
+            this.toolTip.SetToolTip(this.trackZoom, "Change Map Zoom Level");
+            this.trackZoom.Scroll += new System.EventHandler(this.trackZoom_Scroll);
+            // 
+            // chkMapShift
+            // 
+            this.chkMapShift.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.chkMapShift.AutoEllipsis = true;
+            this.chkMapShift.Location = new System.Drawing.Point(12, 480);
+            this.chkMapShift.Name = "chkMapShift";
+            this.chkMapShift.Size = new System.Drawing.Size(110, 18);
+            this.chkMapShift.TabIndex = 6;
+            this.chkMapShift.Text = "Adj. China Map";
+            this.toolTip.SetToolTip(this.chkMapShift, "Adjust Map Shift in China mainland");
+            this.chkMapShift.UseVisualStyleBackColor = true;
+            this.chkMapShift.CheckedChanged += new System.EventHandler(this.chkMapShift_CheckedChanged);
+            // 
+            // edPoiQuery
+            // 
+            this.edPoiQuery.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.edPoiQuery.HideSelection = false;
+            this.edPoiQuery.ImeMode = System.Windows.Forms.ImeMode.Alpha;
+            this.edPoiQuery.Location = new System.Drawing.Point(292, 466);
+            this.edPoiQuery.Name = "edPoiQuery";
+            this.edPoiQuery.Size = new System.Drawing.Size(205, 21);
+            this.edPoiQuery.TabIndex = 8;
+            this.edPoiQuery.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.toolTip.SetToolTip(this.edPoiQuery, "Simple Query POI Keywords");
+            this.edPoiQuery.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.edQuery_KeyPress);
+            // 
+            // toolTip
+            // 
+            this.toolTip.ToolTipIcon = System.Windows.Forms.ToolTipIcon.Info;
+            this.toolTip.ToolTipTitle = "Tip";
+            // 
+            // bgwSetGeo
+            // 
+            this.bgwSetGeo.WorkerReportsProgress = true;
+            this.bgwSetGeo.WorkerSupportsCancellation = true;
+            this.bgwSetGeo.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgwSetGeo_DoWork);
+            this.bgwSetGeo.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bgwSetGeo_ProgressChanged);
+            this.bgwSetGeo.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgwSetGeo_RunWorkerCompleted);
+            // 
+            // bgwShowImage
+            // 
+            this.bgwShowImage.WorkerReportsProgress = true;
+            this.bgwShowImage.WorkerSupportsCancellation = true;
+            this.bgwShowImage.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgwShowImage_DoWork);
+            this.bgwShowImage.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bgwShowImage_ProgressChanged);
+            this.bgwShowImage.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgwShowImage_RunWorkerCompleted);
+            // 
+            // dlgOpen
+            // 
+            this.dlgOpen.FileName = "openFileDialog1";
+            // 
+            // btnPoiQuery
+            // 
+            this.btnPoiQuery.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnPoiQuery.Image = global::PhotoGeoTagShell.Properties.Resources.search_poi_png_24;
+            this.btnPoiQuery.Location = new System.Drawing.Point(504, 460);
+            this.btnPoiQuery.Name = "btnPoiQuery";
+            this.btnPoiQuery.Size = new System.Drawing.Size(32, 32);
+            this.btnPoiQuery.TabIndex = 9;
+            this.toolTip.SetToolTip(this.btnPoiQuery, "Click to Query POI");
+            this.btnPoiQuery.UseVisualStyleBackColor = true;
+            this.btnPoiQuery.Click += new System.EventHandler(this.btnPoiQuery_Click);
+            // 
+            // btnPinPhoto
+            // 
+            this.btnPinPhoto.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnPinPhoto.Image = ((System.Drawing.Image)(resources.GetObject("btnPinPhoto.Image")));
+            this.btnPinPhoto.Location = new System.Drawing.Point(545, 455);
+            this.btnPinPhoto.Name = "btnPinPhoto";
+            this.btnPinPhoto.Size = new System.Drawing.Size(35, 42);
+            this.btnPinPhoto.TabIndex = 7;
+            this.toolTip.SetToolTip(this.btnPinPhoto, "Pin Photo(s) to Map");
+            this.btnPinPhoto.UseVisualStyleBackColor = true;
+            this.btnPinPhoto.Click += new System.EventHandler(this.btnPinPhoto_Click);
+            // 
+            // picGeoRef
+            // 
+            this.picGeoRef.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.picGeoRef.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.picGeoRef.Location = new System.Drawing.Point(586, 455);
+            this.picGeoRef.Name = "picGeoRef";
+            this.picGeoRef.Size = new System.Drawing.Size(54, 42);
+            this.picGeoRef.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.picGeoRef.TabIndex = 5;
+            this.picGeoRef.TabStop = false;
+            this.toolTip.SetToolTip(this.picGeoRef, "Refrence Photo Drag Area");
+            this.picGeoRef.DragDrop += new System.Windows.Forms.DragEventHandler(this.picGeoRef_DragDrop);
+            this.picGeoRef.DragEnter += new System.Windows.Forms.DragEventHandler(this.picGeoRef_DragEnter);
             // 
             // tsbtnFunction
             // 
@@ -203,7 +307,7 @@
             this.tsbtnFunction.Image = ((System.Drawing.Image)(resources.GetObject("tsbtnFunction.Image")));
             this.tsbtnFunction.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbtnFunction.Name = "tsbtnFunction";
-            this.tsbtnFunction.Size = new System.Drawing.Size(51, 20);
+            this.tsbtnFunction.Size = new System.Drawing.Size(51, 16);
             this.tsbtnFunction.Text = "RESET";
             this.tsbtnFunction.ToolTipText = "Switch Shift Map On / Off";
             this.tsbtnFunction.ButtonClick += new System.EventHandler(this.tsmiResetMap_Click);
@@ -242,104 +346,14 @@
             this.tsmiImportGPXKML.Text = "Import GPX/KML";
             this.tsmiImportGPXKML.Click += new System.EventHandler(this.tsmiImportGPXKML_Click);
             // 
-            // trackZoom
-            // 
-            this.trackZoom.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.trackZoom.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.trackZoom.LargeChange = 2;
-            this.trackZoom.Location = new System.Drawing.Point(123, 455);
-            this.trackZoom.Name = "trackZoom";
-            this.trackZoom.Size = new System.Drawing.Size(171, 42);
-            this.trackZoom.TabIndex = 4;
-            this.trackZoom.TickStyle = System.Windows.Forms.TickStyle.Both;
-            this.toolTip.SetToolTip(this.trackZoom, "Change Map Zoom Level");
-            this.trackZoom.Scroll += new System.EventHandler(this.trackZoom_Scroll);
-            // 
-            // chkMapShift
-            // 
-            this.chkMapShift.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.chkMapShift.AutoEllipsis = true;
-            this.chkMapShift.Location = new System.Drawing.Point(12, 480);
-            this.chkMapShift.Name = "chkMapShift";
-            this.chkMapShift.Size = new System.Drawing.Size(110, 18);
-            this.chkMapShift.TabIndex = 6;
-            this.chkMapShift.Text = "Adj. China Map";
-            this.toolTip.SetToolTip(this.chkMapShift, "Adjust Map Shift in China mainland");
-            this.chkMapShift.UseVisualStyleBackColor = true;
-            this.chkMapShift.CheckedChanged += new System.EventHandler(this.chkMapShift_CheckedChanged);
-            // 
-            // btnPinPhoto
-            // 
-            this.btnPinPhoto.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnPinPhoto.Image = ((System.Drawing.Image)(resources.GetObject("btnPinPhoto.Image")));
-            this.btnPinPhoto.Location = new System.Drawing.Point(545, 455);
-            this.btnPinPhoto.Name = "btnPinPhoto";
-            this.btnPinPhoto.Size = new System.Drawing.Size(35, 42);
-            this.btnPinPhoto.TabIndex = 7;
-            this.toolTip.SetToolTip(this.btnPinPhoto, "Pin Photo(s) to Map");
-            this.btnPinPhoto.UseVisualStyleBackColor = true;
-            this.btnPinPhoto.Click += new System.EventHandler(this.btnPinPhoto_Click);
-            // 
-            // picGeoRef
-            // 
-            this.picGeoRef.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.picGeoRef.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.picGeoRef.Location = new System.Drawing.Point(586, 455);
-            this.picGeoRef.Name = "picGeoRef";
-            this.picGeoRef.Size = new System.Drawing.Size(54, 42);
-            this.picGeoRef.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.picGeoRef.TabIndex = 5;
-            this.picGeoRef.TabStop = false;
-            this.toolTip.SetToolTip(this.picGeoRef, "Refrence Photo Drag Area");
-            this.picGeoRef.DragDrop += new System.Windows.Forms.DragEventHandler(this.picGeoRef_DragDrop);
-            this.picGeoRef.DragEnter += new System.Windows.Forms.DragEventHandler(this.picGeoRef_DragEnter);
-            // 
-            // edQuery
-            // 
-            this.edQuery.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.edQuery.HideSelection = false;
-            this.edQuery.ImeMode = System.Windows.Forms.ImeMode.Alpha;
-            this.edQuery.Location = new System.Drawing.Point(292, 466);
-            this.edQuery.Name = "edQuery";
-            this.edQuery.Size = new System.Drawing.Size(247, 21);
-            this.edQuery.TabIndex = 8;
-            this.edQuery.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.toolTip.SetToolTip(this.edQuery, "Simple Query Posiiion By Keyword");
-            this.edQuery.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.edQuery_KeyPress);
-            // 
-            // toolTip
-            // 
-            this.toolTip.ToolTipIcon = System.Windows.Forms.ToolTipIcon.Info;
-            this.toolTip.ToolTipTitle = "Tip";
-            // 
-            // bgwSetGeo
-            // 
-            this.bgwSetGeo.WorkerReportsProgress = true;
-            this.bgwSetGeo.WorkerSupportsCancellation = true;
-            this.bgwSetGeo.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgwSetGeo_DoWork);
-            this.bgwSetGeo.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bgwSetGeo_ProgressChanged);
-            this.bgwSetGeo.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgwSetGeo_RunWorkerCompleted);
-            // 
-            // bgwShowImage
-            // 
-            this.bgwShowImage.WorkerReportsProgress = true;
-            this.bgwShowImage.WorkerSupportsCancellation = true;
-            this.bgwShowImage.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgwShowImage_DoWork);
-            this.bgwShowImage.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bgwShowImage_ProgressChanged);
-            this.bgwShowImage.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgwShowImage_RunWorkerCompleted);
-            // 
-            // dlgOpen
-            // 
-            this.dlgOpen.FileName = "openFileDialog1";
-            // 
             // FormMap
             // 
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(652, 523);
-            this.Controls.Add(this.edQuery);
+            this.Controls.Add(this.btnPoiQuery);
+            this.Controls.Add(this.edPoiQuery);
             this.Controls.Add(this.btnPinPhoto);
             this.Controls.Add(this.chkMapShift);
             this.Controls.Add(this.picGeoRef);
@@ -379,7 +393,7 @@
         private System.Windows.Forms.ToolStripSplitButton tsbtnFunction;
         private System.Windows.Forms.ToolStripMenuItem tsmiResetMap;
         private System.Windows.Forms.ToolStripMenuItem tsmiShiftMap;
-        private System.Windows.Forms.TextBox edQuery;
+        private System.Windows.Forms.TextBox edPoiQuery;
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem tsmiExportGPXKML;
@@ -388,6 +402,7 @@
         private System.ComponentModel.BackgroundWorker bgwShowImage;
         private System.Windows.Forms.OpenFileDialog dlgOpen;
         private System.Windows.Forms.SaveFileDialog dlgSave;
+        private System.Windows.Forms.Button btnPoiQuery;
     }
 }
 
