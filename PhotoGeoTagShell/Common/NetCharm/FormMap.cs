@@ -492,28 +492,6 @@ namespace NetCharm
                     //metadata = metadata.Clone();
                 }
 
-
-                #region Set Title & Subject
-                var xptitle = metadata.GetQuery( META.TagExifXPTitle );
-                if( xptitle != null)
-                {
-                    string xptitle_str = Encoding.Unicode.GetString( (byte[]) xptitle ).Trim(new char[] { ' ', '\0' } );
-                    metadata.SetQuery( META.TagIptcCaption, xptitle_str);
-                }
-                var xpcomment = metadata.GetQuery( META.TagExifXPComment );
-                if ( xpcomment != null )
-                {
-                    string xpcomment_str = Encoding.Unicode.GetString( (byte[]) xpcomment ).Trim( new char[] { ' ', '\0' } );
-                    //metadata.SetQuery( META.TagIptcDescription, xpcomment_str );
-                }
-                var xpsubject = metadata.GetQuery( META.TagExifXPSubject );
-                if ( xpsubject != null )
-                {
-                    string xpsubject_str = Encoding.Unicode.GetString( (byte[]) xpsubject ).Trim( new char[] { ' ', '\0' } );
-                    metadata.SetQuery( META.TagIptcHeadline, xpsubject_str );
-                }
-                #endregion
-
                 #region Set GPS Info
                 char latHemisphere = 'N';
                 if ( lat < 0 )
@@ -543,11 +521,31 @@ namespace NetCharm
                     Convert.ToUInt64( (( glng.Numeric - glng.Degrees ) * 60 - glng.Minutes ) * 60 * factor ) + 0x0098968000000000L
                 };
 
-                metadata.SetQuery( "/app1/ifd/Gps/subifd:{uint=1}", latHemisphere );
-                metadata.SetQuery( "/app1/ifd/Gps/subifd:{uint=2}", ulat );
-                metadata.SetQuery( "/app1/ifd/Gps/subifd:{uint=3}", lngHemisphere );
-                metadata.SetQuery( "/app1/ifd/Gps/subifd:{uint=4}", ulng );
+                metadata.SetQuery( META.TagExifGpsLatitudeRef, latHemisphere );
+                metadata.SetQuery( META.TagExifGpsLatitude, ulat );
+                metadata.SetQuery( META.TagExifGpsLongitudeRef, lngHemisphere );
+                metadata.SetQuery( META.TagExifGpsLongitude, ulng );
+                #endregion
 
+                #region Set Title & Subject
+                var xptitle = metadata.GetQuery( META.TagExifXPTitle );
+                if( xptitle != null)
+                {
+                    string xptitle_str = Encoding.Unicode.GetString( (byte[]) xptitle ).Trim(new char[] { ' ', '\0' } );
+                    metadata.SetQuery( META.TagIptcCaption, xptitle_str);
+                }
+                var xpcomment = metadata.GetQuery( META.TagExifXPComment );
+                if ( xpcomment != null )
+                {
+                    string xpcomment_str = Encoding.Unicode.GetString( (byte[]) xpcomment ).Trim( new char[] { ' ', '\0' } );
+                    //metadata.SetQuery( META.TagIptcDescription, xpcomment_str );
+                }
+                var xpsubject = metadata.GetQuery( META.TagExifXPSubject );
+                if ( xpsubject != null )
+                {
+                    string xpsubject_str = Encoding.Unicode.GetString( (byte[]) xpsubject ).Trim( new char[] { ' ', '\0' } );
+                    metadata.SetQuery( META.TagIptcHeadline, xpsubject_str );
+                }
                 #endregion
 
                 #region Set Keywords & Authors
@@ -558,15 +556,22 @@ namespace NetCharm
                     metadata.SetQuery( query, keyword );
                     idx++;
                 }
-                metadata.SetQuery( META.TagIptcKeywords, keywords.ToArray() );
+                if(keywords.Count>0)
+                {
+                    metadata.SetQuery( META.TagIptcKeywords, keywords.ToArray() );
+                }
 
-                metadata.SetQuery( META.TagIptcByline, string.Join( ";", authors ) );
+                if(authors.Count>0)
+                {
+                    metadata.SetQuery( META.TagIptcByline, string.Join( ";", authors ) );
+                }
                 #endregion
 
                 #region Set Image.Datetime to Taken datetime
-                if(!string.IsNullOrEmpty( metadata.DateTaken ) )
+                if (!string.IsNullOrEmpty( metadata.DateTaken ) )
                 {
-                    metadata.SetQuery( META.TagExifDateTime, metadata.DateTaken );
+                    //metadata.SetQuery( META.TagExifDateTime, metadata.DateTaken );
+                    metadata.SetQuery( META.TagExifDateTime, metadata.DateTaken.Replace('/', ':' ).Replace('-', ':').Replace(',', ':').Replace( '.', ':' ) );
                 }
                 #endregion
                 wpfFileManager.WriteMetadata();
