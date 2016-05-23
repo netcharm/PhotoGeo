@@ -24,12 +24,13 @@ namespace PhotoGeoTagShell
 
         FormMap MapViewer;//= new FormMap();
 
+        private bool item_changed = false;
         private bool selection_changed = true;
         private Mutex mutSelectionChanged = new Mutex();
         List<string> lastSelections = new List<string>();
 
         string lastMapProvider = "GoogleChinaHybridMap";
-        string[] PhotoExts = { ".jpg", ".jpeg", ".tif",".tiff" };
+        //string[] PhotoExts = { ".jpg", ".jpeg", ".tif",".tiff" };
 
         private void configUpdate()
         {
@@ -123,7 +124,7 @@ namespace PhotoGeoTagShell
             IEnumerable<ShellObject> fileinfos  = items.Where( f => (
                     f.IsFileSystemObject && 
                     !f.IsLink &&
-                    PhotoExts.Contains( Path.GetExtension(f.Name), StringComparer.CurrentCultureIgnoreCase )
+                    EXIF.PhotoExts.Contains( Path.GetExtension(f.Name), StringComparer.CurrentCultureIgnoreCase )
                     ) );
             total = fileinfos.Count();
             return ( total );
@@ -131,13 +132,9 @@ namespace PhotoGeoTagShell
 
         private int getTotalPhotos( string folder )
         {
-            int total = 0;
-
             DirectoryInfo di = new DirectoryInfo(folder);
-            //IEnumerable<FileInfo> fileinfos  = di.EnumerateFiles( "*", option ).Where( f => PhotoExts.Contains( f.Extension, StringComparer.OrdinalIgnoreCase ) );
-            IEnumerable<FileInfo> fileinfos  = di.EnumerateFiles().Where( f => PhotoExts.Contains( f.Extension, StringComparer.CurrentCultureIgnoreCase ) );
-            total = fileinfos.Count();
-            return ( total );
+            IEnumerable<FileInfo> fileinfos  = di.EnumerateFiles().Where( f => EXIF.PhotoExts.Contains( f.Extension, StringComparer.CurrentCultureIgnoreCase ) );
+            return ( fileinfos.Count() );
         }
 
         private void ShowSelectedImage(bool force=false)
@@ -153,7 +150,7 @@ namespace PhotoGeoTagShell
                     string dp = item.ParsingName;
                     string ext = Path.GetExtension(dp);
                     if ( File.GetAttributes( dp ).HasFlag( FileAttributes.Directory ) ) continue;
-                    if ( PhotoExts.Contains( ext, StringComparer.CurrentCultureIgnoreCase ) )
+                    if ( EXIF.PhotoExts.Contains( ext, StringComparer.CurrentCultureIgnoreCase ) )
                     {
                         if ( !lastSelections.Contains( item.Name ) )
                         {
@@ -195,7 +192,7 @@ namespace PhotoGeoTagShell
                             string ext = Path.GetExtension(dp);
                             if ( !File.GetAttributes( dp ).HasFlag( FileAttributes.Directory ) )
                             {
-                                if ( PhotoExts.Contains( ext, StringComparer.CurrentCultureIgnoreCase ) )
+                                if ( EXIF.PhotoExts.Contains( ext, StringComparer.CurrentCultureIgnoreCase ) )
                                 {
                                     lastSelections.Add( item.Name );
 
@@ -475,10 +472,19 @@ namespace PhotoGeoTagShell
 
                 explorerBrowser.Focus();
                 //tsFilesTotal.Text = $"Total: {getTotalPhotos( e.NewLocation.ParsingName )}";
-                tsFilesTotal.Text = $"Total: {getTotalPhotos( explorerBrowser.Items )}";
-                tsFilesSelected.Text = $"Selected: {0}";
-                ShowSelectedImage();
+                //tsFilesTotal.Text = $"Total: {getTotalPhotos( explorerBrowser.Items )}";
+                //tsFilesSelected.Text = $"Selected: {0}";
+                //ShowSelectedImage();
+                item_changed = false;
             } ) );
+        }
+
+        private void explorerBrowser_ViewEnumerationComplete( object sender, EventArgs e )
+        {
+            tsFilesTotal.Text = $"Total: {getTotalPhotos( explorerBrowser.Items )}";
+            tsFilesSelected.Text = $"Selected: {0}";
+            ShowSelectedImage();
+            item_changed = true;
         }
 
         private void explorerBrowser_SelectionChanged( object sender, EventArgs e )
@@ -488,6 +494,8 @@ namespace PhotoGeoTagShell
 
         private void explorerBrowser_ItemsChanged( object sender, EventArgs e )
         {
+            if ( EXIF.IsTouching ) return;
+            if ( !item_changed ) return;
             BeginInvoke( new MethodInvoker( delegate ()
             {
                 int total = getTotalPhotos( explorerBrowser.Items );
@@ -503,35 +511,15 @@ namespace PhotoGeoTagShell
             string folder = args.Key;
             SearchOption option = args.Value;
 
-            int index = 0;
-            int count = 0;
-
             DirectoryInfo di = new DirectoryInfo(folder);
-            //IEnumerable<FileInfo> fileinfos  = di.EnumerateFiles( "*", option ).Where( f => PhotoExts.Contains( f.Extension, StringComparer.OrdinalIgnoreCase ) );
-            IEnumerable<FileInfo> fileinfos  = di.EnumerateFiles( "*", option ).Where( f => PhotoExts.Contains( f.Extension, StringComparer.CurrentCultureIgnoreCase ) );           
-            index = 0;
-            count = fileinfos.Count();
+            IEnumerable<FileInfo> fileinfos  = di.EnumerateFiles( "*", option ).Where( f => EXIF.PhotoExts.Contains( f.Extension, StringComparer.CurrentCultureIgnoreCase ) );
+            int index = 0;
+            int count = fileinfos.Count();
             foreach ( FileInfo file in fileinfos )
             {
                 EXIF.TouchPhoto( $"{file.DirectoryName}{Path.DirectorySeparatorChar}{file.Name}", "" );
                 bgwTouch.ReportProgress( (int) Math.Round( ( index++ ) * 100f / count ) );
             }
-
-            //List <string> files = new List<string>();
-            //index = 0;
-            //count = exts.Length;
-            //foreach ( string ext in exts )
-            //{
-            //    files.AddRange( Directory.GetFiles( folder, "*" + ext, option ) );
-            //    bgwTouch.ReportProgress( (int) Math.Round( ( index++ ) * 100f / count ) );
-            //}
-            //index = 0;
-            //count = files.Count;
-            //foreach ( string file in files )
-            //{
-            //    EXIF.TouchPhoto( file, "" );
-            //    bgwTouch.ReportProgress( (int)Math.Round( ( index++ ) * 100f / count ) );
-            //}
         }
 
         private void bgwTouch_ProgressChanged( object sender, System.ComponentModel.ProgressChangedEventArgs e )
