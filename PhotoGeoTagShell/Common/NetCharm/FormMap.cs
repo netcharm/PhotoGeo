@@ -400,9 +400,23 @@ namespace NetCharm
                 HashSet<string> comments = new HashSet<string>();
 
                 #region Get DateTaken
-                if ( !DateTime.TryParse( metadata.DateTaken, CultureInfo.CurrentCulture, DateTimeStyles.None, out dt ) )
+                string dtmeta = String.Empty;
+                var dtexif = metadata.GetQuery(META.TagExifDateTime);
+                if ( metadata.DateTaken != null )
                 {
+                    dtmeta = metadata.DateTaken;
+                    if ( !string.IsNullOrEmpty( dtmeta ) && !DateTime.TryParse( dtmeta, CultureInfo.CurrentCulture, DateTimeStyles.None, out dt ) )
+                    {
+                    }
                 }
+                else if( dtexif !=null )
+                {
+                    dtmeta = dtexif as string;
+                    if ( !string.IsNullOrEmpty( dtmeta ) && !DateTime.TryParseExact( dtmeta, "yyyy:MM:dd HH:mm:ss", CultureInfo.CurrentCulture, DateTimeStyles.None, out dt ) )
+                    {
+                    }
+                }
+
                 #endregion
 
                 #region Get Keywords
@@ -551,7 +565,7 @@ namespace NetCharm
                     metadata.SetQuery( META.TagIptcHeadline, xpsubject_str );
                 }
                 var xpcopyright = metadata.GetQuery( META.TagExifCopyright );
-                if ( xpcopyright != null )
+                if ( xpcopyright != null && !String.IsNullOrEmpty((xpcopyright as string).Trim()) )
                 {
                     string xpcopyright_str = Encoding.Unicode.GetString( (byte[]) xpcopyright ).Trim( new char[] { ' ', '\0' } );
                     metadata.SetQuery( META.TagIptcCopyrightNotice, xpcopyright_str );
@@ -677,6 +691,7 @@ namespace NetCharm
             #endregion
 
             #region Touch file datetime to DateTaken/DateOriginal
+            EXIF.IsTouching = true;
             FileInfo fi = new FileInfo( image );
             DateTime dt = fi.CreationTimeUtc.ToLocalTime();
 #if DEBUG || NETCHARM
@@ -687,6 +702,7 @@ namespace NetCharm
             fi.LastAccessTimeUtc = dt.ToUniversalTime();
             fi.LastWriteTimeUtc = dt.ToUniversalTime();
             fi.CreationTimeUtc = dt.ToUniversalTime();
+            EXIF.IsTouching = false;
             #endregion
         }
 
@@ -715,6 +731,7 @@ namespace NetCharm
                 #endregion
 
                 #region touch photo
+                EXIF.IsTouching = true;
                 FileInfo fi = new FileInfo( img.Value );
                 DateTime dt = fi.CreationTimeUtc.ToLocalTime();
 #if DEBUG || NETCHARM
@@ -725,6 +742,7 @@ namespace NetCharm
                 fi.LastAccessTimeUtc = dt.ToUniversalTime();
                 fi.LastWriteTimeUtc = dt.ToUniversalTime();
                 fi.CreationTimeUtc = dt.ToUniversalTime();
+                EXIF.IsTouching = false;
                 #endregion
 
                 #region create new marker for moved marker

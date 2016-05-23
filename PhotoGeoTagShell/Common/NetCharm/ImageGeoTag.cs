@@ -324,6 +324,15 @@ namespace NetCharm
 
         #endregion
 
+        private static bool touching = false;
+        public static bool IsTouching
+        {
+            get { return touching; }
+            set { touching = value; }
+        }
+
+        public static string[] PhotoExts = { ".jpg", ".jpeg", ".tif",".tiff" };
+
         /// <summary>
         /// 
         /// 
@@ -409,25 +418,39 @@ namespace NetCharm
         {
             using ( FileStream fs = new FileStream( photo, FileMode.Open, FileAccess.Read ) )
             {
+                touching = true;
                 Image img = Image.FromStream( fs, true, true );
                 fs.Close();
                 TouchPhoto( img, photo, touch );
                 img.Dispose();
+                touching = false;
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="folder"></param>
+        /// <param name="touch"></param>
+        /// <param name="option"></param>
         public static void TouchPhoto( string folder, string touch = "", SearchOption option=SearchOption.TopDirectoryOnly )
         {
-            List<string> files = new List<string>();
-            //Directory.GetFiles(folder, "*.jpg;*.jpeg;*.tif;*.tiff", SearchOption.TopDirectoryOnly);
-            files.AddRange( Directory.GetFiles( folder, "*.jpg", option ) );
-            files.AddRange( Directory.GetFiles( folder, "*.jpeg", option ) );
-            files.AddRange( Directory.GetFiles( folder, "*.tif", option ) );
-            files.AddRange( Directory.GetFiles( folder, "*.tiff", option ) );
-            foreach ( string file in files )
+            DirectoryInfo di = new DirectoryInfo(folder);
+            IEnumerable<FileInfo> fileinfos  = di.EnumerateFiles().Where( f => PhotoExts.Contains( f.Extension, StringComparer.CurrentCultureIgnoreCase ) );
+            foreach ( FileInfo file in fileinfos )
             {
-                TouchPhoto( file, touch );
+                TouchPhoto( $"{file.DirectoryName}{Path.DirectorySeparatorChar}{file.Name}", touch );
             }
+
+            //List<string> files = new List<string>();
+            //files.AddRange( Directory.GetFiles( folder, "*.jpg", option ) );
+            //files.AddRange( Directory.GetFiles( folder, "*.jpeg", option ) );
+            //files.AddRange( Directory.GetFiles( folder, "*.tif", option ) );
+            //files.AddRange( Directory.GetFiles( folder, "*.tiff", option ) );
+            //foreach ( string file in files )
+            //{
+            //    TouchPhoto( file, touch );
+            //}
         }
 
         /// <summary>
