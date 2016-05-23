@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 using Microsoft.WindowsAPICodePack.Controls;
+using Microsoft.WindowsAPICodePack.Controls.WindowsForms;
 using Microsoft.WindowsAPICodePack.Shell;
 using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
 using NetCharm;
@@ -114,27 +115,28 @@ namespace PhotoGeoTagShell
             config.Save();
         }
 
-        private int getTotalPhotos(string folder)
+        private int getTotalPhotos( ShellObjectCollection items )
         {
             int total = 0;
-            foreach ( ShellObject item in explorerBrowser.Items )
-            {
-                if ( !item.IsFileSystemObject || item.IsLink ) continue;
 
-                #region get property
-                string dn = item.Name;
-                string dp = item.ParsingName;
-                string ext = Path.GetExtension(dp);
-                if ( !File.GetAttributes( dp ).HasFlag( FileAttributes.Directory ) )
-                {
-                    if ( PhotoExts.Contains( ext, StringComparer.CurrentCultureIgnoreCase ) )
-                    {
-                        total++;
-                    }
-                }
-                #endregion
-            }
 
+            IEnumerable<ShellObject> fileinfos  = items.Where( f => (
+                    f.IsFileSystemObject && 
+                    !f.IsLink &&
+                    PhotoExts.Contains( Path.GetExtension(f.Name), StringComparer.CurrentCultureIgnoreCase )
+                    ) );
+            total = fileinfos.Count();
+            return ( total );
+        }
+
+        private int getTotalPhotos( string folder )
+        {
+            int total = 0;
+
+            DirectoryInfo di = new DirectoryInfo(folder);
+            //IEnumerable<FileInfo> fileinfos  = di.EnumerateFiles( "*", option ).Where( f => PhotoExts.Contains( f.Extension, StringComparer.OrdinalIgnoreCase ) );
+            IEnumerable<FileInfo> fileinfos  = di.EnumerateFiles().Where( f => PhotoExts.Contains( f.Extension, StringComparer.CurrentCultureIgnoreCase ) );
+            total = fileinfos.Count();
             return ( total );
         }
 
@@ -173,8 +175,9 @@ namespace PhotoGeoTagShell
             {
                 BeginInvoke( new MethodInvoker( delegate ()
                 {
-                    #region get properties to
+                    #region get properties
                     if ( !force && !selection_changed ) return;
+                    tsFilesSelected.Text = $"Selected: 0";
                     selection_changed = false;
 
                     List<KeyValuePair<Image, string>> imgs = new List<KeyValuePair<Image, string>>();
@@ -186,8 +189,8 @@ namespace PhotoGeoTagShell
                             if ( !item.IsFileSystemObject || item.IsLink ) continue;
                             if ( lastSelections.Contains( item.Name ) ) continue;
 
-                        #region get property
-                        string dn = item.Name;
+                            #region get property
+                            string dn = item.Name;
                             string dp = item.ParsingName;
                             string ext = Path.GetExtension(dp);
                             if ( !File.GetAttributes( dp ).HasFlag( FileAttributes.Directory ) )
@@ -200,25 +203,25 @@ namespace PhotoGeoTagShell
                                     ShellPropertyCollection props = item.Properties.DefaultPropertyCollection;
 
                                     Dictionary<string, string> properties = new Dictionary<string, string>();
-                                //if (props.Contains( "System.Artist" ))
-                                //{
+                                    //if (props.Contains( "System.Artist" ))
+                                    //{
 
-                                //}
+                                    //}
 
-                                for ( int i = 0; i < props.Count; i++ )
+                                    for ( int i = 0; i < props.Count; i++ )
                                     {
                                         if ( props[i].CanonicalName == null ) continue;
                                         string key = props[i].CanonicalName.Replace("System.", "");
                                         string value = "";
 
-                                    //if ( !key.StartsWith( "Date" ) && !key.StartsWith( "Photo.Date" ) && !key.StartsWith( "ItemPathDisplay" ) ) continue;
-                                    if ( !key.StartsWith( "Photo.Date" ) && !key.StartsWith( "ItemPathDisplay" ) ) continue;
+                                        //if ( !key.StartsWith( "Date" ) && !key.StartsWith( "Photo.Date" ) && !key.StartsWith( "ItemPathDisplay" ) ) continue;
+                                        if ( !key.StartsWith( "Photo.Date" ) && !key.StartsWith( "ItemPathDisplay" ) ) continue;
 
                                         object objValue = props[i].ValueAsObject;
-                                    //object objValue = new object();
-                                    //continue;
+                                        //object objValue = new object();
+                                        //continue;
 
-                                    if ( objValue != null )
+                                        if ( objValue != null )
                                         {
                                             if ( props[i].ValueType == typeof( string[] ) )
                                             {
@@ -239,36 +242,36 @@ namespace PhotoGeoTagShell
                                         }
                                         properties.Add( key, value );
                                     }
-                                //properties.Add( "Artist", properties.ContainsKey( "Author" ) ? properties["Author"] : "" );
-                                //properties.Add( "Copyright", properties.ContainsKey( "Copyright" ) ? properties["Copyright"] : "" );
-                                //properties.Add( "ImageDescription", properties.ContainsKey( "Subject" ) ? properties["Subject"] : "" );
-                                //properties.Add( "Software", properties.ContainsKey( "ApplicationName" ) ? properties["ApplicationName"] : "" );
-                                properties.Add( "FileSize", properties.ContainsKey( "Size" ) ? properties["Size"] : "" );
-                                //properties.Add( "FileName", properties.ContainsKey( "ItemPathDisplay" ) ? properties["ItemPathDisplay"] : "" );
-                                properties.Add( "FilePath", properties.ContainsKey( "ItemPathDisplay" ) ? properties["ItemPathDisplay"] : "" );
+                                    //properties.Add( "Artist", properties.ContainsKey( "Author" ) ? properties["Author"] : "" );
+                                    //properties.Add( "Copyright", properties.ContainsKey( "Copyright" ) ? properties["Copyright"] : "" );
+                                    //properties.Add( "ImageDescription", properties.ContainsKey( "Subject" ) ? properties["Subject"] : "" );
+                                    //properties.Add( "Software", properties.ContainsKey( "ApplicationName" ) ? properties["ApplicationName"] : "" );
+                                    properties.Add( "FileSize", properties.ContainsKey( "Size" ) ? properties["Size"] : "" );
+                                    //properties.Add( "FileName", properties.ContainsKey( "ItemPathDisplay" ) ? properties["ItemPathDisplay"] : "" );
+                                    properties.Add( "FilePath", properties.ContainsKey( "ItemPathDisplay" ) ? properties["ItemPathDisplay"] : "" );
                                     properties.Add( "FolderName", properties.ContainsKey( "ItemFolderPathDisplay" ) ? properties["ItemFolderPathDisplay"] : "" );
                                     properties.Add( "FileType", properties.ContainsKey( "ItemTypeText" ) ? properties["ItemTypeText"] : "" );
-                                //properties.Add( "Dimensions", properties.ContainsKey( "Image.Dimensions" ) ? properties["Image.Dimensions"] : "" );
-                                //properties.Add( "Resolution", properties.ContainsKey( "Image.HorizontalResolution" ) && properties.ContainsKey( "Image.VerticalResolution" ) ? $"{properties["Image.HorizontalResolution"]} x {properties["Image.VerticalResolution"]}" : "" );
-                                //properties.Add( "EquipmentModel", properties.ContainsKey( "Photo.CameraModel" ) ? properties["Photo.CameraModel"] : "" );
-                                //properties.Add( "ExposureTime", properties.ContainsKey( "Photo.ExposureTime" ) ? properties["Photo.ExposureTime"] : "" );
-                                //properties.Add( "FNumber", properties.ContainsKey( "Photo.FNumber" ) ? properties["Photo.FNumber"] : "" );
-                                //properties.Add( "FocalLength", properties.ContainsKey( "Photo.FocalLength" ) ? properties["Photo.FocalLength"] : "" );
-                                //properties.Add( "ISOSpeed", properties.ContainsKey( "Photo.ISOSpeed" ) ? properties["Photo.ISOSpeed"] : "" );
-                                //properties.Add( "ImageDescription", properties.ContainsKey( "Title" ) ? properties["Title"] : "" );
-                                properties.Add( "DateTaken", properties.ContainsKey( "Photo.DateTaken" ) ? properties["Photo.DateTaken"] : "" );
-                                //properties.Add( "Rating", "" );
-                                //properties.Add( "StarRating", "" );
-                                //properties.Add( "UserComment", "" );
-                                thumb.Tag = properties;
-                                //if ( item.Properties != null )
-                                //{
-                                //    thumb.Tag = item.Properties.DefaultPropertyCollection;
-                                //}
-                                imgs.Add( new KeyValuePair<Image, string>( thumb, dp ) );
+                                    //properties.Add( "Dimensions", properties.ContainsKey( "Image.Dimensions" ) ? properties["Image.Dimensions"] : "" );
+                                    //properties.Add( "Resolution", properties.ContainsKey( "Image.HorizontalResolution" ) && properties.ContainsKey( "Image.VerticalResolution" ) ? $"{properties["Image.HorizontalResolution"]} x {properties["Image.VerticalResolution"]}" : "" );
+                                    //properties.Add( "EquipmentModel", properties.ContainsKey( "Photo.CameraModel" ) ? properties["Photo.CameraModel"] : "" );
+                                    //properties.Add( "ExposureTime", properties.ContainsKey( "Photo.ExposureTime" ) ? properties["Photo.ExposureTime"] : "" );
+                                    //properties.Add( "FNumber", properties.ContainsKey( "Photo.FNumber" ) ? properties["Photo.FNumber"] : "" );
+                                    //properties.Add( "FocalLength", properties.ContainsKey( "Photo.FocalLength" ) ? properties["Photo.FocalLength"] : "" );
+                                    //properties.Add( "ISOSpeed", properties.ContainsKey( "Photo.ISOSpeed" ) ? properties["Photo.ISOSpeed"] : "" );
+                                    //properties.Add( "ImageDescription", properties.ContainsKey( "Title" ) ? properties["Title"] : "" );
+                                    properties.Add( "DateTaken", properties.ContainsKey( "Photo.DateTaken" ) ? properties["Photo.DateTaken"] : "" );
+                                    //properties.Add( "Rating", "" );
+                                    //properties.Add( "StarRating", "" );
+                                    //properties.Add( "UserComment", "" );
+                                    thumb.Tag = properties;
+                                    //if ( item.Properties != null )
+                                    //{
+                                    //    thumb.Tag = item.Properties.DefaultPropertyCollection;
+                                    //}
+                                    imgs.Add( new KeyValuePair<Image, string>( thumb, dp ) );
                                 }
                             }
-                        #endregion
+                            #endregion
                         }
                     }
                     catch { };
@@ -347,7 +350,9 @@ namespace PhotoGeoTagShell
 
             //explorerBrowser.Navigate( (ShellObject) KnownFolders.Desktop );
             explorerBrowser.Navigate( ShellFileSystemFolder.FromFolderPath( lastVisited ) );
-            
+
+            //ShellSearchConnector shellSearch = new ShellSearchConnector(ShellFileSystemFolder.FromFolderPath( lastVisited ));
+            //shellSearch.
 
             lastVisitedFolders.Clear();
             tscbVistedFolder.Items.Clear();
@@ -469,7 +474,8 @@ namespace PhotoGeoTagShell
                 tscbVistedFolder.Text = explorerBrowser.NavigationLog.CurrentLocation.ParsingName;
 
                 explorerBrowser.Focus();
-                tsFilesTotal.Text = $"Total: {getTotalPhotos(e.NewLocation.ToString())}";
+                //tsFilesTotal.Text = $"Total: {getTotalPhotos( e.NewLocation.ParsingName )}";
+                tsFilesTotal.Text = $"Total: {getTotalPhotos( explorerBrowser.Items )}";
                 tsFilesSelected.Text = $"Selected: {0}";
                 ShowSelectedImage();
             } ) );
@@ -480,30 +486,52 @@ namespace PhotoGeoTagShell
             ShowSelectedImage();
         }
 
+        private void explorerBrowser_ItemsChanged( object sender, EventArgs e )
+        {
+            BeginInvoke( new MethodInvoker( delegate ()
+            {
+                int total = getTotalPhotos( explorerBrowser.Items );
+                int selected = getTotalPhotos( explorerBrowser.SelectedItems);
+                tsFilesTotal.Text = $"Total: {total}";
+                tsFilesSelected.Text = $"Selected: {selected}";
+            } ) );
+        }
+
         private void bgwTouch_DoWork( object sender, System.ComponentModel.DoWorkEventArgs e )
         {
             KeyValuePair<string, SearchOption> args = (KeyValuePair<string, SearchOption>)e.Argument;
             string folder = args.Key;
             SearchOption option = args.Value;
 
-            List < string> files = new List<string>();
-            //Directory.GetFiles(folder, "*.jpg;*.jpeg;*.tif;*.tiff", SearchOption.TopDirectoryOnly);
-            files.AddRange( Directory.GetFiles( folder, "*.jpg", option ) );
-            bgwTouch.ReportProgress( 25 );
-            files.AddRange( Directory.GetFiles( folder, "*.jpeg", option ) );
-            bgwTouch.ReportProgress( 50 );
-            files.AddRange( Directory.GetFiles( folder, "*.tif", option ) );
-            bgwTouch.ReportProgress( 75 );
-            files.AddRange( Directory.GetFiles( folder, "*.tiff", option ) );
-            bgwTouch.ReportProgress( 100 );
-
             int index = 0;
-            int count = files.Count;
-            foreach ( string file in files )
+            int count = 0;
+
+            DirectoryInfo di = new DirectoryInfo(folder);
+            //IEnumerable<FileInfo> fileinfos  = di.EnumerateFiles( "*", option ).Where( f => PhotoExts.Contains( f.Extension, StringComparer.OrdinalIgnoreCase ) );
+            IEnumerable<FileInfo> fileinfos  = di.EnumerateFiles( "*", option ).Where( f => PhotoExts.Contains( f.Extension, StringComparer.CurrentCultureIgnoreCase ) );           
+            index = 0;
+            count = fileinfos.Count();
+            foreach ( FileInfo file in fileinfos )
             {
-                EXIF.TouchPhoto( file, "" );
-                bgwTouch.ReportProgress( (int)Math.Round( ( index++ ) * 100f / count ) );
+                EXIF.TouchPhoto( $"{file.DirectoryName}{Path.DirectorySeparatorChar}{file.Name}", "" );
+                bgwTouch.ReportProgress( (int) Math.Round( ( index++ ) * 100f / count ) );
             }
+
+            //List <string> files = new List<string>();
+            //index = 0;
+            //count = exts.Length;
+            //foreach ( string ext in exts )
+            //{
+            //    files.AddRange( Directory.GetFiles( folder, "*" + ext, option ) );
+            //    bgwTouch.ReportProgress( (int) Math.Round( ( index++ ) * 100f / count ) );
+            //}
+            //index = 0;
+            //count = files.Count;
+            //foreach ( string file in files )
+            //{
+            //    EXIF.TouchPhoto( file, "" );
+            //    bgwTouch.ReportProgress( (int)Math.Round( ( index++ ) * 100f / count ) );
+            //}
         }
 
         private void bgwTouch_ProgressChanged( object sender, System.ComponentModel.ProgressChangedEventArgs e )
@@ -518,5 +546,6 @@ namespace PhotoGeoTagShell
             Cursor = Cursors.Default;
             tsInfo.Text = $"Touching file datetime 100%";
         }
+
     }
 }
