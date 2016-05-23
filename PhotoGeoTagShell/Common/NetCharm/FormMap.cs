@@ -25,6 +25,10 @@ using GMap.NET.WindowsForms;
 using GMap.NET.WindowsForms.Markers;
 using GMap.NET.WindowsForms.ToolTips;
 
+using SharpKml.Base;
+using SharpKml.Dom;
+using SharpKml.Engine;
+
 namespace NetCharm
 {
     public partial class FormMap : Form
@@ -527,24 +531,30 @@ namespace NetCharm
                 metadata.SetQuery( META.TagExifGpsLongitude, ulng );
                 #endregion
 
-                #region Set Title & Subject
+                #region Set Title & Subject & Comment
                 var xptitle = metadata.GetQuery( META.TagExifXPTitle );
                 if( xptitle != null)
                 {
                     string xptitle_str = Encoding.Unicode.GetString( (byte[]) xptitle ).Trim(new char[] { ' ', '\0' } );
-                    metadata.SetQuery( META.TagIptcCaption, xptitle_str);
+                    metadata.SetQuery( META.TagIptcBylineTitle, xptitle_str);
                 }
                 var xpcomment = metadata.GetQuery( META.TagExifXPComment );
                 if ( xpcomment != null )
                 {
                     string xpcomment_str = Encoding.Unicode.GetString( (byte[]) xpcomment ).Trim( new char[] { ' ', '\0' } );
-                    //metadata.SetQuery( META.TagIptcDescription, xpcomment_str );
+                    metadata.SetQuery( META.TagIptcCaption, xpcomment_str );
                 }
                 var xpsubject = metadata.GetQuery( META.TagExifXPSubject );
                 if ( xpsubject != null )
                 {
                     string xpsubject_str = Encoding.Unicode.GetString( (byte[]) xpsubject ).Trim( new char[] { ' ', '\0' } );
                     metadata.SetQuery( META.TagIptcHeadline, xpsubject_str );
+                }
+                var xpcopyright = metadata.GetQuery( META.TagExifCopyright );
+                if ( xpcopyright != null )
+                {
+                    string xpcopyright_str = Encoding.Unicode.GetString( (byte[]) xpcopyright ).Trim( new char[] { ' ', '\0' } );
+                    metadata.SetQuery( META.TagIptcCopyrightNotice, xpcopyright_str );
                 }
                 #endregion
 
@@ -674,12 +684,10 @@ namespace NetCharm
 #else
             dt = SetImageGeoTag_GDI( lat_wgs, lng_wgs, image, dt );
 #endif
-
             fi.LastAccessTimeUtc = dt.ToUniversalTime();
             fi.LastWriteTimeUtc = dt.ToUniversalTime();
             fi.CreationTimeUtc = dt.ToUniversalTime();
-#endregion
-
+            #endregion
         }
 
         public void SetImageGeoTag( PointLatLng pos )
@@ -723,7 +731,7 @@ namespace NetCharm
                 GMarkerGoogle marker_wgs = new GMarkerGoogle( new PointLatLng(lat_wgs, lng_wgs), GMarkerGoogleType.orange_dot );
                 GMapImageToolTip tooltip_wgs = new GMapImageToolTip( marker_wgs );
                 tooltip_wgs.Image = img.Key;
-                tooltip_wgs.Offset = new Point( 0, -12 );
+                tooltip_wgs.Offset = new System.Drawing.Point( 0, -12 );
                 tooltip_wgs.Font = new Font( "Segoe UI", 8 );
                 tooltip_wgs.Stroke = new System.Drawing.Pen( System.Drawing.Color.SlateBlue, 2 );
                 tooltip_wgs.Fill = new SolidBrush( System.Drawing.Color.Snow );
@@ -735,7 +743,7 @@ namespace NetCharm
                 GMarkerGoogle marker_mar = new GMarkerGoogle( new PointLatLng( lat_mar, lng_mar ), GMarkerGoogleType.orange_dot );
                 GMapImageToolTip tooltip_mar = new GMapImageToolTip( marker_mar );
                 tooltip_mar.Image = img.Key;
-                tooltip_mar.Offset = new Point( 0, -12 );
+                tooltip_mar.Offset = new System.Drawing.Point( 0, -12 );
                 tooltip_mar.Font = new Font( "Segoe UI", 8 );
                 tooltip_mar.Stroke = new System.Drawing.Pen( System.Drawing.Color.SlateBlue, 2 );
                 tooltip_mar.Fill = new SolidBrush( System.Drawing.Color.Snow );
@@ -744,8 +752,7 @@ namespace NetCharm
                 marker_mar.Tag = new PointLatLng( lat_mar, lng_mar );
                 OverlayPhotosMAR.Markers.Add( marker_mar );
                 #endregion
-
-                if( bgwSetGeo.IsBusy )
+                if ( bgwSetGeo.IsBusy )
                 {
                     bgwSetGeo.ReportProgress( OverlayPhotosMAR.Markers.Count );
                 }
@@ -761,7 +768,7 @@ namespace NetCharm
         {
             InitializeComponent();
             Application.EnableVisualStyles();
-            Icon = Icon.ExtractAssociatedIcon( Application.ExecutablePath );
+            Icon = System.Drawing.Icon.ExtractAssociatedIcon( Application.ExecutablePath );
         }
 
         private void FormMap_Load( object sender, EventArgs e )
@@ -919,11 +926,75 @@ namespace NetCharm
             this.Cursor = Cursors.WaitCursor;
             tsProgress.Style = ProgressBarStyle.Marquee;
             tsProgress.MarqueeAnimationSpeed = 20;
+
+            #region parse lng/lat
+            try
+            {
+                string[] loc = edPoiQuery.Text.Trim().Split(new char[] {' ', ',', ';' } );
+                if ( loc.Length == 2 )
+                {
+                    PointLatLng location = new PointLatLng(pos.Lat, pos.Lng);
+                    bool latMod = false;
+                    bool lngMod = false;
+                    foreach ( string value in loc )
+                    {
+                        string sValue = value.Trim();
+                        double dValue = Convert.ToDouble( sValue.Trim(new char[] {'E', 'e', 'W', 'w', 'N', 'n', 'S','s' }) );
+                        if ( sValue.EndsWith( "E", StringComparison.CurrentCultureIgnoreCase ) ||
+                            sValue.StartsWith( "E", StringComparison.CurrentCultureIgnoreCase ) )
+                        {
+                            //location.Lng = Convert.ToDouble( sValue.Substring( 0, sValue.Length - 1 ) );
+                            location.Lng = dValue;
+                        }
+                        else if ( sValue.EndsWith( "W", StringComparison.CurrentCultureIgnoreCase ) ||
+                            sValue.StartsWith( "W", StringComparison.CurrentCultureIgnoreCase ) )
+                        {
+                            location.Lng = -1 * dValue;
+                        }
+                        else if ( sValue.EndsWith( "N", StringComparison.CurrentCultureIgnoreCase ) ||
+                            sValue.StartsWith( "N", StringComparison.CurrentCultureIgnoreCase ) )
+                        {
+                            location.Lat = dValue;
+                        }
+                        else if ( sValue.EndsWith( "S", StringComparison.CurrentCultureIgnoreCase ) ||
+                            sValue.StartsWith( "S", StringComparison.CurrentCultureIgnoreCase ) )
+                        {
+                            location.Lat = -1 * dValue;
+                        }
+                        else if ( dValue < -90 || dValue > 90 )
+                        {
+                            location.Lng = dValue;
+                            lngMod = true;
+                        }
+                        else
+                        {
+                            if ( lngMod )
+                            {
+                                location.Lat = dValue;
+                                latMod = true;
+                            }
+                            else
+                            {
+                                location.Lng = dValue;
+                                lngMod = true;
+                            }
+                        }
+                    }
+                    gMap.Position = location;
+                    tsProgress.Style = ProgressBarStyle.Blocks;
+                    this.Cursor = Cursors.Default;
+                    return;
+                }
+            }
+            catch { }
+            #endregion
+
             if ( gMap.SetPositionByKeywords( edPoiQuery.Text ) != GeoCoderStatusCode.G_GEO_SUCCESS )
             {
                 gMap.Position = pos;
             }
             else trackZoom.Value = (int) gMap.Zoom;
+
             tsProgress.Style = ProgressBarStyle.Blocks;
             this.Cursor = Cursors.Default;
         }
@@ -1000,13 +1071,25 @@ namespace NetCharm
         {
             //
             dlgOpen.DefaultExt = ".gpx";
-            dlgOpen.Filter = "GPX File (*.gpx)|*.gpx|KML File (*.kml)|*.kml|All Files|*.*";
+            dlgOpen.Filter = "GPX File (*.gpx)|*.gpx|KML File (*.kml;*.kmz)|*.kml;*.kmz|All Files|*.*";
             dlgOpen.FilterIndex = 1;
             dlgOpen.FileName = "*.gpx";
             //dlgOpen.InitialDirectory = LastOpenFolder;
             if ( dlgOpen.ShowDialog( this ) == DialogResult.OK )
             {
                 //edFileSrc.Text = dlgOpen.FileName.Trim();
+                using ( FileStream fs = new FileStream( dlgOpen.FileName, FileMode.Open, FileAccess.Read, FileShare.Read ) )
+                {
+                    KmlFile kml = KmlFile.Load(fs);
+                    Kml contents = kml.Root as Kml;
+                    if(contents != null)
+                    {
+                        List<SharpKml.Dom.Placemark> placemarks = new List<SharpKml.Dom.Placemark>();
+
+                    }
+                    //kml.FindObject( "Placemark" );
+
+                }
             }
 
         }
@@ -1014,7 +1097,7 @@ namespace NetCharm
         private void tsmiExportGPXKML_Click( object sender, EventArgs e )
         {
             dlgSave.DefaultExt = ".gpx";
-            dlgSave.Filter = "GPX File (*.gpx)|*.gpx|KML File (*.kml)|*.kml|All Files|*.*";
+            dlgSave.Filter = "GPX File (*.gpx)|*.gpx|KML File (*.kml;*.kmz)|*.kml;*.kmz|All Files|*.*";
             dlgSave.FilterIndex = 1;
             dlgSave.FileName = "*.gpx";
             //dlgSave.InitialDirectory = LastSaveFolder;
@@ -1209,7 +1292,7 @@ namespace NetCharm
                 GMarkerGoogle marker_wgs = new GMarkerGoogle( pos, GMarkerGoogleType.green_dot );
                 GMapImageToolTip tooltip_wgs = new GMapImageToolTip( marker_wgs );
                 tooltip_wgs.Image = img.Key;
-                tooltip_wgs.Offset = new Point( 0, -12 );
+                tooltip_wgs.Offset = new System.Drawing.Point( 0, -12 );
                 tooltip_wgs.Font = new Font( "Segoe UI", 8 );
                 tooltip_wgs.Stroke = new System.Drawing.Pen( System.Drawing.Color.LightCoral, 2 );
                 tooltip_wgs.Fill = new SolidBrush( System.Drawing.Color.Snow );
@@ -1221,7 +1304,7 @@ namespace NetCharm
                 GMarkerGoogle marker_mar = new GMarkerGoogle( new PointLatLng( lat, lng ), GMarkerGoogleType.green_dot );
                 GMapImageToolTip tooltip_mar = new GMapImageToolTip( marker_mar );
                 tooltip_mar.Image = img.Key;
-                tooltip_mar.Offset = new Point( 0, -12 );
+                tooltip_mar.Offset = new System.Drawing.Point( 0, -12 );
                 tooltip_mar.Font = new Font( "Segoe UI", 8 );
                 tooltip_mar.Stroke = new System.Drawing.Pen( System.Drawing.Color.SlateBlue, 2 );
                 tooltip_mar.Fill = new SolidBrush( System.Drawing.Color.Snow );

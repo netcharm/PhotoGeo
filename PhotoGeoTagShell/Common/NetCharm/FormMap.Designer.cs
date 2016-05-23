@@ -172,6 +172,7 @@
             this.tsZoom.Size = new System.Drawing.Size(60, 17);
             this.tsZoom.Text = "Zoom:";
             this.tsZoom.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.tsZoom.ToolTipText = "Map Zoom Level";
             // 
             // tsInfo
             // 
@@ -182,7 +183,7 @@
             this.tsInfo.BorderStyle = System.Windows.Forms.Border3DStyle.SunkenOuter;
             this.tsInfo.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.tsInfo.Name = "tsInfo";
-            this.tsInfo.Size = new System.Drawing.Size(230, 17);
+            this.tsInfo.Size = new System.Drawing.Size(199, 17);
             this.tsInfo.Spring = true;
             this.tsInfo.Text = "OK";
             // 
@@ -260,7 +261,7 @@
             // btnPoiQuery
             // 
             this.btnPoiQuery.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnPoiQuery.Image = global::PhotoGeoTagShell.Properties.Resources.search_poi_png_24;
+            this.btnPoiQuery.Image = global::PhotoGeoTagShell.Properties.Resources.search_button_icon_png_24;
             this.btnPoiQuery.Location = new System.Drawing.Point(504, 460);
             this.btnPoiQuery.Name = "btnPoiQuery";
             this.btnPoiQuery.Size = new System.Drawing.Size(32, 32);
@@ -302,12 +303,12 @@
             this.tsmiResetMap,
             this.tsmiShiftMap,
             this.toolStripMenuItem1,
-            this.tsmiExportGPXKML,
-            this.tsmiImportGPXKML});
+            this.tsmiImportGPXKML,
+            this.tsmiExportGPXKML});
             this.tsbtnFunction.Image = ((System.Drawing.Image)(resources.GetObject("tsbtnFunction.Image")));
             this.tsbtnFunction.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbtnFunction.Name = "tsbtnFunction";
-            this.tsbtnFunction.Size = new System.Drawing.Size(51, 16);
+            this.tsbtnFunction.Size = new System.Drawing.Size(51, 20);
             this.tsbtnFunction.Text = "RESET";
             this.tsbtnFunction.ToolTipText = "Switch Shift Map On / Off";
             this.tsbtnFunction.ButtonClick += new System.EventHandler(this.tsmiResetMap_Click);
