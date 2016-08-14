@@ -45,6 +45,7 @@ namespace NetCharm
         private GeocodingProvider Geo;
 
         private AMapProvider AMap = AMapProvider.Instance;
+        private AMapHybirdProvider AMapHybird = AMapHybirdProvider.Instance;
         private AMapSateliteProvider AMapSatelite = AMapSateliteProvider.Instance;
 
         private BaiduMapProvider BaiduMap = BaiduMapProvider.Instance;
@@ -88,6 +89,10 @@ namespace NetCharm
                 if ( mapName.Equals( "AMap", StringComparison.CurrentCultureIgnoreCase ) )
                 {
                     gMap.MapProvider = AMap;
+                }
+                else if ( mapName.Equals( "AMapHybird", StringComparison.CurrentCultureIgnoreCase ) )
+                {
+                    gMap.MapProvider = AMapHybird;
                 }
                 else if ( mapName.Equals( "AMapSatelite", StringComparison.CurrentCultureIgnoreCase ) )
                 {
@@ -374,55 +379,41 @@ namespace NetCharm
             return null;
         }
 
-        private static ImageCodecInfo GetEncoderInfo( String mimeType )
-        {
-            int j;
-            ImageCodecInfo[] encoders;
-            encoders = ImageCodecInfo.GetImageEncoders();
-            for ( j = 0; j < encoders.Length; ++j )
-            {
-                if ( encoders[j].MimeType == mimeType )
-                    return encoders[j];
-            }
-            return null;
-        }
-
         public DateTime SetImageGeoTag_WPF( double lat, double lng, string image, DateTime dt )
         {
             #region Using Fotofly library ( WIC wrapper )
             using ( WpfFileManager wpfFileManager = new WpfFileManager( image, true ) )
             {
                 var metadata = wpfFileManager.BitmapMetadata;
-                HashSet<string> keywords = new HashSet<string>();
-                HashSet<string> authors = new HashSet<string>();
-                HashSet<string> titles = new HashSet<string>();
-                HashSet<string> copyrights = new HashSet<string>();
-                HashSet<string> comments = new HashSet<string>();
-
-                #region Get DateTaken
-                string dtmeta = String.Empty;
-                var dtexif = metadata.GetQuery(META.TagExifDateTime);
-                if ( metadata.DateTaken != null )
-                {
-                    dtmeta = metadata.DateTaken;
-                    if ( !string.IsNullOrEmpty( dtmeta ) && !DateTime.TryParse( dtmeta, CultureInfo.CurrentCulture, DateTimeStyles.None, out dt ) )
-                    {
-                    }
-                }
-                else if( dtexif !=null )
-                {
-                    dtmeta = dtexif as string;
-                    if ( !string.IsNullOrEmpty( dtmeta ) && !DateTime.TryParseExact( dtmeta, "yyyy:MM:dd HH:mm:ss", CultureInfo.CurrentCulture, DateTimeStyles.None, out dt ) )
-                    {
-                    }
-                }
-
-                #endregion
-
-                #region Get Keywords
                 if ( metadata != null )
                 {
-                    if( metadata.Keywords != null)
+                    HashSet<string> keywords = new HashSet<string>();
+                    HashSet<string> authors = new HashSet<string>();
+                    HashSet<string> titles = new HashSet<string>();
+                    HashSet<string> copyrights = new HashSet<string>();
+                    HashSet<string> comments = new HashSet<string>();
+
+                    #region Get DateTaken
+                    string dtmeta = String.Empty;
+                    var dtexif = metadata.GetQuery(META.TagExifDateTime);
+                    if ( metadata.DateTaken != null )
+                    {
+                        dtmeta = metadata.DateTaken;
+                        if ( !string.IsNullOrEmpty( dtmeta ) && !DateTime.TryParse( dtmeta, CultureInfo.CurrentCulture, DateTimeStyles.None, out dt ) )
+                        {
+                        }
+                    }
+                    else if ( dtexif != null )
+                    {
+                        dtmeta = dtexif as string;
+                        if ( !string.IsNullOrEmpty( dtmeta ) && !DateTime.TryParseExact( dtmeta, "yyyy:MM:dd HH:mm:ss", CultureInfo.CurrentCulture, DateTimeStyles.None, out dt ) )
+                        {
+                        }
+                    }
+                    #endregion
+
+                    #region Get Keywords
+                    if ( metadata.Keywords != null )
                     {
                         foreach ( string keyword in metadata.Keywords )
                         {
@@ -432,7 +423,7 @@ namespace NetCharm
                     var iptckeywords = metadata.GetQuery( META.TagIptcKeywords );
                     if ( iptckeywords != null )
                     {
-                        if( iptckeywords as string[] == null )
+                        if ( iptckeywords as string[] == null )
                         {
                             keywords.Add( ( iptckeywords as string ).Trim() );
                         }
@@ -462,143 +453,142 @@ namespace NetCharm
                             keywords.Add( key.Trim() );
                         }
                     }
-                }
-                #endregion
+                    #endregion
 
-                #region Get Authors
-                var artist = metadata.GetQuery( META.TagExifArtist );
-                if ( artist != null )
-                {
-                    foreach ( string art in ( artist as string ).Split( ';' ) )
+                    #region Get Authors
+                    var artist = metadata.GetQuery( META.TagExifArtist );
+                    if ( artist != null )
                     {
-                        authors.Add( art.Trim( new char[] { ' ', '\0' } ) );
+                        foreach ( string art in ( artist as string ).Split( ';' ) )
+                        {
+                            authors.Add( art.Trim( new char[] { ' ', '\0' } ) );
+                        }
                     }
-                }
-                if ( wpfFileManager.BitmapMetadata.Author != null )
-                {
-                    foreach ( string art in wpfFileManager.BitmapMetadata.Author )
+                    if ( wpfFileManager.BitmapMetadata.Author != null )
                     {
-                        authors.Add( art.Trim( new char[] { ' ', '\0' } ) );
+                        foreach ( string art in wpfFileManager.BitmapMetadata.Author )
+                        {
+                            authors.Add( art.Trim( new char[] { ' ', '\0' } ) );
+                        }
                     }
-                }
-                var xpauthor = metadata.GetQuery( META.TagExifXPAuthor );
-                if ( xpauthor != null )
-                {
-                    string xpauthor_str = Encoding.Unicode.GetString( (byte[]) xpauthor ).Trim( new char[] { ' ', '\0' } );
-                    //metadata.SetQuery( META.TagIptcByline, xpauthor_str );
-                    foreach ( string art in xpauthor_str.Split( ';' ) )
+                    var xpauthor = metadata.GetQuery( META.TagExifXPAuthor );
+                    if ( xpauthor != null )
                     {
-                        authors.Add( art.Trim( new char[] { ' ', '\0' } ) );
+                        string xpauthor_str = Encoding.Unicode.GetString( (byte[]) xpauthor ).Trim( new char[] { ' ', '\0' } );
+                        //metadata.SetQuery( META.TagIptcByline, xpauthor_str );
+                        foreach ( string art in xpauthor_str.Split( ';' ) )
+                        {
+                            authors.Add( art.Trim( new char[] { ' ', '\0' } ) );
+                        }
                     }
-                }
-                #endregion
+                    #endregion
 
-                #region Get Title
+                    #region Get Title
 
-                #endregion
+                    #endregion
 
-                #region Get Copyright
+                    #region Get Copyright
 
-                #endregion
+                    #endregion
 
-                #region Get Comments
+                    #region Get Comments
 
-                #endregion
+                    #endregion
 
-                if ( metadata.IsFrozen)
-                {
-                    //metadata = metadata.Clone();
-                }
+                    if ( metadata.IsFrozen )
+                    {
+                        //metadata = metadata.Clone();
+                    }
 
-                #region Set GPS Info
-                char latHemisphere = 'N';
-                if ( lat < 0 )
-                {
-                    latHemisphere = 'S';
-                    lat = -lat;
-                }
-                char lngHemisphere = 'E';
-                if ( lng < 0 )
-                {
-                    lngHemisphere = 'W';
-                    lng = -lng;
-                }
-                GpsCoordinate glat = new GpsCoordinate(GpsCoordinate.LatOrLons.Latitude, lat);
-                GpsCoordinate glng = new GpsCoordinate(GpsCoordinate.LatOrLons.Longitude, lng);
+                    #region Set GPS Info
+                    char latHemisphere = 'N';
+                    if ( lat < 0 )
+                    {
+                        latHemisphere = 'S';
+                        lat = -lat;
+                    }
+                    char lngHemisphere = 'E';
+                    if ( lng < 0 )
+                    {
+                        lngHemisphere = 'W';
+                        lng = -lng;
+                    }
+                    GpsCoordinate glat = new GpsCoordinate(GpsCoordinate.LatOrLons.Latitude, lat);
+                    GpsCoordinate glng = new GpsCoordinate(GpsCoordinate.LatOrLons.Longitude, lng);
 
-                ulong factor = 10000000;
-
-                ulong[] ulat = new ulong[3] {
+                    ulong factor = 10000000;
+                    ulong[] ulat = new ulong[3] {
                     Convert.ToUInt64( glat.Degrees ) + 0x0000000100000000L,
                     Convert.ToUInt64( glat.Minutes ) + 0x0000000100000000L,
                     Convert.ToUInt64( (( glat.Numeric - glat.Degrees ) * 60 - glat.Minutes ) * 60 * factor ) + 0x0098968000000000L
                 };
-                ulong[] ulng = new ulong[3] {
+                    ulong[] ulng = new ulong[3] {
                     Convert.ToUInt64( glng.Degrees ) + 0x0000000100000000L,
                     Convert.ToUInt64( glng.Minutes ) + 0x0000000100000000L,
                     Convert.ToUInt64( (( glng.Numeric - glng.Degrees ) * 60 - glng.Minutes ) * 60 * factor ) + 0x0098968000000000L
                 };
 
-                metadata.SetQuery( META.TagExifGpsLatitudeRef, latHemisphere );
-                metadata.SetQuery( META.TagExifGpsLatitude, ulat );
-                metadata.SetQuery( META.TagExifGpsLongitudeRef, lngHemisphere );
-                metadata.SetQuery( META.TagExifGpsLongitude, ulng );
-                #endregion
+                    metadata.SetQuery( META.TagExifGpsLatitudeRef, latHemisphere );
+                    metadata.SetQuery( META.TagExifGpsLatitude, ulat );
+                    metadata.SetQuery( META.TagExifGpsLongitudeRef, lngHemisphere );
+                    metadata.SetQuery( META.TagExifGpsLongitude, ulng );
+                    #endregion
 
-                #region Set Title & Subject & Comment
-                var xptitle = metadata.GetQuery( META.TagExifXPTitle );
-                if( xptitle != null)
-                {
-                    string xptitle_str = Encoding.Unicode.GetString( (byte[]) xptitle ).Trim(new char[] { ' ', '\0' } );
-                    metadata.SetQuery( META.TagIptcBylineTitle, xptitle_str);
-                }
-                var xpcomment = metadata.GetQuery( META.TagExifXPComment );
-                if ( xpcomment != null )
-                {
-                    string xpcomment_str = Encoding.Unicode.GetString( (byte[]) xpcomment ).Trim( new char[] { ' ', '\0' } );
-                    metadata.SetQuery( META.TagIptcCaption, xpcomment_str );
-                }
-                var xpsubject = metadata.GetQuery( META.TagExifXPSubject );
-                if ( xpsubject != null )
-                {
-                    string xpsubject_str = Encoding.Unicode.GetString( (byte[]) xpsubject ).Trim( new char[] { ' ', '\0' } );
-                    metadata.SetQuery( META.TagIptcHeadline, xpsubject_str );
-                }
-                var xpcopyright = metadata.GetQuery( META.TagExifCopyright );
-                if ( xpcopyright != null && !String.IsNullOrEmpty((xpcopyright as string).Trim()) )
-                {
-                    string xpcopyright_str = Encoding.Unicode.GetString( (byte[]) xpcopyright ).Trim( new char[] { ' ', '\0' } );
-                    metadata.SetQuery( META.TagIptcCopyrightNotice, xpcopyright_str );
-                }
-                #endregion
+                    #region Set Title & Subject & Comment
+                    var xptitle = metadata.GetQuery( META.TagExifXPTitle );
+                    if ( xptitle != null )
+                    {
+                        string xptitle_str = Encoding.Unicode.GetString( (byte[]) xptitle ).Trim(new char[] { ' ', '\0' } );
+                        metadata.SetQuery( META.TagIptcBylineTitle, xptitle_str );
+                    }
+                    var xpcomment = metadata.GetQuery( META.TagExifXPComment );
+                    if ( xpcomment != null )
+                    {
+                        string xpcomment_str = Encoding.Unicode.GetString( (byte[]) xpcomment ).Trim( new char[] { ' ', '\0' } );
+                        metadata.SetQuery( META.TagIptcCaption, xpcomment_str );
+                    }
+                    var xpsubject = metadata.GetQuery( META.TagExifXPSubject );
+                    if ( xpsubject != null )
+                    {
+                        string xpsubject_str = Encoding.Unicode.GetString( (byte[]) xpsubject ).Trim( new char[] { ' ', '\0' } );
+                        metadata.SetQuery( META.TagIptcHeadline, xpsubject_str );
+                    }
+                    var xpcopyright = metadata.GetQuery( META.TagExifCopyright );
+                    if ( xpcopyright != null && !string.IsNullOrEmpty( ( xpcopyright as string ).Trim() ) )
+                    {
+                        string xpcopyright_str = (xpcopyright as string).Trim();
+                        metadata.SetQuery( META.TagIptcCopyrightNotice, xpcopyright_str );
+                    }
+                    #endregion
 
-                #region Set Keywords & Authors
-                ulong idx = 0;
-                foreach ( string keyword in keywords )
-                {
-                    string query = $"{META.TagXmpSubject}/{{ulong={idx}}}";
-                    metadata.SetQuery( query, keyword );
-                    idx++;
-                }
-                if(keywords.Count>0)
-                {
-                    metadata.SetQuery( META.TagIptcKeywords, keywords.ToArray() );
-                }
+                    #region Set Keywords & Authors
+                    ulong idx = 0;
+                    foreach ( string keyword in keywords )
+                    {
+                        string query = $"{META.TagXmpSubject}/{{ulong={idx}}}";
+                        metadata.SetQuery( query, keyword );
+                        idx++;
+                    }
+                    if ( keywords.Count > 0 )
+                    {
+                        metadata.SetQuery( META.TagIptcKeywords, keywords.ToArray() );
+                    }
 
-                if(authors.Count>0)
-                {
-                    metadata.SetQuery( META.TagIptcByline, string.Join( ";", authors ) );
-                }
-                #endregion
+                    if ( authors.Count > 0 )
+                    {
+                        metadata.SetQuery( META.TagIptcByline, string.Join( ";", authors ) );
+                    }
+                    #endregion
 
-                #region Set Image.Datetime to Taken datetime
-                if (!string.IsNullOrEmpty( metadata.DateTaken ) )
-                {
-                    //metadata.SetQuery( META.TagExifDateTime, metadata.DateTaken );
-                    metadata.SetQuery( META.TagExifDateTime, metadata.DateTaken.Replace('/', ':' ).Replace('-', ':').Replace(',', ':').Replace( '.', ':' ) );
+                    #region Set Image.Datetime to Taken datetime
+                    if ( !string.IsNullOrEmpty( metadata.DateTaken ) )
+                    {
+                        //metadata.SetQuery( META.TagExifDateTime, metadata.DateTaken );
+                        metadata.SetQuery( META.TagExifDateTime, metadata.DateTaken.Replace( '/', ':' ).Replace( '-', ':' ).Replace( ',', ':' ).Replace( '.', ':' ) );
+                    }
+                    #endregion
+                    wpfFileManager.WriteMetadata();
                 }
-                #endregion
-                wpfFileManager.WriteMetadata();
             }
             #endregion
 
@@ -818,6 +808,8 @@ namespace NetCharm
             }
             cbMapProviders.Items.Add( AMap.Name );
             mapSource.Add( AMap.Name, AMap.Id );
+            //cbMapProviders.Items.Add( AMapHybird.Name );
+            //mapSource.Add( AMapHybird.Name, AMapHybird.Id );
             cbMapProviders.Items.Add( AMapSatelite.Name );
             mapSource.Add( AMapSatelite.Name, AMapSatelite.Id );
 
@@ -1007,9 +999,21 @@ namespace NetCharm
             catch { }
             #endregion
 
-            if ( gMap.SetPositionByKeywords( edPoiQuery.Text ) != GeoCoderStatusCode.G_GEO_SUCCESS )
+            GeoCoderStatusCode success = gMap.SetPositionByKeywords( edPoiQuery.Text );
+            if ( success != GeoCoderStatusCode.G_GEO_SUCCESS )
             {
                 gMap.Position = pos;
+            }
+            else if ( success == GeoCoderStatusCode.G_GEO_SUCCESS )
+            {
+                if ( MapShift || chkMapShift.Checked )
+                {
+                    double x = 0, y = 0;
+                    PosShift.Convert2Mars( gMap.Position.Lng, gMap.Position.Lat, out x, out y );
+                    pos.Lng = x;
+                    pos.Lat = y;
+                }
+                gMap.Position = pos;                
             }
             else trackZoom.Value = (int) gMap.Zoom;
 
@@ -1202,14 +1206,15 @@ namespace NetCharm
         private void gMap_MouseUp( object sender, MouseEventArgs e )
         {
             mouse_down = false;
+            if ( bgwSetGeo.IsBusy ) return;
             if ( currentMarker != null )
             {
-                if ( bgwSetGeo.IsBusy ) return;
                 if ( MessageBox.Show( this, "Place photo(s) to here?", "Warning", MessageBoxButtons.OKCancel, MessageBoxIcon.Question ) == DialogResult.OK )
                 {
                     currentMarker.Tag = currentMarker.Position;
                     if ( pinMarker != null )
-                    {                        
+                    {
+                        #region changing pined marker position
                         pinMarker.Tag = currentMarker.Position;
                         PointLatLng pos = gMap.FromLocalToLatLng( e.X, e.Y );
                         //SetImageGeoTag( pos );
@@ -1218,9 +1223,11 @@ namespace NetCharm
                         tsProgress.Maximum = photos.Count;
                         tsProgress.Value = tsProgress.Minimum;
                         bgwSetGeo.RunWorkerAsync( pos );
+                        #endregion
                     }
                     else
                     {
+                        #region changing current selected marker position
                         GMapImageToolTip currentTooltip = (GMapImageToolTip)(currentMarker.ToolTip);
                         foreach ( KeyValuePair<Image, string> kp in photos )
                         {
@@ -1231,6 +1238,7 @@ namespace NetCharm
                                 break;
                             }
                         }
+                        #endregion
                     }
                 }
             }
@@ -1261,9 +1269,6 @@ namespace NetCharm
 
         private void bgwSetGeo_DoWork( object sender, DoWorkEventArgs e )
         {
-            //KeyValuePair<PointLatLng, GMapImageToolTip> param =  (KeyValuePair<PointLatLng, GMapImageToolTip>)e.Argument;
-            //GMapImageToolTip currentTooltip = param.Value;
-            //PointLatLng pos = param.Key;
             PointLatLng pos = (PointLatLng)e.Argument;
             SetImageGeoTag( pos );
         }

@@ -331,7 +331,7 @@ namespace NetCharm
             set { touching = value; }
         }
 
-        public static string[] PhotoExts = { ".jpg", ".jpeg", ".tif",".tiff" };
+        public static string[] PhotoExts = { ".jpg", ".jpeg", ".tif", ".tiff" };
 
         /// <summary>
         /// 
@@ -441,16 +441,6 @@ namespace NetCharm
             {
                 TouchPhoto( $"{file.DirectoryName}{Path.DirectorySeparatorChar}{file.Name}", touch );
             }
-
-            //List<string> files = new List<string>();
-            //files.AddRange( Directory.GetFiles( folder, "*.jpg", option ) );
-            //files.AddRange( Directory.GetFiles( folder, "*.jpeg", option ) );
-            //files.AddRange( Directory.GetFiles( folder, "*.tif", option ) );
-            //files.AddRange( Directory.GetFiles( folder, "*.tiff", option ) );
-            //foreach ( string file in files )
-            //{
-            //    TouchPhoto( file, touch );
-            //}
         }
 
         /// <summary>
@@ -1050,4 +1040,75 @@ namespace NetCharm
         }
     }
 
+    class GPX
+    {
+        public class META
+        {
+            struct AUTHOR
+            {
+                struct EMAIL
+                {
+                    string id;
+                    string domain;
+                }
+                string name;
+                EMAIL email;
+            }
+
+            struct COPYRIGHT
+            {
+                string year;
+                string license;
+            }
+
+            struct LINK
+            {
+                string href;
+                string text;
+            }
+
+            string desc;
+            string author;
+            COPYRIGHT copyright;
+            List<string> keywords = new List<string>();
+            LINK link;
+            DateTime time;
+            RectangleF bounds;
+        }
+
+        public class WAYPOINT
+        {
+            double latitude;
+            double longitude;
+            double altitude;
+
+            DateTime time;
+            string name;
+        }
+
+        public class TRACKPOINT
+        {
+            double latitude;
+            double longitude;
+            double altitude;
+
+            DateTime time;
+        }
+
+        public class TRACK
+        {
+            string name;
+            List<List<TRACKPOINT>> segments = new List<List<TRACKPOINT>>();
+        }
+
+        public META metadata;
+        public List<WAYPOINT> waypoints = new List<WAYPOINT>();
+        public List<TRACK> tracks = new List<TRACK>();
+
+        public void load(string gpxfile)
+        {
+
+        }
+
+    }
 }

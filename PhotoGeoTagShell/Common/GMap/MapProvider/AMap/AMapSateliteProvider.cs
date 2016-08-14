@@ -37,11 +37,14 @@ namespace GMap.NET.MapProviders.AMap
         {
 
             //http://webst04.is.autonavi.com/appmaptile?x=23&y=12&z=5&lang=zh_cn&size=1&scale=1&style=8
-            string url = string.Format(UrlFormat , pos.X, pos.Y, zoom);
+            long num = (pos.X + pos.Y) % 4L + 1L;
+            string url = string.Format(UrlFormat, num, pos.X, pos.Y, zoom);
             Console.WriteLine("url:" + url);
             return url;
         }
 
-        static readonly string UrlFormat = "http://webst04.is.autonavi.com/appmaptile?x={0}&y={1}&z={2}&lang=zh_cn&size=1&scale=1&style=6";
+        //static readonly string UrlFormat = "http://webst04.is.autonavi.com/appmaptile?x={0}&y={1}&z={2}&lang=zh_cn&size=1&scale=1&style=6";
+        //static readonly string UrlFormat = "http://webst0{0}.is.autonavi.com/appmaptile?style=6&x={1}&y={2}&z={3}";
+        static readonly string UrlFormat = "http://wprd0{0}.is.autonavi.com/appmaptile?style=6&lang=zh_cn&size=1&scale=1&x={1}&y={2}&z={3}";
     }
 }
