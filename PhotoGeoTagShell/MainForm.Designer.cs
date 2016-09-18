@@ -46,11 +46,15 @@
             this.tsSep3 = new System.Windows.Forms.ToolStripSeparator();
             this.tsbtnTouch = new System.Windows.Forms.ToolStripSplitButton();
             this.tsmiTouchRecursion = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsmiTouchMeta = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiTouchMetaRecursion = new System.Windows.Forms.ToolStripMenuItem();
             this.tscbKnownFolder = new System.Windows.Forms.ToolStripComboBox();
             this.menuMain = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.bgwTouch = new System.ComponentModel.BackgroundWorker();
+            this.bgwTouchTime = new System.ComponentModel.BackgroundWorker();
+            this.bgwTouchMeta = new System.ComponentModel.BackgroundWorker();
             this.status.SuspendLayout();
             this.toolContainer.ContentPanel.SuspendLayout();
             this.toolContainer.TopToolStripPanel.SuspendLayout();
@@ -222,22 +226,44 @@
             // 
             this.tsbtnTouch.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.tsbtnTouch.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsmiTouchRecursion});
+            this.tsmiTouchRecursion,
+            this.toolStripMenuItem1,
+            this.tsmiTouchMeta,
+            this.tsmiTouchMetaRecursion});
             this.tsbtnTouch.Image = ((System.Drawing.Image)(resources.GetObject("tsbtnTouch.Image")));
             this.tsbtnTouch.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbtnTouch.Name = "tsbtnTouch";
             this.tsbtnTouch.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
-            this.tsbtnTouch.Size = new System.Drawing.Size(51, 22);
-            this.tsbtnTouch.Text = "Touch";
+            this.tsbtnTouch.Size = new System.Drawing.Size(81, 22);
+            this.tsbtnTouch.Text = "Touch Time";
             this.tsbtnTouch.ToolTipText = "Touch Photos Datetime to Taken";
             this.tsbtnTouch.Click += new System.EventHandler(this.tsbtnTouch_Click);
             // 
             // tsmiTouchRecursion
             // 
             this.tsmiTouchRecursion.Name = "tsmiTouchRecursion";
-            this.tsmiTouchRecursion.Size = new System.Drawing.Size(160, 22);
-            this.tsmiTouchRecursion.Text = "Touch Recursion";
+            this.tsmiTouchRecursion.Size = new System.Drawing.Size(214, 22);
+            this.tsmiTouchRecursion.Text = "Touch Datetime Recursion";
             this.tsmiTouchRecursion.Click += new System.EventHandler(this.tsmiTouchRecursion_Click);
+            // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(211, 6);
+            // 
+            // tsmiTouchMeta
+            // 
+            this.tsmiTouchMeta.Name = "tsmiTouchMeta";
+            this.tsmiTouchMeta.Size = new System.Drawing.Size(214, 22);
+            this.tsmiTouchMeta.Text = "Touch Metadata";
+            this.tsmiTouchMeta.Click += new System.EventHandler(this.tsmiTouchMeta_Click);
+            // 
+            // tsmiTouchMetaRecursion
+            // 
+            this.tsmiTouchMetaRecursion.Name = "tsmiTouchMetaRecursion";
+            this.tsmiTouchMetaRecursion.Size = new System.Drawing.Size(214, 22);
+            this.tsmiTouchMetaRecursion.Text = "Touch Metadata Recursion";
+            this.tsmiTouchMetaRecursion.Click += new System.EventHandler(this.tsmiTouchMetaRecursion_Click);
             // 
             // tscbKnownFolder
             // 
@@ -275,13 +301,21 @@
             this.toolTip.ToolTipIcon = System.Windows.Forms.ToolTipIcon.Info;
             this.toolTip.ToolTipTitle = "Tip";
             // 
-            // bgwTouch
+            // bgwTouchTime
             // 
-            this.bgwTouch.WorkerReportsProgress = true;
-            this.bgwTouch.WorkerSupportsCancellation = true;
-            this.bgwTouch.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgwTouch_DoWork);
-            this.bgwTouch.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bgwTouch_ProgressChanged);
-            this.bgwTouch.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgwTouch_RunWorkerCompleted);
+            this.bgwTouchTime.WorkerReportsProgress = true;
+            this.bgwTouchTime.WorkerSupportsCancellation = true;
+            this.bgwTouchTime.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgwTouchTime_DoWork);
+            this.bgwTouchTime.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bgwTouchTime_ProgressChanged);
+            this.bgwTouchTime.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgwTouchTime_RunWorkerCompleted);
+            // 
+            // bgwTouchMeta
+            // 
+            this.bgwTouchMeta.WorkerReportsProgress = true;
+            this.bgwTouchMeta.WorkerSupportsCancellation = true;
+            this.bgwTouchMeta.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgwTouchMeta_DoWork);
+            this.bgwTouchMeta.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bgwTouchMeta_ProgressChanged);
+            this.bgwTouchMeta.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgwTouchMeta_RunWorkerCompleted);
             // 
             // MainForm
             // 
@@ -333,6 +367,10 @@
         private System.Windows.Forms.ToolStripStatusLabel tsFilesTotal;
         private System.Windows.Forms.ToolStripSplitButton tsbtnTouch;
         private System.Windows.Forms.ToolStripMenuItem tsmiTouchRecursion;
-        private System.ComponentModel.BackgroundWorker bgwTouch;
+        private System.ComponentModel.BackgroundWorker bgwTouchTime;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem tsmiTouchMeta;
+        private System.Windows.Forms.ToolStripMenuItem tsmiTouchMetaRecursion;
+        private System.ComponentModel.BackgroundWorker bgwTouchMeta;
     }
 }

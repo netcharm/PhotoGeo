@@ -440,18 +440,39 @@ namespace PhotoGeoTagShell
             tsProgress.Maximum = 100;
             KeyValuePair<string, SearchOption> args = new KeyValuePair<string, SearchOption>(folder, SearchOption.TopDirectoryOnly);
             Cursor = Cursors.WaitCursor;
-            bgwTouch.RunWorkerAsync( args );
+            bgwTouchTime.RunWorkerAsync( args );
         }
 
         private void tsmiTouchRecursion_Click( object sender, EventArgs e )
         {
             string folder = tscbVistedFolder.Text;
-            //EXIF.TouchPhoto( folder, "", SearchOption.AllDirectories );
             tsProgress.Minimum = 0;
             tsProgress.Maximum = 100;
             KeyValuePair<string, SearchOption> args = new KeyValuePair<string, SearchOption>(folder, SearchOption.AllDirectories);
             Cursor = Cursors.WaitCursor;
-            bgwTouch.RunWorkerAsync( args );
+            bgwTouchTime.RunWorkerAsync( args );
+        }
+
+        private void tsmiTouchMeta_Click( object sender, EventArgs e )
+        {
+            //
+            string folder = tscbVistedFolder.Text;
+            tsProgress.Minimum = 0;
+            tsProgress.Maximum = 100;
+            KeyValuePair<string, SearchOption> args = new KeyValuePair<string, SearchOption>(folder, SearchOption.TopDirectoryOnly);
+            Cursor = Cursors.WaitCursor;
+            bgwTouchMeta.RunWorkerAsync( args );
+        }
+
+        private void tsmiTouchMetaRecursion_Click( object sender, EventArgs e )
+        {
+            //
+            string folder = tscbVistedFolder.Text;
+            tsProgress.Minimum = 0;
+            tsProgress.Maximum = 100;
+            KeyValuePair<string, SearchOption> args = new KeyValuePair<string, SearchOption>(folder, SearchOption.AllDirectories);
+            Cursor = Cursors.WaitCursor;
+            bgwTouchMeta.RunWorkerAsync( args );
         }
 
         private void explorerBrowser_NavigationComplete( object sender, NavigationCompleteEventArgs e )
@@ -505,7 +526,7 @@ namespace PhotoGeoTagShell
             } ) );
         }
 
-        private void bgwTouch_DoWork( object sender, System.ComponentModel.DoWorkEventArgs e )
+        private void bgwTouchTime_DoWork( object sender, System.ComponentModel.DoWorkEventArgs e )
         {
             KeyValuePair<string, SearchOption> args = (KeyValuePair<string, SearchOption>)e.Argument;
             string folder = args.Key;
@@ -518,22 +539,51 @@ namespace PhotoGeoTagShell
             foreach ( FileInfo file in fileinfos )
             {
                 EXIF.TouchPhoto( $"{file.DirectoryName}{Path.DirectorySeparatorChar}{file.Name}", "" );
-                bgwTouch.ReportProgress( (int) Math.Round( ( index++ ) * 100f / count ) );
+                bgwTouchTime.ReportProgress( (int) Math.Round( ( index++ ) * 100f / count ) );
             }
         }
 
-        private void bgwTouch_ProgressChanged( object sender, System.ComponentModel.ProgressChangedEventArgs e )
+        private void bgwTouchTime_ProgressChanged( object sender, System.ComponentModel.ProgressChangedEventArgs e )
         {
             tsProgress.Value = e.ProgressPercentage;
             tsInfo.Text = $"Touching file datetime {e.ProgressPercentage}%";
         }
 
-        private void bgwTouch_RunWorkerCompleted( object sender, System.ComponentModel.RunWorkerCompletedEventArgs e )
+        private void bgwTouchTime_RunWorkerCompleted( object sender, System.ComponentModel.RunWorkerCompletedEventArgs e )
         {
             tsProgress.Value = tsProgress.Maximum;
             Cursor = Cursors.Default;
-            tsInfo.Text = $"Touching file datetime 100%";
+            tsInfo.Text = $"Touching file(s) datetime 100%";
         }
 
+        private void bgwTouchMeta_DoWork( object sender, System.ComponentModel.DoWorkEventArgs e )
+        {
+            KeyValuePair<string, SearchOption> args = (KeyValuePair<string, SearchOption>)e.Argument;
+            string folder = args.Key;
+            SearchOption option = args.Value;
+
+            DirectoryInfo di = new DirectoryInfo(folder);
+            IEnumerable<FileInfo> fileinfos  = di.EnumerateFiles( "*", option ).Where( f => EXIF.PhotoExts.Contains( f.Extension, StringComparer.CurrentCultureIgnoreCase ) );
+            int index = 0;
+            int count = fileinfos.Count();
+            foreach ( FileInfo file in fileinfos )
+            {
+                EXIF.TouchPhoto( $"{file.DirectoryName}{Path.DirectorySeparatorChar}{file.Name}", "" );
+                bgwTouchMeta.ReportProgress( (int) Math.Round( ( index++ ) * 100f / count ) );
+            }
+        }
+
+        private void bgwTouchMeta_ProgressChanged( object sender, System.ComponentModel.ProgressChangedEventArgs e )
+        {
+            tsProgress.Value = e.ProgressPercentage;
+            tsInfo.Text = $"Touching file datetime {e.ProgressPercentage}%";
+        }
+
+        private void bgwTouchMeta_RunWorkerCompleted( object sender, System.ComponentModel.RunWorkerCompletedEventArgs e )
+        {
+            tsProgress.Value = tsProgress.Maximum;
+            Cursor = Cursors.Default;
+            tsInfo.Text = $"Touching file(s) metadata 100%";
+        }
     }
 }

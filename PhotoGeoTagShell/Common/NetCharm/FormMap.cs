@@ -123,15 +123,13 @@ namespace NetCharm
                     gMap.MapProvider = SosoSateliteMap;
                 }
                 gMap.MaxZoom = 18;
-                gMap.MapProvider.MaxZoom = gMap.MaxZoom;
-                trackZoom.Maximum = gMap.MaxZoom;
             }
             else
             {
                 gMap.MapProvider = GMapProviders.TryGetProvider( mapSource[mapName] );
                 gMap.MaxZoom = 20;
-                gMap.MapProvider.MaxZoom = gMap.MaxZoom;
             }
+            gMap.MapProvider.MaxZoom = gMap.MaxZoom;
             //GMaps.Instance.Mode = gMap.Manager.Mode;
 
             trackZoom.Maximum = gMap.MaxZoom;
@@ -1000,11 +998,7 @@ namespace NetCharm
             #endregion
 
             GeoCoderStatusCode success = gMap.SetPositionByKeywords( edPoiQuery.Text );
-            if ( success != GeoCoderStatusCode.G_GEO_SUCCESS )
-            {
-                gMap.Position = pos;
-            }
-            else if ( success == GeoCoderStatusCode.G_GEO_SUCCESS )
+            if ( success == GeoCoderStatusCode.G_GEO_SUCCESS )
             {
                 if ( MapShift || chkMapShift.Checked )
                 {
@@ -1012,10 +1006,11 @@ namespace NetCharm
                     PosShift.Convert2Mars( gMap.Position.Lng, gMap.Position.Lat, out x, out y );
                     pos.Lng = x;
                     pos.Lat = y;
+                    gMap.Position = pos;
                 }
-                gMap.Position = pos;                
+                trackZoom.Value = (int) gMap.Zoom;
             }
-            else trackZoom.Value = (int) gMap.Zoom;
+            else gMap.Position = pos;
 
             tsProgress.Style = ProgressBarStyle.Blocks;
             this.Cursor = Cursors.Default;

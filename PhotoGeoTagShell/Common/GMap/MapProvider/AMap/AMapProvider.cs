@@ -73,9 +73,9 @@ namespace GMap.NET.MapProviders.AMap
             return url;
         }
 
-        //static readonly string UrlFormat = "http://webrd04.is.autonavi.com/appmaptile?x={0}&y={1}&z={2}&lang=zh_cn&size=1&scale=1&style=7";
-        //static readonly string UrlFormat = "http://webrd0{0}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=7&x={1}&y={2}&z={3}";
-        static readonly string UrlFormat = "http://wprd0{0}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=7&x={1}&y={2}&z={3}";
+        //static readonly string UrlFormat = "http://webrd04.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=7&x={0}&y={1}&z={2}";
+        static readonly string UrlFormat = "http://webrd0{0}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&ltyype=7&x={1}&y={2}&z={3}";
+        //static readonly string UrlFormat = "http://wprd0{0}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=7&x={1}&y={2}&z={3}";
     }
 
     public class AMapHybirdProvider : AMapProviderBase
