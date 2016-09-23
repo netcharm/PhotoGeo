@@ -245,3 +245,5 @@ ModelManifest.xml
 .fake/
 /~Sample Files
 /FolderFilter_Demo
+/MetaQueryTest
+/Exiv2_Test
