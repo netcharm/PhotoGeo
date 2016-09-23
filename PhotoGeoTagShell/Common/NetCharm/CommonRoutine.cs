@@ -13,6 +13,11 @@ namespace NetCharm
 {
     class Common
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cmdline"></param>
+        /// <returns></returns>
         public static string[] ParseCommandLine( string cmdline )
         {
             List<string> args = new List<string>();
