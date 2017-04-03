@@ -345,8 +345,8 @@ namespace PhotoGeoTagShell
             explorerBrowser.NavigationOptions.PaneVisibility.AdvancedQuery = PaneVisibilityState.Show;
             explorerBrowser.NavigationOptions.PaneVisibility.Query = PaneVisibilityState.Show;
 
-            //explorerBrowser.Navigate( (ShellObject) KnownFolders.Desktop );
-            explorerBrowser.Navigate( ShellFileSystemFolder.FromFolderPath( lastVisited ) );
+            if(Directory.Exists( lastVisited ))
+                explorerBrowser.Navigate( ShellFileSystemFolder.FromFolderPath( lastVisited ) );
 
             //ShellSearchConnector shellSearch = new ShellSearchConnector(ShellFileSystemFolder.FromFolderPath( lastVisited ));
             //shellSearch.
