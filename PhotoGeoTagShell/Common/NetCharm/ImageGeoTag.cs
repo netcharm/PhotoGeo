@@ -383,25 +383,6 @@ namespace NetCharm
                             }
                             else return;
                         }
-
-                        /*
-
-                        PropertyItem DTOrig = photo.PropertyIdList.Contains( EXIF.PropertyTagExifDTOrig ) ? photo.GetPropertyItem( EXIF.PropertyTagExifDTOrig ) : photo.GetPropertyItem( EXIF.PropertyTagExifDTDigitized );
-                        //PropertyItem DTDigital = photo.GetPropertyItem(PropertyTagExifDTDigitized);
-                        //PropertyItem DTOrig = photo.GetPropertyItem(PropertyTagExifDTOrig);
-
-                        ASCIIEncoding enc = new ASCIIEncoding();
-                        string dateTakenText = enc.GetString( DTOrig.Value, 0, DTOrig.Len - 1 );
-
-                        if ( !string.IsNullOrEmpty( dateTakenText ) )
-                        {
-                            if ( !DateTime.TryParseExact( dateTakenText, "yyyy:MM:dd HH:mm:ss", CultureInfo.CurrentCulture, DateTimeStyles.None, out dt ) )
-                            {
-                                return;
-                            }
-                        }
-                        else return;
-                        */
                     }
                 }
                 catch { }
@@ -797,12 +778,14 @@ namespace NetCharm
                     ulong[] ulat = new ulong[3] {
                         Convert.ToUInt64( glat.Degrees ) + 0x0000000100000000L,
                         Convert.ToUInt64( glat.Minutes ) + 0x0000000100000000L,
-                        Convert.ToUInt64( (( glat.Numeric - glat.Degrees ) * 60 - glat.Minutes ) * 60 * factor ) + 0x0098968000000000L
+                        Convert.ToUInt64( glat.Seconds ) + 0x0000000100000000L
+                        //Convert.ToUInt64( (( glat.Numeric - glat.Degrees ) * 60 - glat.Minutes ) * 60 * factor ) + 0x0098968000000000L
                     };
                     ulong[] ulng = new ulong[3] {
                         Convert.ToUInt64( glng.Degrees ) + 0x0000000100000000L,
                         Convert.ToUInt64( glng.Minutes ) + 0x0000000100000000L,
-                        Convert.ToUInt64( (( glng.Numeric - glng.Degrees ) * 60 - glng.Minutes ) * 60 * factor ) + 0x0098968000000000L
+                        Convert.ToUInt64( glng.Seconds ) + 0x0000000100000000L
+                        //Convert.ToUInt64( (( glng.Numeric - glng.Degrees ) * 60 - glng.Minutes ) * 60 * factor ) + 0x0098968000000000L
                     };
 
                     metadata.SetQuery( META.TagExifGpsLatitudeRef, latHemisphere );
