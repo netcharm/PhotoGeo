@@ -44,12 +44,12 @@ Modern Windows UI (after `Windows 7`)
 
 #### Binary
 
-[bitbucket.org](https://bitbucket.org/netcharm/phototools/downloads)
+1. [bitbucket.org](https://bitbucket.org/netcharm/photogeo/downloads)
 
 #### Source
 
-[bitbucket.org](https://bitbucket.org/netcharm/phototools)
-[github.com](https://github.com/netcharm/phototools)
+1. [bitbucket.org](https://bitbucket.org/netcharm/photogeo)
+1. [github.com](https://github.com/netcharm/photogeo)
 
 ## To-Do
 Load GPX/KML file and display on map as reference of photo(s) geo location
