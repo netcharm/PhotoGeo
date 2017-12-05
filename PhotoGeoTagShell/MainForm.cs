@@ -38,6 +38,8 @@ namespace PhotoGeoTagShell
         private string proxyUser = string.Empty;
         private string proxyPass = string.Empty;
 
+        private int mapW = 400, mapH = 400, mapX = 100, mapY = 100;
+
         //string[] PhotoExts = { ".jpg", ".jpeg", ".tif",".tiff" };
 
         private void configUpdate()
@@ -66,6 +68,8 @@ namespace PhotoGeoTagShell
                 else
                     appSettings.Add( key, config.AppSettings.Settings[key].Value.ToString() );
             }
+
+            #region Last Visted Folder History
             if ( appSettings.ContainsKey( "lastVisitedFolder" ) )
                 tscbVistedFolder.Text = appSettings["lastVisitedFolder"].ToString();
             else appSettings.Add( "lastVisitedFolder", AppFolder );
@@ -80,7 +84,9 @@ namespace PhotoGeoTagShell
             {
                 appSettings.Add( "folderHistory", "" );
             }
+            #endregion
 
+            #region Last Map Privider & Position
             try
             {
                 if (appSettings.ContainsKey("lastMapProvider"))
@@ -102,7 +108,9 @@ namespace PhotoGeoTagShell
                 else appSettings.Add("lastLon", $"{lastLon:F6}");
             }
             catch (Exception) { }
+            #endregion
 
+            #region Main Window Position & Size
             try
             {
                 if (appSettings.ContainsKey("W"))
@@ -127,7 +135,36 @@ namespace PhotoGeoTagShell
                     this.Top = Convert.ToInt32(appSettings["Y"]);
             }
             catch (Exception) { }
+            #endregion
 
+            #region Map Window Position & Size
+            try
+            {
+                if (appSettings.ContainsKey("MapW"))
+                    mapW = Convert.ToInt32(appSettings["MapW"]);
+            }
+            catch (Exception) { }
+            try
+            {
+                if (appSettings.ContainsKey("MapH"))
+                    mapH = Convert.ToInt32(appSettings["MapH"]);
+            }
+            catch (Exception) { }
+            try
+            {
+                if (appSettings.ContainsKey("MapX"))
+                    mapX = Convert.ToInt32(appSettings["MapX"]);
+            }
+            catch (Exception) { }
+            try
+            {
+                if (appSettings.ContainsKey("MapY"))
+                    mapY = Convert.ToInt32(appSettings["MapY"]);
+            }
+            catch (Exception) { }
+            #endregion
+
+            #region Proxy Setting
             if (appSettings.ContainsKey("proxyOn"))
                 proxyOn = Convert.ToBoolean(appSettings["proxyOn"].ToString());
             if (appSettings.ContainsKey("proxyHost"))
@@ -136,14 +173,32 @@ namespace PhotoGeoTagShell
                 proxyUser = appSettings["proxyUser"].ToString();
             if (appSettings.ContainsKey("proxyPass"))
                 proxyPass = appSettings["proxyPass"].ToString();
+            #endregion
         }
 
         private void configSave()
         {
+            #region Last Visted Folder History
             if ( appSettings.ContainsKey( "lastVisitedFolder" ) )
                 appSettings["lastVisitedFolder"] = tscbVistedFolder.Text;
             else appSettings.Add( "lastVisitedFolder", AppFolder );
 
+            List<string> folders = new List<string>();
+            int count = 0;
+            foreach (string folder in tscbVistedFolder.Items)
+            {
+                if (folders.Contains(folder)) continue;
+                if (count > 24) break;
+                folders.Add(folder);
+                count++;
+            }
+            string historyFolder = string.Join($"{Path.PathSeparator}", folders);
+            if (appSettings.ContainsKey("folderHistory"))
+                appSettings["folderHistory"] = historyFolder;
+            else appSettings.Add("folderHistory", "");
+            #endregion
+
+            #region Last Map Privider & Position
             if (MapViewer != null && MapViewer.Tag != null)
             {
                 //lastMapProvider = (string)MapViewer.Tag;
@@ -160,34 +215,31 @@ namespace PhotoGeoTagShell
             if (appSettings.ContainsKey("lastLon"))
                 appSettings["lastLon"] = $"{lastLon:F6}";
             else appSettings.Add("lastLon", $"{lastLon:F6}");
+            #endregion
 
-            List<string> folders = new List<string>();
-            int count = 0;
-            foreach ( string folder in tscbVistedFolder.Items )
-            {
-                if ( folders.Contains( folder ) ) continue;
-                if ( count > 24 ) break;
-                folders.Add( folder );
-                count++;
-            }
-            string historyFolder = string.Join( $"{Path.PathSeparator}", folders);
-            if ( appSettings.ContainsKey( "folderHistory" ) )
-                appSettings["folderHistory"] = historyFolder;
-            else appSettings.Add( "folderHistory", "" );
-
+            #region Main Window Postion & Size
             appSettings["W"] = this.Width.ToString();
             appSettings["H"] = this.Height.ToString();
             appSettings["X"] = this.Left.ToString();
             appSettings["Y"] = this.Top.ToString();
+            #endregion
 
-            if (appSettings.ContainsKey("proxyOn"))
-                appSettings["proxyOn"] = proxyOn.ToString();
-            if (appSettings.ContainsKey("proxyHost"))
-                appSettings["proxyHost"] = proxyHost;
-            if (appSettings.ContainsKey("proxyUser"))
-                appSettings["proxyUser"] = proxyUser;
-            if (appSettings.ContainsKey("proxyPass"))
-                appSettings["proxyPass"] = proxyPass;
+            #region Map Window Postion & Size
+            if (MapViewer != null)
+            {
+                appSettings["MapW"] = MapViewer.Width.ToString();
+                appSettings["MapH"] = MapViewer.Height.ToString();
+                appSettings["MapX"] = MapViewer.Left.ToString();
+                appSettings["MapY"] = MapViewer.Top.ToString();
+            }
+            #endregion
+
+            #region Proxy Setting
+            appSettings["proxyOn"] = proxyOn.ToString();
+            appSettings["proxyHost"] = proxyHost;
+            appSettings["proxyUser"] = proxyUser;
+            appSettings["proxyPass"] = proxyPass;
+            #endregion
 
             Configuration config = ConfigurationManager.OpenExeConfiguration(Application.ExecutablePath);
 
@@ -468,12 +520,16 @@ namespace PhotoGeoTagShell
                 lastMapProvider = MapViewer.lastMapProvider;
                 lastLat = MapViewer.lastLat;
                 lastLon = MapViewer.lastLon;
+                mapX = MapViewer.Left;
+                mapY = MapViewer.Top;
+                mapW = MapViewer.Width;
+                mapH = MapViewer.Height;
             }
             try
             {
                 if (MapViewer == null) { MapViewer = new FormMap(); }
                 else if (MapViewer.Visible) { MapViewer.Activate(); }
-                else { MapViewer = new FormMap(); }
+                else { MapViewer = new FormMap();                }
             }
             catch
             {
@@ -489,6 +545,11 @@ namespace PhotoGeoTagShell
             MapViewer.proxyPass = proxyPass;
 
             MapViewer.Show();
+            MapViewer.Left = mapX;
+            MapViewer.Top = mapY;
+            MapViewer.Width = mapW;
+            MapViewer.Height = mapH;
+
             if (explorerBrowser.SelectedItems.Count > 0)
                 ShowSelectedImage(true);
         }
