@@ -76,6 +76,31 @@ namespace PhotoGeoTagShell
             if ( appSettings.ContainsKey( "lastMapProvider" ) )
                 lastMapProvider = appSettings["lastMapProvider"].ToString();
             else appSettings.Add( "lastMapProvider", "GoogleChinaHybridMap" );
+
+            try
+            {
+                if (appSettings.ContainsKey("W"))
+                    this.Width = Convert.ToInt32(appSettings["W"]);
+            }
+            catch (Exception) { }
+            try
+            {
+                if (appSettings.ContainsKey("H"))
+                    this.Height = Convert.ToInt32(appSettings["H"]);
+            }
+            catch (Exception) { }
+            try
+            {
+                if (appSettings.ContainsKey("X"))
+                    this.Left = Convert.ToInt32(appSettings["X"]);
+            }
+            catch (Exception) { }
+            try
+            {
+                if (appSettings.ContainsKey("Y"))
+                    this.Top = Convert.ToInt32(appSettings["Y"]);
+            }
+            catch (Exception) { }
         }
 
         private void configSave()
@@ -102,6 +127,11 @@ namespace PhotoGeoTagShell
             if ( appSettings.ContainsKey( "folderHistory" ) )
                 appSettings["folderHistory"] = historyFolder;
             else appSettings.Add( "folderHistory", "" );
+
+            appSettings["W"] = this.Width.ToString();
+            appSettings["H"] = this.Height.ToString();
+            appSettings["X"] = this.Left.ToString();
+            appSettings["Y"] = this.Top.ToString();
 
             Configuration config = ConfigurationManager.OpenExeConfiguration(Application.ExecutablePath);
 
