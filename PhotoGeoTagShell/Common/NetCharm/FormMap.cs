@@ -106,6 +106,8 @@ namespace NetCharm
                  mapName.StartsWith("GoogleCn")
                  )
             {
+                GMapProvider.WebProxy = null;
+
                 if (mapName.Equals("AMap", StringComparison.CurrentCultureIgnoreCase))
                 {
                     gMap.MapProvider = AMap;
@@ -177,12 +179,12 @@ namespace NetCharm
             //GMaps.Instance.Mode = gMap.Manager.Mode;
 
             trackZoom.Maximum = gMap.MaxZoom;
-            if ( gMap.Zoom > gMap.MaxZoom ) gMap.Zoom = gMap.MaxZoom;
+            if (gMap.Zoom > gMap.MaxZoom) gMap.Zoom = gMap.MaxZoom;
 
             lastMapProvider = gMap.MapProvider.Name;
             Tag = lastMapProvider;
 
-            if ( mapName.StartsWith( "Open", StringComparison.CurrentCultureIgnoreCase ) )
+            if (mapName.StartsWith("Open", StringComparison.CurrentCultureIgnoreCase))
                 chkMapShift.Checked = false;
             else chkMapShift.Checked = true;
             tsmiShiftMap.Checked = chkMapShift.Checked;

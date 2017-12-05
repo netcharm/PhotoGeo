@@ -12,7 +12,7 @@ namespace GMap.NET.MapProviders.AMap
             get { return id; }
         }
 
-        readonly string name = "AMapSatelite";
+        readonly string name = "AMapSatellite";
         public override string Name
         {
             get
