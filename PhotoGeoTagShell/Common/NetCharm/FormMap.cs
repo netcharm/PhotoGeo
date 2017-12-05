@@ -99,7 +99,6 @@ namespace NetCharm
         /// <param name="mapName"></param>
         private void changeMapProvider(string mapName)
         {
-
             if (mapName.StartsWith("AMap") ||
                  mapName.StartsWith("Baidu") ||
                  mapName.StartsWith("Sohu") ||
@@ -107,7 +106,6 @@ namespace NetCharm
                  mapName.StartsWith("GoogleCn")
                  )
             {
-                proxyOn = false;
                 if (mapName.Equals("AMap", StringComparison.CurrentCultureIgnoreCase))
                 {
                     gMap.MapProvider = AMap;
