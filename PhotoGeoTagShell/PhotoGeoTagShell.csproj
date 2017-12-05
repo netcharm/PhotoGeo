@@ -72,12 +72,12 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\_refs\Fotofly.dll</HintPath>
     </Reference>
-    <Reference Include="GMap.NET.Core, Version=1.7.0.0, Culture=neutral, PublicKeyToken=b85b9027b614afef, processorArchitecture=MSIL">
-      <HintPath>..\packages\GMap.NET.WindowsForms.1.7.1\lib\net40\GMap.NET.Core.dll</HintPath>
+    <Reference Include="GMap.NET.Core, Version=1.7.5.0, Culture=neutral, PublicKeyToken=b85b9027b614afef, processorArchitecture=MSIL">
+      <HintPath>..\packages\GMap.NET.WindowsForms.1.7.5\lib\net40\GMap.NET.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="GMap.NET.WindowsForms, Version=1.7.0.0, Culture=neutral, PublicKeyToken=b85b9027b614afef, processorArchitecture=MSIL">
-      <HintPath>..\packages\GMap.NET.WindowsForms.1.7.1\lib\net40\GMap.NET.WindowsForms.dll</HintPath>
+    <Reference Include="GMap.NET.WindowsForms, Version=1.7.5.0, Culture=neutral, PublicKeyToken=b85b9027b614afef, processorArchitecture=MSIL">
+      <HintPath>..\packages\GMap.NET.WindowsForms.1.7.5\lib\net40\GMap.NET.WindowsForms.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Ionic.Zip.Reduced, Version=1.9.1.8, Culture=neutral, PublicKeyToken=edbe51ad942a3f5c, processorArchitecture=MSIL">
@@ -120,9 +120,13 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\GMap\MapProvider\Google\GoogleChinaHybridMapProvider.cs" />
+    <Compile Include="Common\GMap\MapProvider\Google\GoogleChinaMapProvider.cs" />
+    <Compile Include="Common\GMap\MapProvider\Google\GoogleChinaSatelliteMapProvider.cs" />
+    <Compile Include="Common\GMap\MapProvider\Google\GoogleChinaTerrainMapProvider.cs" />
     <Compile Include="Common\NetCharm\CommonRoutine.cs" />
     <Compile Include="Common\GMap\MapProvider\AMap\AMapProvider.cs" />
-    <Compile Include="Common\GMap\MapProvider\AMap\AMapSateliteProvider.cs" />
+    <Compile Include="Common\GMap\MapProvider\AMap\AMapSatelliteProvider.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -137,11 +141,11 @@
       <DependentUpon>FormMap.cs</DependentUpon>
     </Compile>
     <Compile Include="Common\GMap\MapProvider\Baidu\BaiduMapProvider.cs" />
-    <Compile Include="Common\GMap\MapProvider\Baidu\BaiduSateliteMapProvider.cs" />
+    <Compile Include="Common\GMap\MapProvider\Baidu\BaiduSatelliteMapProvider.cs" />
     <Compile Include="Common\GMap\MapProvider\Sogou\SogouMapProvider.cs" />
-    <Compile Include="Common\GMap\MapProvider\Sogou\SogouMapSateliteProvider.cs" />
+    <Compile Include="Common\GMap\MapProvider\Sogou\SogouMapSatelliteProvider.cs" />
     <Compile Include="Common\GMap\MapProvider\Soso\SosoMapProvider.cs" />
-    <Compile Include="Common\GMap\MapProvider\Soso\SosoMapSateliteProvider.cs" />
+    <Compile Include="Common\GMap\MapProvider\Soso\SosoMapSatelliteProvider.cs" />
     <Compile Include="Common\GMap\Marker\MarkerImage.cs" />
     <Compile Include="Common\GMap\ToolTips\ToolTipsImage.cs" />
     <Compile Include="Program.cs" />
@@ -202,6 +206,7 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>if "$(ConfigurationName)"=="Release" ( "D:\Develop\MS\AutoIncBuildNumber.exe" "$(ProjectDir)" )</PreBuildEvent>

@@ -4,9 +4,9 @@ using System.Text;
 
 namespace GMap.NET.MapProviders.Sohu
 {
-    public class SogouSateliteMapProvider : SogouMapProviderBase
+    public class SogouSatelliteMapProvider : SogouMapProviderBase
     {
-        public static readonly SogouSateliteMapProvider Instance;
+        public static readonly SogouSatelliteMapProvider Instance;
        
         readonly Guid id = new Guid("7F082330-5635-40c8-82C3-C834FCD4683F");
         public override Guid Id
@@ -23,9 +23,9 @@ namespace GMap.NET.MapProviders.Sohu
             }
         }
 
-        static SogouSateliteMapProvider()
+        static SogouSatelliteMapProvider()
         {
-            Instance = new SogouSateliteMapProvider();
+            Instance = new SogouSatelliteMapProvider();
         }
 
         public override PureImage GetTileImage(GPoint pos, int zoom)

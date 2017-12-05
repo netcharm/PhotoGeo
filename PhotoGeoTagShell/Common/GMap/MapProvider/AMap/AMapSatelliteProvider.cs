@@ -2,9 +2,9 @@
 
 namespace GMap.NET.MapProviders.AMap
 {
-    public class AMapSateliteProvider : AMapProviderBase
+    public class AMapSatelliteProvider : AMapProviderBase
     {
-        public static readonly AMapSateliteProvider Instance;
+        public static readonly AMapSatelliteProvider Instance;
 
         readonly Guid id = new Guid("FCA94AF4-3467-47c6-BDA2-6F52E4A145BC");
         public override Guid Id
@@ -21,9 +21,9 @@ namespace GMap.NET.MapProviders.AMap
             }
         }
 
-        static AMapSateliteProvider()
+        static AMapSatelliteProvider()
         {
-            Instance = new AMapSateliteProvider();
+            Instance = new AMapSatelliteProvider();
         }
 
         public override PureImage GetTileImage(GPoint pos, int zoom)

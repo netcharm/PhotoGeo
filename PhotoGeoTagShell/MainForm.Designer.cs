@@ -41,7 +41,6 @@
             this.menuMain = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolMain = new System.Windows.Forms.ToolStrip();
-            this.tsbtnMapView = new System.Windows.Forms.ToolStripButton();
             this.tsSep1 = new System.Windows.Forms.ToolStripSeparator();
             this.tscbVistedFolder = new System.Windows.Forms.ToolStripComboBox();
             this.tsbtnGo = new System.Windows.Forms.ToolStripSplitButton();
@@ -55,6 +54,8 @@
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.bgwTouchTime = new System.ComponentModel.BackgroundWorker();
             this.bgwTouchMeta = new System.ComponentModel.BackgroundWorker();
+            this.tsbtnMapView = new System.Windows.Forms.ToolStripSplitButton();
+            this.tsmiUsingProxy = new System.Windows.Forms.ToolStripMenuItem();
             this.status.SuspendLayout();
             this.toolContainer.ContentPanel.SuspendLayout();
             this.toolContainer.TopToolStripPanel.SuspendLayout();
@@ -164,7 +165,7 @@
             this.menuMain.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.Flow;
             this.menuMain.Location = new System.Drawing.Point(0, 0);
             this.menuMain.Name = "menuMain";
-            this.menuMain.Size = new System.Drawing.Size(44, 20);
+            this.menuMain.Size = new System.Drawing.Size(42, 25);
             this.menuMain.TabIndex = 0;
             this.menuMain.Text = "MainMenu";
             this.menuMain.Visible = false;
@@ -172,7 +173,7 @@
             // fileToolStripMenuItem
             // 
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(41, 16);
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(39, 21);
             this.fileToolStripMenuItem.Text = "File";
             // 
             // toolMain
@@ -194,18 +195,6 @@
             this.toolMain.Stretch = true;
             this.toolMain.TabIndex = 1;
             this.toolMain.Text = "MainToolBar";
-            // 
-            // tsbtnMapView
-            // 
-            this.tsbtnMapView.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.tsbtnMapView.Image = ((System.Drawing.Image)(resources.GetObject("tsbtnMapView.Image")));
-            this.tsbtnMapView.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbtnMapView.Name = "tsbtnMapView";
-            this.tsbtnMapView.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
-            this.tsbtnMapView.Size = new System.Drawing.Size(57, 22);
-            this.tsbtnMapView.Text = "View Map";
-            this.tsbtnMapView.ToolTipText = "Open The Map Viewer Window";
-            this.tsbtnMapView.Click += new System.EventHandler(this.tsbtnMapView_Click);
             // 
             // tsSep1
             // 
@@ -231,7 +220,7 @@
             this.tsbtnGo.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbtnGo.Margin = new System.Windows.Forms.Padding(2, 1, 0, 2);
             this.tsbtnGo.Name = "tsbtnGo";
-            this.tsbtnGo.Size = new System.Drawing.Size(33, 22);
+            this.tsbtnGo.Size = new System.Drawing.Size(43, 21);
             this.tsbtnGo.Text = "GO";
             this.tsbtnGo.ToolTipText = "Goto Folder of left box";
             this.tsbtnGo.Click += new System.EventHandler(this.tsbtnGo_Click);
@@ -253,7 +242,7 @@
             this.tsbtnTouch.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbtnTouch.Name = "tsbtnTouch";
             this.tsbtnTouch.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
-            this.tsbtnTouch.Size = new System.Drawing.Size(81, 22);
+            this.tsbtnTouch.Size = new System.Drawing.Size(91, 22);
             this.tsbtnTouch.Text = "Touch Time";
             this.tsbtnTouch.ToolTipText = "Touch Photos Datetime to Taken";
             this.tsbtnTouch.ButtonClick += new System.EventHandler(this.tsbtnTouch_Click);
@@ -261,7 +250,7 @@
             // tsmiTouchRecursion
             // 
             this.tsmiTouchRecursion.Name = "tsmiTouchRecursion";
-            this.tsmiTouchRecursion.Size = new System.Drawing.Size(214, 22);
+            this.tsmiTouchRecursion.Size = new System.Drawing.Size(232, 22);
             this.tsmiTouchRecursion.Text = "Touch Datetime Recursion";
             this.tsmiTouchRecursion.ToolTipText = "Recursion touch image file(s) datetime to taken time";
             this.tsmiTouchRecursion.Click += new System.EventHandler(this.tsmiTouchRecursion_Click);
@@ -269,13 +258,13 @@
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(211, 6);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(229, 6);
             // 
             // tsmiTouchMeta
             // 
             this.tsmiTouchMeta.Enabled = false;
             this.tsmiTouchMeta.Name = "tsmiTouchMeta";
-            this.tsmiTouchMeta.Size = new System.Drawing.Size(214, 22);
+            this.tsmiTouchMeta.Size = new System.Drawing.Size(232, 22);
             this.tsmiTouchMeta.Text = "Touch Metadata";
             this.tsmiTouchMeta.ToolTipText = "Sync Metadata in EXIF & IPTC";
             this.tsmiTouchMeta.Click += new System.EventHandler(this.tsmiTouchMeta_Click);
@@ -284,7 +273,7 @@
             // 
             this.tsmiTouchMetaRecursion.Enabled = false;
             this.tsmiTouchMetaRecursion.Name = "tsmiTouchMetaRecursion";
-            this.tsmiTouchMetaRecursion.Size = new System.Drawing.Size(214, 22);
+            this.tsmiTouchMetaRecursion.Size = new System.Drawing.Size(232, 22);
             this.tsmiTouchMetaRecursion.Text = "Touch Metadata Recursion";
             this.tsmiTouchMetaRecursion.ToolTipText = "Recursion sync Metadata in EXIF & IPTC";
             this.tsmiTouchMetaRecursion.Click += new System.EventHandler(this.tsmiTouchMetaRecursion_Click);
@@ -296,7 +285,7 @@
             this.tscbKnownFolder.Margin = new System.Windows.Forms.Padding(2, 0, 1, 0);
             this.tscbKnownFolder.Name = "tscbKnownFolder";
             this.tscbKnownFolder.Overflow = System.Windows.Forms.ToolStripItemOverflow.Always;
-            this.tscbKnownFolder.Size = new System.Drawing.Size(121, 20);
+            this.tscbKnownFolder.Size = new System.Drawing.Size(121, 25);
             this.tscbKnownFolder.Visible = false;
             this.tscbKnownFolder.SelectedIndexChanged += new System.EventHandler(this.tscbKnownFolder_SelectedIndexChanged);
             // 
@@ -320,6 +309,28 @@
             this.bgwTouchMeta.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgwTouchMeta_DoWork);
             this.bgwTouchMeta.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bgwTouchMeta_ProgressChanged);
             this.bgwTouchMeta.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgwTouchMeta_RunWorkerCompleted);
+            // 
+            // tsbtnMapView
+            // 
+            this.tsbtnMapView.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsbtnMapView.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiUsingProxy});
+            this.tsbtnMapView.Image = ((System.Drawing.Image)(resources.GetObject("tsbtnMapView.Image")));
+            this.tsbtnMapView.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbtnMapView.Name = "tsbtnMapView";
+            this.tsbtnMapView.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
+            this.tsbtnMapView.Size = new System.Drawing.Size(82, 22);
+            this.tsbtnMapView.Text = "View Map";
+            this.tsbtnMapView.ToolTipText = "Open The Map Viewer Window";
+            this.tsbtnMapView.Click += new System.EventHandler(this.tsbtnMapView_Click);
+            // 
+            // tsmiUsingProxy
+            // 
+            this.tsmiUsingProxy.CheckOnClick = true;
+            this.tsmiUsingProxy.Name = "tsmiUsingProxy";
+            this.tsmiUsingProxy.Size = new System.Drawing.Size(152, 22);
+            this.tsmiUsingProxy.Text = "Using Proxy";
+            this.tsmiUsingProxy.Click += new System.EventHandler(this.tsmiUsingProxy_Click);
             // 
             // MainForm
             // 
@@ -357,7 +368,6 @@
         private System.Windows.Forms.MenuStrip menuMain;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStrip toolMain;
-        private System.Windows.Forms.ToolStripButton tsbtnMapView;
         private System.Windows.Forms.ToolStripStatusLabel tsInfo;
         private System.Windows.Forms.ToolStripProgressBar tsProgress;
         private System.Windows.Forms.ToolStripSeparator tsSep1;
@@ -376,5 +386,7 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiTouchMeta;
         private System.Windows.Forms.ToolStripMenuItem tsmiTouchMetaRecursion;
         private System.ComponentModel.BackgroundWorker bgwTouchMeta;
+        private System.Windows.Forms.ToolStripSplitButton tsbtnMapView;
+        private System.Windows.Forms.ToolStripMenuItem tsmiUsingProxy;
     }
 }

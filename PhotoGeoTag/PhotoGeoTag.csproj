@@ -66,16 +66,20 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="GMap.NET.Core, Version=1.7.0.0, Culture=neutral, PublicKeyToken=b85b9027b614afef, processorArchitecture=MSIL">
-      <HintPath>..\packages\GMap.NET.WindowsForms.1.7.1\lib\net40\GMap.NET.Core.dll</HintPath>
+    <Reference Include="GMap.NET.Core, Version=1.7.5.0, Culture=neutral, PublicKeyToken=b85b9027b614afef, processorArchitecture=MSIL">
+      <HintPath>..\packages\GMap.NET.WindowsForms.1.7.5\lib\net40\GMap.NET.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="GMap.NET.WindowsForms, Version=1.7.0.0, Culture=neutral, PublicKeyToken=b85b9027b614afef, processorArchitecture=MSIL">
-      <HintPath>..\packages\GMap.NET.WindowsForms.1.7.1\lib\net40\GMap.NET.WindowsForms.dll</HintPath>
+    <Reference Include="GMap.NET.WindowsForms, Version=1.7.5.0, Culture=neutral, PublicKeyToken=b85b9027b614afef, processorArchitecture=MSIL">
+      <HintPath>..\packages\GMap.NET.WindowsForms.1.7.5\lib\net40\GMap.NET.WindowsForms.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="ImageListView, Version=11.0.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\ImageListView.11.0.4.0\lib\net35\ImageListView.dll</HintPath>
+    <Reference Include="ImageListView, Version=11.0.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ImageListView.11.0.8\lib\net35\ImageListView.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="ImageListView_noWPF, Version=11.0.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ImageListView.11.0.8\lib\net35\ImageListView_noWPF.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="PresentationCore" />

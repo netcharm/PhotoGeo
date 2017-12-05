@@ -27,9 +27,17 @@ namespace PhotoGeoTagShell
         private bool item_changed = false;
         private bool selection_changed = true;
         private Mutex mutSelectionChanged = new Mutex();
-        List<string> lastSelections = new List<string>();
+        private List<string> lastSelections = new List<string>();
 
-        string lastMapProvider = "GoogleChinaHybridMap";
+        private string lastMapProvider = "GoogleCnMap";
+        private double lastLat =  39.905961F;
+        private double lastLon = 116.391246F;
+
+        private bool proxyOn = false;
+        private string proxyHost = string.Empty;
+        private string proxyUser = string.Empty;
+        private string proxyPass = string.Empty;
+
         //string[] PhotoExts = { ".jpg", ".jpeg", ".tif",".tiff" };
 
         private void configUpdate()
@@ -73,9 +81,27 @@ namespace PhotoGeoTagShell
                 appSettings.Add( "folderHistory", "" );
             }
 
-            if ( appSettings.ContainsKey( "lastMapProvider" ) )
-                lastMapProvider = appSettings["lastMapProvider"].ToString();
-            else appSettings.Add( "lastMapProvider", "GoogleChinaHybridMap" );
+            try
+            {
+                if (appSettings.ContainsKey("lastMapProvider"))
+                    lastMapProvider = appSettings["lastMapProvider"].ToString();
+                else appSettings.Add("lastMapProvider", "GoogleCnMap");
+            }
+            catch (Exception) { }
+            try
+            {
+                if (appSettings.ContainsKey("lastLat"))
+                    lastLat = Convert.ToDouble(appSettings["lastLat"]);
+                else appSettings.Add("lastLat", $"{lastLat:F6}");
+            }
+            catch (Exception) { }
+            try
+            {
+                if (appSettings.ContainsKey("lastLon"))
+                    lastLon = Convert.ToDouble(appSettings["lastLon"]);
+                else appSettings.Add("lastLon", $"{lastLon:F6}");
+            }
+            catch (Exception) { }
 
             try
             {
@@ -101,6 +127,15 @@ namespace PhotoGeoTagShell
                     this.Top = Convert.ToInt32(appSettings["Y"]);
             }
             catch (Exception) { }
+
+            if (appSettings.ContainsKey("proxyOn"))
+                proxyOn = Convert.ToBoolean(appSettings["proxyOn"].ToString());
+            if (appSettings.ContainsKey("proxyHost"))
+                proxyHost = appSettings["proxyHost"].ToString();
+            if (appSettings.ContainsKey("proxyUser"))
+                proxyUser = appSettings["proxyUser"].ToString();
+            if (appSettings.ContainsKey("proxyPass"))
+                proxyPass = appSettings["proxyPass"].ToString();
         }
 
         private void configSave()
@@ -109,10 +144,22 @@ namespace PhotoGeoTagShell
                 appSettings["lastVisitedFolder"] = tscbVistedFolder.Text;
             else appSettings.Add( "lastVisitedFolder", AppFolder );
 
-            if ( MapViewer != null && MapViewer.Tag != null) lastMapProvider = (string)MapViewer.Tag;
+            if (MapViewer != null && MapViewer.Tag != null)
+            {
+                //lastMapProvider = (string)MapViewer.Tag;
+                lastMapProvider = MapViewer.lastMapProvider;
+                lastLat = MapViewer.lastLat;
+                lastLon = MapViewer.lastLon;
+            }
             if ( appSettings.ContainsKey( "lastMapProvider" ) )
                 appSettings["lastMapProvider"] = lastMapProvider;
-            else appSettings.Add( "lastMapProvider", "GoogleChinaHybridMap" );
+            else appSettings.Add( "lastMapProvider", "GoogleCnMap" );
+            if (appSettings.ContainsKey("lastLat"))
+                appSettings["lastLat"] = $"{lastLat:F6}";
+            else appSettings.Add("lastLat", $"{lastLat:F6}");
+            if (appSettings.ContainsKey("lastLon"))
+                appSettings["lastLon"] = $"{lastLon:F6}";
+            else appSettings.Add("lastLon", $"{lastLon:F6}");
 
             List<string> folders = new List<string>();
             int count = 0;
@@ -132,6 +179,15 @@ namespace PhotoGeoTagShell
             appSettings["H"] = this.Height.ToString();
             appSettings["X"] = this.Left.ToString();
             appSettings["Y"] = this.Top.ToString();
+
+            if (appSettings.ContainsKey("proxyOn"))
+                appSettings["proxyOn"] = proxyOn.ToString();
+            if (appSettings.ContainsKey("proxyHost"))
+                appSettings["proxyHost"] = proxyHost;
+            if (appSettings.ContainsKey("proxyUser"))
+                appSettings["proxyUser"] = proxyUser;
+            if (appSettings.ContainsKey("proxyPass"))
+                appSettings["proxyPass"] = proxyPass;
 
             Configuration config = ConfigurationManager.OpenExeConfiguration(Application.ExecutablePath);
 
@@ -329,6 +385,8 @@ namespace PhotoGeoTagShell
             //
             configLoad();
 
+            tsmiUsingProxy.Checked = proxyOn;
+
             //string CacheFolder = Path.Combine(
             //    Path.GetDirectoryName(new Uri(Assembly.GetAssembly(typeof(ImageListView)).GetName().CodeBase).LocalPath),
             //    "Cache"
@@ -400,22 +458,44 @@ namespace PhotoGeoTagShell
             configSave();
         }
 
-        private void tsbtnMapView_Click( object sender, EventArgs e )
+        private void tsbtnMapView_Click(object sender, EventArgs e)
         {
             //FormMap fm = (FormMap)Application.OpenForms[MapViewer.Text];
+            if (tsbtnMapView.DropDownButtonPressed) return;
+
+            if(MapViewer != null)
+            {
+                lastMapProvider = MapViewer.lastMapProvider;
+                lastLat = MapViewer.lastLat;
+                lastLon = MapViewer.lastLon;
+            }
             try
             {
-                if ( MapViewer == null ) { MapViewer = new FormMap(); }
-                else if ( MapViewer.Visible ) { MapViewer.Activate(); }
+                if (MapViewer == null) { MapViewer = new FormMap(); }
+                else if (MapViewer.Visible) { MapViewer.Activate(); }
                 else { MapViewer = new FormMap(); }
             }
             catch
             {
                 MapViewer = new FormMap();
             }
+            MapViewer.lastMapProvider = lastMapProvider;
+            MapViewer.lastLat = lastLat;
+            MapViewer.lastLon = lastLon;
             MapViewer.Tag = lastMapProvider;
+            MapViewer.proxyOn = proxyOn;
+            MapViewer.proxyHost = proxyHost;
+            MapViewer.proxyUser = proxyUser;
+            MapViewer.proxyPass = proxyPass;
+
             MapViewer.Show();
-            ShowSelectedImage(true);
+            if (explorerBrowser.SelectedItems.Count > 0)
+                ShowSelectedImage(true);
+        }
+
+        private void tsmiUsingProxy_Click(object sender, EventArgs e)
+        {
+            proxyOn = tsmiUsingProxy.Checked;
         }
 
         private void tscbKnownFolder_SelectedIndexChanged( object sender, EventArgs e )
@@ -615,5 +695,6 @@ namespace PhotoGeoTagShell
             Cursor = Cursors.Default;
             tsInfo.Text = $"Touching file(s) metadata 100%";
         }
+
     }
 }

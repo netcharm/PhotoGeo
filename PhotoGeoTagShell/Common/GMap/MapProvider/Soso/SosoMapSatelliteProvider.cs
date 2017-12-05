@@ -5,9 +5,9 @@ using GMap.NET.Projections;
 namespace GMap.NET.MapProviders.Soso
 {
     
-    public class SosoSateliteMapProvider: SosoMapProviderBase
+    public class SosoSatelliteMapProvider: SosoMapProviderBase
     {
-        public static readonly SosoSateliteMapProvider Instance;
+        public static readonly SosoSatelliteMapProvider Instance;
 
         readonly Guid id = new Guid("441FE314-F379-4566-8FC5-AD62784CF552");
         public override Guid Id
@@ -24,9 +24,9 @@ namespace GMap.NET.MapProviders.Soso
             }
         }
 
-        static SosoSateliteMapProvider()
+        static SosoSatelliteMapProvider()
         {
-            Instance = new SosoSateliteMapProvider();
+            Instance = new SosoSatelliteMapProvider();
         }
 
         public override PureImage GetTileImage(GPoint pos, int zoom)

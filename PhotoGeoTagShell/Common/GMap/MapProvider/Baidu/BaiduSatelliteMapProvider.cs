@@ -4,9 +4,9 @@ using System.Text;
 
 namespace GMap.NET.MapProviders.Baidu
 {
-    public class BaiduSateliteMapProvider : BaiduMapProviderBase
+    public class BaiduSatelliteMapProvider : BaiduMapProviderBase
     {
-        public static readonly BaiduSateliteMapProvider Instance;
+        public static readonly BaiduSatelliteMapProvider Instance;
 
         readonly Guid id = new Guid("89A10DFA-2557-431a-9656-20064E8D1342");
         public override Guid Id
@@ -21,9 +21,9 @@ namespace GMap.NET.MapProviders.Baidu
         }
 
 
-        static BaiduSateliteMapProvider()
+        static BaiduSatelliteMapProvider()
         {
-            Instance = new BaiduSateliteMapProvider();
+            Instance = new BaiduSatelliteMapProvider();
         }
 
         public override PureImage GetTileImage(GPoint pos, int zoom)

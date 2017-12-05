@@ -25,6 +25,7 @@ using GMap.NET.WindowsForms.ToolTips;
 using SharpKml.Base;
 using SharpKml.Dom;
 using SharpKml.Engine;
+using System.Net;
 
 namespace NetCharm
 {
@@ -37,22 +38,34 @@ namespace NetCharm
 
         MarsWGS PosShift = new MarsWGS();
         bool MapShift = false;
-        string lastMapProvider = "GoogleChinaHybridMap";
+        internal string lastMapProvider = "GoogleCnMap";
+        internal double lastLat = 39.905961F;
+        internal double lastLon = 116.391246F;
+
+        internal bool proxyOn = false;
+        internal string proxyHost = string.Empty;
+        internal string proxyUser = string.Empty;
+        internal string proxyPass = string.Empty;
 
         private GeocodingProvider Geo;
 
         private AMapProvider AMap = AMapProvider.Instance;
         private AMapHybirdProvider AMapHybird = AMapHybirdProvider.Instance;
-        private AMapSateliteProvider AMapSatelite = AMapSateliteProvider.Instance;
+        private AMapSatelliteProvider AMapSatellite = AMapSatelliteProvider.Instance;
 
         private BaiduMapProvider BaiduMap = BaiduMapProvider.Instance;
-        private BaiduSateliteMapProvider BaiduSateliteMap = BaiduSateliteMapProvider.Instance;
+        private BaiduSatelliteMapProvider BaiduSatelliteMap = BaiduSatelliteMapProvider.Instance;
 
         private SogouMapProvider SogouMap = SogouMapProvider.Instance;
-        private SogouSateliteMapProvider SogouSateliteMap = SogouSateliteMapProvider.Instance;
+        private SogouSatelliteMapProvider SogouSatelliteMap = SogouSatelliteMapProvider.Instance;
 
         private SosoMapProvider SosoMap = SosoMapProvider.Instance;
-        private SosoSateliteMapProvider SosoSateliteMap = SosoSateliteMapProvider.Instance;
+        private SosoSatelliteMapProvider SosoSatelliteMap = SosoSatelliteMapProvider.Instance;
+
+        private GoogleCnMapProvider GoogleCnMap = GoogleCnMapProvider.Instance;
+        private GoogleCnSatelliteMapProvider GoogleCnSatelliteMap = GoogleCnSatelliteMapProvider.Instance;
+        private GoogleCnHybridMapProvider GoogleCnHybridMap = GoogleCnHybridMapProvider.Instance;
+        private GoogleCnTerrainMapProvider GoogleCnTerrainMap = GoogleCnTerrainMapProvider.Instance;
 
         /// <summary>
         /// 
@@ -86,53 +99,80 @@ namespace NetCharm
         /// <param name="mapName"></param>
         private void changeMapProvider(string mapName)
         {
-            if ( mapName.StartsWith( "AMap" ) ||
-                 mapName.StartsWith( "Baidu" ) ||
-                 mapName.StartsWith( "Sohu" ) ||
-                 mapName.StartsWith( "SoSo" )
+
+            if (mapName.StartsWith("AMap") ||
+                 mapName.StartsWith("Baidu") ||
+                 mapName.StartsWith("Sohu") ||
+                 mapName.StartsWith("SoSo") ||
+                 mapName.StartsWith("GoogleCn")
                  )
             {
-                if ( mapName.Equals( "AMap", StringComparison.CurrentCultureIgnoreCase ) )
+                proxyOn = false;
+                if (mapName.Equals("AMap", StringComparison.CurrentCultureIgnoreCase))
                 {
                     gMap.MapProvider = AMap;
                 }
-                else if ( mapName.Equals( "AMapHybird", StringComparison.CurrentCultureIgnoreCase ) )
+                else if (mapName.Equals("AMapHybird", StringComparison.CurrentCultureIgnoreCase))
                 {
                     gMap.MapProvider = AMapHybird;
                 }
-                else if ( mapName.Equals( "AMapSatelite", StringComparison.CurrentCultureIgnoreCase ) )
+                else if (mapName.Equals("AMapSatellite", StringComparison.CurrentCultureIgnoreCase))
                 {
-                    gMap.MapProvider = AMapSatelite;
+                    gMap.MapProvider = AMapSatellite;
                 }
-                else if ( mapName.Equals( "BaiduMap", StringComparison.CurrentCultureIgnoreCase ) )
+                else if (mapName.Equals("BaiduMap", StringComparison.CurrentCultureIgnoreCase))
                 {
                     gMap.MapProvider = BaiduMap;
                 }
-                else if ( mapName.Equals( "BaiduSateliteMap", StringComparison.CurrentCultureIgnoreCase ) )
+                else if (mapName.Equals("BaiduSatelliteMap", StringComparison.CurrentCultureIgnoreCase))
                 {
-                    gMap.MapProvider = BaiduSateliteMap;
+                    gMap.MapProvider = BaiduSatelliteMap;
                 }
-                else if ( mapName.Equals( "SohuMap", StringComparison.CurrentCultureIgnoreCase ) )
+                else if (mapName.Equals("SohuMap", StringComparison.CurrentCultureIgnoreCase))
                 {
                     gMap.MapProvider = SogouMap;
                 }
-                else if ( mapName.Equals( "SohuSateliteMap", StringComparison.CurrentCultureIgnoreCase ) )
+                else if (mapName.Equals("SohuSatelliteMap", StringComparison.CurrentCultureIgnoreCase))
                 {
-                    gMap.MapProvider = SogouSateliteMap;
+                    gMap.MapProvider = SogouSatelliteMap;
                 }
-                else if ( mapName.Equals( "SosoMap", StringComparison.CurrentCultureIgnoreCase ) )
+                else if (mapName.Equals("SosoMap", StringComparison.CurrentCultureIgnoreCase))
                 {
                     gMap.MapProvider = SosoMap;
                 }
-                else if ( mapName.Equals( "SoSoSateliteMap", StringComparison.CurrentCultureIgnoreCase ) )
+                else if (mapName.Equals("SoSoSatelliteMap", StringComparison.CurrentCultureIgnoreCase))
                 {
-                    gMap.MapProvider = SosoSateliteMap;
+                    gMap.MapProvider = SosoSatelliteMap;
+                }
+                else if (mapName.Equals("GoogleCnMap", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    gMap.MapProvider = GoogleCnMap;
+                }
+                else if (mapName.Equals("GoogleCnSatelliteMap", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    gMap.MapProvider = GoogleCnSatelliteMap;
+                }
+                else if (mapName.Equals("GoogleCnHybridMap", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    gMap.MapProvider = GoogleCnHybridMap;
+                }
+                else if (mapName.Equals("GoogleCnTerrainMap", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    gMap.MapProvider = GoogleCnTerrainMap;
                 }
                 gMap.MaxZoom = 18;
             }
             else
             {
-                gMap.MapProvider = GMapProviders.TryGetProvider( mapSource[mapName] );
+                if (proxyOn && !string.IsNullOrEmpty(proxyHost))
+                {
+                    //GMapProvider.WebProxy = new WebProxy(new Uri($"http://{proxyHost}"), true);
+                    GMapProvider.WebProxy = new WebProxy(proxyHost);
+                    if (!string.IsNullOrEmpty(proxyUser) && !string.IsNullOrEmpty(proxyPass))
+                        GMapProvider.WebProxy.Credentials = new NetworkCredential(proxyUser, proxyPass);
+                }
+
+                gMap.MapProvider = GMapProviders.TryGetProvider(mapSource[mapName]);
                 gMap.MaxZoom = 20;
             }
             gMap.MapProvider.MaxZoom = gMap.MaxZoom;
@@ -150,6 +190,8 @@ namespace NetCharm
             tsmiShiftMap.Checked = chkMapShift.Checked;
             MapShift = chkMapShift.Checked;
             //gMap.BoundsOfMap = latlng;
+
+            //gMap.MapProvider.webproxy
         }
 
         /// <summary>
@@ -586,8 +628,8 @@ namespace NetCharm
             mapSource.Add( AMap.Name, AMap.Id );
             //cbMapProviders.Items.Add( AMapHybird.Name );
             //mapSource.Add( AMapHybird.Name, AMapHybird.Id );
-            cbMapProviders.Items.Add( AMapSatelite.Name );
-            mapSource.Add( AMapSatelite.Name, AMapSatelite.Id );
+            cbMapProviders.Items.Add( AMapSatellite.Name );
+            mapSource.Add( AMapSatellite.Name, AMapSatellite.Id );
 
             //cbMapProviders.Items.Add( BaiduMap.Name );
             //mapSource.Add( BaiduMap.Name, BaiduMap.Id );
@@ -601,8 +643,17 @@ namespace NetCharm
 
             cbMapProviders.Items.Add( SosoMap.Name );
             mapSource.Add( SosoMap.Name, SosoMap.Id );
-            cbMapProviders.Items.Add( SosoSateliteMap.Name );
-            mapSource.Add( SosoSateliteMap.Name, SosoSateliteMap.Id );
+            cbMapProviders.Items.Add( SosoSatelliteMap.Name );
+            mapSource.Add( SosoSatelliteMap.Name, SosoSatelliteMap.Id );
+
+            cbMapProviders.Items.Add(GoogleCnMap.Name);
+            mapSource.Add(GoogleCnMap.Name, GoogleCnMap.Id);
+            cbMapProviders.Items.Add(GoogleCnSatelliteMap.Name);
+            mapSource.Add(GoogleCnSatelliteMap.Name, GoogleCnSatelliteMap.Id);
+            cbMapProviders.Items.Add(GoogleCnHybridMap.Name);
+            mapSource.Add(GoogleCnHybridMap.Name, GoogleCnHybridMap.Id);
+            cbMapProviders.Items.Add(GoogleCnTerrainMap.Name);
+            mapSource.Add(GoogleCnTerrainMap.Name, GoogleCnTerrainMap.Id);
 
             cbMapProviders.EndUpdate();
             //cbMapProviders.SelectedIndex = cbMapProviders.Items.IndexOf( "GoogleChinaHybridMap" );
@@ -636,7 +687,7 @@ namespace NetCharm
             gMap.RetryLoadTile = 5;
             gMap.ScaleMode = ScaleModes.Fractional;
             //gMap.ScaleMode = ScaleModes.Integer;
-            gMap.ScalePen = new System.Drawing.Pen( System.Drawing.Color.Silver);
+            gMap.ScalePen = new Pen(Color.Silver);
             gMap.ShowCenter = false;
             gMap.Zoom = trackZoom.Value;
             gMap.ForceDoubleBuffer = false;
@@ -645,7 +696,8 @@ namespace NetCharm
             //gMap.MapProvider = GMapProviders.TryGetProvider( mapSource[lastMapProvider] );
             string refurl = gMap.MapProvider.RefererUrl;
 
-            gMap.SetPositionByKeywords( "beijing" );
+            //gMap.SetPositionByKeywords( "beijing" );
+            gMap.Position = new PointLatLng(lastLat, lastLon);
 
             gMap.MapProvider.MaxZoom = gMap.MaxZoom;
             gMap.MapProvider.MinZoom = gMap.MinZoom;
@@ -654,7 +706,7 @@ namespace NetCharm
             gMap.Overlays.Add( OverlayPoints );
             gMap.Overlays.Add( OverlayPhotos );
             gMap.Overlays.Add( OverlayRefPos );
-
+            
             //GMaps.Instance.Mode = AccessMode.ServerAndCache;
             //GMaps.Instance.Mode = gMap.Manager.Mode;
             #endregion
@@ -671,6 +723,8 @@ namespace NetCharm
             //gMap.MapProvider.BypassCache = true;
             gMap.Manager.CancelTileCaching();
             Tag = lastMapProvider;
+            lastLat = gMap.Position.Lat;
+            lastLon = gMap.Position.Lng;
         }
 
         /// <summary>
@@ -1009,6 +1063,8 @@ namespace NetCharm
             //tsLon.Text = $"Lon: {lng.ToString( "F6" )} {refLng}";
             tsLat.Text = $"Lat: {lat.ToString( "###.######" )} {refLat}";
             tsLon.Text = $"Lon: {lng.ToString( "###.######" )} {refLng}";
+            lastLat = lat;
+            lastLon = lng;
         }
 
         /// <summary>
