@@ -41,6 +41,8 @@
             this.menuMain = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolMain = new System.Windows.Forms.ToolStrip();
+            this.tsbtnMapView = new System.Windows.Forms.ToolStripSplitButton();
+            this.tsmiUsingProxy = new System.Windows.Forms.ToolStripMenuItem();
             this.tsSep1 = new System.Windows.Forms.ToolStripSeparator();
             this.tscbVistedFolder = new System.Windows.Forms.ToolStripComboBox();
             this.tsbtnGo = new System.Windows.Forms.ToolStripSplitButton();
@@ -54,8 +56,6 @@
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.bgwTouchTime = new System.ComponentModel.BackgroundWorker();
             this.bgwTouchMeta = new System.ComponentModel.BackgroundWorker();
-            this.tsbtnMapView = new System.Windows.Forms.ToolStripSplitButton();
-            this.tsmiUsingProxy = new System.Windows.Forms.ToolStripMenuItem();
             this.status.SuspendLayout();
             this.toolContainer.ContentPanel.SuspendLayout();
             this.toolContainer.TopToolStripPanel.SuspendLayout();
@@ -196,6 +196,28 @@
             this.toolMain.TabIndex = 1;
             this.toolMain.Text = "MainToolBar";
             // 
+            // tsbtnMapView
+            // 
+            this.tsbtnMapView.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsbtnMapView.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiUsingProxy});
+            this.tsbtnMapView.Image = ((System.Drawing.Image)(resources.GetObject("tsbtnMapView.Image")));
+            this.tsbtnMapView.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbtnMapView.Name = "tsbtnMapView";
+            this.tsbtnMapView.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
+            this.tsbtnMapView.Size = new System.Drawing.Size(51, 22);
+            this.tsbtnMapView.Text = "Map";
+            this.tsbtnMapView.ToolTipText = "Open Map Viewer Window";
+            this.tsbtnMapView.Click += new System.EventHandler(this.tsbtnMapView_Click);
+            // 
+            // tsmiUsingProxy
+            // 
+            this.tsmiUsingProxy.CheckOnClick = true;
+            this.tsmiUsingProxy.Name = "tsmiUsingProxy";
+            this.tsmiUsingProxy.Size = new System.Drawing.Size(152, 22);
+            this.tsmiUsingProxy.Text = "Using Proxy";
+            this.tsmiUsingProxy.Click += new System.EventHandler(this.tsmiUsingProxy_Click);
+            // 
             // tsSep1
             // 
             this.tsSep1.Name = "tsSep1";
@@ -220,7 +242,7 @@
             this.tsbtnGo.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbtnGo.Margin = new System.Windows.Forms.Padding(2, 1, 0, 2);
             this.tsbtnGo.Name = "tsbtnGo";
-            this.tsbtnGo.Size = new System.Drawing.Size(43, 21);
+            this.tsbtnGo.Size = new System.Drawing.Size(43, 22);
             this.tsbtnGo.Text = "GO";
             this.tsbtnGo.ToolTipText = "Goto Folder of left box";
             this.tsbtnGo.Click += new System.EventHandler(this.tsbtnGo_Click);
@@ -309,28 +331,6 @@
             this.bgwTouchMeta.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgwTouchMeta_DoWork);
             this.bgwTouchMeta.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bgwTouchMeta_ProgressChanged);
             this.bgwTouchMeta.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgwTouchMeta_RunWorkerCompleted);
-            // 
-            // tsbtnMapView
-            // 
-            this.tsbtnMapView.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.tsbtnMapView.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsmiUsingProxy});
-            this.tsbtnMapView.Image = ((System.Drawing.Image)(resources.GetObject("tsbtnMapView.Image")));
-            this.tsbtnMapView.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbtnMapView.Name = "tsbtnMapView";
-            this.tsbtnMapView.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
-            this.tsbtnMapView.Size = new System.Drawing.Size(82, 22);
-            this.tsbtnMapView.Text = "View Map";
-            this.tsbtnMapView.ToolTipText = "Open The Map Viewer Window";
-            this.tsbtnMapView.Click += new System.EventHandler(this.tsbtnMapView_Click);
-            // 
-            // tsmiUsingProxy
-            // 
-            this.tsmiUsingProxy.CheckOnClick = true;
-            this.tsmiUsingProxy.Name = "tsmiUsingProxy";
-            this.tsmiUsingProxy.Size = new System.Drawing.Size(152, 22);
-            this.tsmiUsingProxy.Text = "Using Proxy";
-            this.tsmiUsingProxy.Click += new System.EventHandler(this.tsmiUsingProxy_Click);
             // 
             // MainForm
             // 

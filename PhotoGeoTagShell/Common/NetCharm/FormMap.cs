@@ -184,7 +184,7 @@ namespace NetCharm
             lastMapProvider = gMap.MapProvider.Name;
             Tag = lastMapProvider;
 
-            if (mapName.StartsWith("Open", StringComparison.CurrentCultureIgnoreCase))
+            if (mapName.StartsWith("Open", StringComparison.CurrentCultureIgnoreCase) || mapName.StartsWith("Yandex", StringComparison.CurrentCultureIgnoreCase))
                 chkMapShift.Checked = false;
             else chkMapShift.Checked = true;
             tsmiShiftMap.Checked = chkMapShift.Checked;
@@ -610,18 +610,18 @@ namespace NetCharm
             #region setup MapProvider
             cbMapProviders.Items.Clear();
             cbMapProviders.BeginUpdate();
-            foreach ( GMapProvider map in GMapProviders.List )
+            foreach (GMapProvider map in GMapProviders.List)
             {
-                if ( map.Name.StartsWith( "Bing" ) ||
-                     (map.Name.StartsWith( "Google" ) && !map.Name.StartsWith( "GoogleKorea" ) ) ||
+                if (map.Name.StartsWith("Bing") ||
+                     (map.Name.StartsWith("Google") && !map.Name.StartsWith("GoogleKorea")) ||
                      //map.Name.StartsWith( "Yahoo" ) ||
-                     map.Name.StartsWith( "Open" ) ||
-                     map.Name.StartsWith( "Ovi" ) ||
-                     map.Name.StartsWith( "Yandex" )
+                     (map.Name.StartsWith("Open") && map.Name.EndsWith("4UMap")) ||
+                     //map.Name.StartsWith( "Ovi" ) ||
+                     map.Name.StartsWith("YandexMap")
                      )
                 {
-                    cbMapProviders.Items.Add( map.Name );
-                    mapSource.Add( map.Name, map.Id );
+                    cbMapProviders.Items.Add(map.Name);
+                    mapSource.Add(map.Name, map.Id);
                 }
             }
             cbMapProviders.Items.Add( AMap.Name );
@@ -641,10 +641,10 @@ namespace NetCharm
             //cbMapProviders.Items.Add( SogouSateliteMap.Name );
             //mapSource.Add( SogouSateliteMap.Name, SogouSateliteMap.Id );
 
-            cbMapProviders.Items.Add( SosoMap.Name );
-            mapSource.Add( SosoMap.Name, SosoMap.Id );
-            cbMapProviders.Items.Add( SosoSatelliteMap.Name );
-            mapSource.Add( SosoSatelliteMap.Name, SosoSatelliteMap.Id );
+            //cbMapProviders.Items.Add( SosoMap.Name );
+            //mapSource.Add( SosoMap.Name, SosoMap.Id );
+            //cbMapProviders.Items.Add( SosoSatelliteMap.Name );
+            //mapSource.Add( SosoSatelliteMap.Name, SosoSatelliteMap.Id );
 
             cbMapProviders.Items.Add(GoogleCnMap.Name);
             mapSource.Add(GoogleCnMap.Name, GoogleCnMap.Id);
@@ -1196,9 +1196,9 @@ namespace NetCharm
             }
             string refLat = lat < 0 ? "S" : "N";
             string refLng = lng < 0 ? "W" : "E";
-            tsInfo.Text = $"Lat: {lat.ToString( "F6" )} {refLat}, Lon: {lng.ToString( "F6" )} {refLng}";
+            tsInfo.Text = $"{lat.ToString( "F6" )} {refLat}, {lng.ToString( "F6" )} {refLng}";
             //tsInfo.ToolTipText = $"Lat: {lat.ToString( "F6" )} {refLat} \nLon: {lng.ToString( "F6" )} {refLng}";
-            tsInfo.ToolTipText = $"Lat: {lat.ToString( " #0.000000" )} {refLat} \nLon: {lng.ToString( "##0.000000" )} {refLng}";
+            tsInfo.ToolTipText = $"Lat:  {lat.ToString( "#0.000000" ), 10} {refLat} \nLon: {lng.ToString( "##0.000000" ), 10} {refLng}";
 
             if ( mouse_down && currentMarker != null )
             {

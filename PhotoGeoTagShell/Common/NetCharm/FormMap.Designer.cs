@@ -75,6 +75,7 @@
             this.gMap.MarkersEnabled = true;
             this.gMap.MaxZoom = 18;
             this.gMap.MinZoom = 0;
+            this.gMap.MouseWheelZoomEnabled = true;
             this.gMap.MouseWheelZoomType = GMap.NET.MouseWheelZoomType.MousePositionAndCenter;
             this.gMap.Name = "gMap";
             this.gMap.NegativeMode = false;
@@ -183,7 +184,7 @@
             this.tsInfo.BorderStyle = System.Windows.Forms.Border3DStyle.SunkenOuter;
             this.tsInfo.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.tsInfo.Name = "tsInfo";
-            this.tsInfo.Size = new System.Drawing.Size(199, 17);
+            this.tsInfo.Size = new System.Drawing.Size(221, 17);
             this.tsInfo.Spring = true;
             this.tsInfo.Text = "OK";
             // 
@@ -205,7 +206,7 @@
             this.tsbtnFunction.Image = ((System.Drawing.Image)(resources.GetObject("tsbtnFunction.Image")));
             this.tsbtnFunction.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbtnFunction.Name = "tsbtnFunction";
-            this.tsbtnFunction.Size = new System.Drawing.Size(51, 20);
+            this.tsbtnFunction.Size = new System.Drawing.Size(60, 20);
             this.tsbtnFunction.Text = "RESET";
             this.tsbtnFunction.ToolTipText = "Switch Shift Map On / Off";
             this.tsbtnFunction.ButtonClick += new System.EventHandler(this.tsmiResetMap_Click);
@@ -213,7 +214,7 @@
             // tsmiResetMap
             // 
             this.tsmiResetMap.Name = "tsmiResetMap";
-            this.tsmiResetMap.Size = new System.Drawing.Size(154, 22);
+            this.tsmiResetMap.Size = new System.Drawing.Size(179, 22);
             this.tsmiResetMap.Text = "Reset Map";
             this.tsmiResetMap.ToolTipText = "Reset Map View";
             this.tsmiResetMap.Click += new System.EventHandler(this.tsmiResetMap_Click);
@@ -221,26 +222,26 @@
             // tsmiShiftMap
             // 
             this.tsmiShiftMap.Name = "tsmiShiftMap";
-            this.tsmiShiftMap.Size = new System.Drawing.Size(154, 22);
-            this.tsmiShiftMap.Text = "Shift Map";
+            this.tsmiShiftMap.Size = new System.Drawing.Size(179, 22);
+            this.tsmiShiftMap.Text = "Adjust China Map";
             this.tsmiShiftMap.Click += new System.EventHandler(this.tsmiShiftMap_Click);
             // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(151, 6);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(176, 6);
             // 
             // tsmiImportGPXKML
             // 
             this.tsmiImportGPXKML.Name = "tsmiImportGPXKML";
-            this.tsmiImportGPXKML.Size = new System.Drawing.Size(154, 22);
+            this.tsmiImportGPXKML.Size = new System.Drawing.Size(179, 22);
             this.tsmiImportGPXKML.Text = "Import GPX/KML";
             this.tsmiImportGPXKML.Click += new System.EventHandler(this.tsmiImportGPXKML_Click);
             // 
             // tsmiExportGPXKML
             // 
             this.tsmiExportGPXKML.Name = "tsmiExportGPXKML";
-            this.tsmiExportGPXKML.Size = new System.Drawing.Size(154, 22);
+            this.tsmiExportGPXKML.Size = new System.Drawing.Size(179, 22);
             this.tsmiExportGPXKML.Text = "Export GPX/KML";
             this.tsmiExportGPXKML.Click += new System.EventHandler(this.tsmiExportGPXKML_Click);
             // 
@@ -251,7 +252,7 @@
             this.trackZoom.LargeChange = 2;
             this.trackZoom.Location = new System.Drawing.Point(123, 455);
             this.trackZoom.Name = "trackZoom";
-            this.trackZoom.Size = new System.Drawing.Size(171, 42);
+            this.trackZoom.Size = new System.Drawing.Size(171, 45);
             this.trackZoom.TabIndex = 4;
             this.trackZoom.TickStyle = System.Windows.Forms.TickStyle.Both;
             this.toolTip.SetToolTip(this.trackZoom, "Change Map Zoom Level");
@@ -365,7 +366,7 @@
             this.DoubleBuffered = true;
             this.MinimumSize = new System.Drawing.Size(640, 480);
             this.Name = "FormMap";
-            this.Text = "Maps";
+            this.Text = "Map Viewer";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormMap_FormClosing);
             this.Load += new System.EventHandler(this.FormMap_Load);
             this.status.ResumeLayout(false);
