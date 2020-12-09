@@ -566,6 +566,48 @@ namespace NetCharm
         }
 
         /// <summary>
+        /// GetLatitudeRef
+        /// </summary>
+        /// <param name="img"></param>
+        /// <param name="Ref"></param>
+        /// <returns></returns>
+        public static char GetLatitudeRef(Image img, char Ref='N')
+        {
+            char latRef = Ref;
+
+            foreach (PropertyItem metaItem in img.PropertyItems)
+            {
+                if (metaItem.Id == PropertyTagGpsLatitudeRef)
+                {
+                    latRef = BitConverter.ToChar(metaItem.Value, 0);
+                }
+            }
+
+            return (latRef);
+        }
+
+        /// <summary>
+        /// GetLongitudeRef
+        /// </summary>
+        /// <param name="img"></param>
+        /// <param name="Ref"></param>
+        /// <returns></returns>
+        public static char GetLongitudeRef(Image img, char Ref = 'E')
+        {
+            char lngRef = Ref;
+
+            foreach (PropertyItem metaItem in img.PropertyItems)
+            {
+                if (metaItem.Id == PropertyTagGpsLongitudeRef)
+                {
+                    lngRef = BitConverter.ToChar(metaItem.Value, 0);
+                }
+            }
+
+            return (lngRef);
+        }
+
+        /// <summary>
         /// Get GeoTag Lat&Lng
         /// </summary>
         /// <param name="img"></param>
@@ -610,7 +652,7 @@ namespace NetCharm
         }
 
         /// <summary>
-        /// 
+        /// GetEncoder
         /// </summary>
         /// <param name="format"></param>
         /// <returns></returns>
@@ -774,7 +816,7 @@ namespace NetCharm
                     GpsCoordinate glat = new GpsCoordinate(GpsCoordinate.LatOrLons.Latitude, lat);
                     GpsCoordinate glng = new GpsCoordinate(GpsCoordinate.LatOrLons.Longitude, lng);
 
-                    ulong factor = 10000000;
+                    //ulong factor = 10000000;
                     ulong[] ulat = new ulong[3] {
                         Convert.ToUInt64( glat.Degrees ) + 0x0000000100000000L,
                         Convert.ToUInt64( glat.Minutes ) + 0x0000000100000000L,
