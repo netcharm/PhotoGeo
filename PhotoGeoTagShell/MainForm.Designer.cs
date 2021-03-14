@@ -214,7 +214,7 @@
             // 
             this.tsmiUsingProxy.CheckOnClick = true;
             this.tsmiUsingProxy.Name = "tsmiUsingProxy";
-            this.tsmiUsingProxy.Size = new System.Drawing.Size(152, 22);
+            this.tsmiUsingProxy.Size = new System.Drawing.Size(145, 22);
             this.tsmiUsingProxy.Text = "Using Proxy";
             this.tsmiUsingProxy.Click += new System.EventHandler(this.tsmiUsingProxy_Click);
             // 
@@ -284,7 +284,6 @@
             // 
             // tsmiTouchMeta
             // 
-            this.tsmiTouchMeta.Enabled = false;
             this.tsmiTouchMeta.Name = "tsmiTouchMeta";
             this.tsmiTouchMeta.Size = new System.Drawing.Size(232, 22);
             this.tsmiTouchMeta.Text = "Touch Metadata";
@@ -293,7 +292,6 @@
             // 
             // tsmiTouchMetaRecursion
             // 
-            this.tsmiTouchMetaRecursion.Enabled = false;
             this.tsmiTouchMetaRecursion.Name = "tsmiTouchMetaRecursion";
             this.tsmiTouchMetaRecursion.Size = new System.Drawing.Size(232, 22);
             this.tsmiTouchMetaRecursion.Text = "Touch Metadata Recursion";

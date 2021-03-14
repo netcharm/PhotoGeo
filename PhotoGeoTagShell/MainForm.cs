@@ -47,7 +47,7 @@ namespace PhotoGeoTagShell
             Configuration config = ConfigurationManager.OpenExeConfiguration(Application.ExecutablePath);
 
             KeyValueConfigurationElement element = new KeyValueConfigurationElement("lastVisitedFolder", tscbVistedFolder.Text);
-            config.AppSettings.Settings.Add( element );
+            config.AppSettings.Settings.Add(element);
 
             //foreach ( SettingsProperty property in Properties.Settings.Default.Properties)
             //{
@@ -61,28 +61,28 @@ namespace PhotoGeoTagShell
         {
             Configuration config = ConfigurationManager.OpenExeConfiguration(Application.ExecutablePath);
 
-            foreach ( string key in config.AppSettings.Settings.AllKeys )
+            foreach (string key in config.AppSettings.Settings.AllKeys)
             {
-                if ( appSettings.ContainsKey( key ) )
+                if (appSettings.ContainsKey(key))
                     appSettings[key] = config.AppSettings.Settings[key].Value.ToString();
                 else
-                    appSettings.Add( key, config.AppSettings.Settings[key].Value.ToString() );
+                    appSettings.Add(key, config.AppSettings.Settings[key].Value.ToString());
             }
 
             #region Last Visted Folder History
-            if ( appSettings.ContainsKey( "lastVisitedFolder" ) )
+            if (appSettings.ContainsKey("lastVisitedFolder"))
                 tscbVistedFolder.Text = appSettings["lastVisitedFolder"].ToString();
-            else appSettings.Add( "lastVisitedFolder", AppFolder );
-        
+            else appSettings.Add("lastVisitedFolder", AppFolder);
+
             tscbVistedFolder.Items.Clear();
-            if ( appSettings.ContainsKey( "folderHistory" ) )
+            if (appSettings.ContainsKey("folderHistory"))
             {
                 string historyFolder = appSettings["folderHistory"].ToString();
-                tscbVistedFolder.Items.AddRange( historyFolder.Split( Path.PathSeparator ) );
+                tscbVistedFolder.Items.AddRange(historyFolder.Split(Path.PathSeparator));
             }
             else
             {
-                appSettings.Add( "folderHistory", "" );
+                appSettings.Add("folderHistory", "");
             }
             #endregion
 
@@ -179,9 +179,9 @@ namespace PhotoGeoTagShell
         private void configSave()
         {
             #region Last Visted Folder History
-            if ( appSettings.ContainsKey( "lastVisitedFolder" ) )
+            if (appSettings.ContainsKey("lastVisitedFolder"))
                 appSettings["lastVisitedFolder"] = tscbVistedFolder.Text;
-            else appSettings.Add( "lastVisitedFolder", AppFolder );
+            else appSettings.Add("lastVisitedFolder", AppFolder);
 
             List<string> folders = new List<string>();
             int count = 0;
@@ -206,9 +206,9 @@ namespace PhotoGeoTagShell
                 lastLat = MapViewer.lastLat;
                 lastLon = MapViewer.lastLon;
             }
-            if ( appSettings.ContainsKey( "lastMapProvider" ) )
+            if (appSettings.ContainsKey("lastMapProvider"))
                 appSettings["lastMapProvider"] = lastMapProvider;
-            else appSettings.Add( "lastMapProvider", "GoogleCnMap" );
+            else appSettings.Add("lastMapProvider", "GoogleCnMap");
             if (appSettings.ContainsKey("lastLat"))
                 appSettings["lastLat"] = $"{lastLat:F6}";
             else appSettings.Add("lastLat", $"{lastLat:F6}");
@@ -243,54 +243,54 @@ namespace PhotoGeoTagShell
 
             Configuration config = ConfigurationManager.OpenExeConfiguration(Application.ExecutablePath);
 
-            foreach ( string k in appSettings.Keys )
+            foreach (string k in appSettings.Keys)
             {
-                if ( config.AppSettings.Settings.AllKeys.Contains( k ) )
+                if (config.AppSettings.Settings.AllKeys.Contains(k))
                     config.AppSettings.Settings[k].Value = appSettings[k].ToString();
                 else
-                    config.AppSettings.Settings.Add( k, appSettings[k].ToString() );
+                    config.AppSettings.Settings.Add(k, appSettings[k].ToString());
             }
 
             config.Save();
         }
 
-        private int getTotalPhotos( ShellObjectCollection items )
+        private int getTotalPhotos(ShellObjectCollection items)
         {
             int total = 0;
 
 
             IEnumerable<ShellObject> fileinfos  = items.Where( f => (
-                    f.IsFileSystemObject && 
+                    f.IsFileSystemObject &&
                     !f.IsLink &&
                     EXIF.PhotoExts.Contains( Path.GetExtension(f.Name), StringComparer.CurrentCultureIgnoreCase )
                     ) );
             total = fileinfos.Count();
-            return ( total );
+            return (total);
         }
 
-        private int getTotalPhotos( string folder )
+        private int getTotalPhotos(string folder)
         {
             DirectoryInfo di = new DirectoryInfo(folder);
             IEnumerable<FileInfo> fileinfos  = di.EnumerateFiles().Where( f => EXIF.PhotoExts.Contains( f.Extension, StringComparer.CurrentCultureIgnoreCase ) );
-            return ( fileinfos.Count() );
+            return (fileinfos.Count());
         }
 
-        private void ShowSelectedImage(bool force=false)
+        private void ShowSelectedImage(bool force = false)
         {
             #region detect selection items is same or not
-            if ( !force && lastSelections.Count == explorerBrowser.SelectedItems.Count )
+            if (!force && lastSelections.Count == explorerBrowser.SelectedItems.Count)
             {
                 bool diff = false;
-                foreach ( ShellObject item in explorerBrowser.SelectedItems )
+                foreach (ShellObject item in explorerBrowser.SelectedItems)
                 {
-                    if ( !item.IsFileSystemObject || item.IsLink ) continue;
+                    if (!item.IsFileSystemObject || item.IsLink) continue;
                     //if ( !lastSelections.Contains( item.ParsingName ) )
                     string dp = item.ParsingName;
                     string ext = Path.GetExtension(dp);
-                    if ( File.GetAttributes( dp ).HasFlag( FileAttributes.Directory ) ) continue;
-                    if ( EXIF.PhotoExts.Contains( ext, StringComparer.CurrentCultureIgnoreCase ) )
+                    if (File.GetAttributes(dp).HasFlag(FileAttributes.Directory)) continue;
+                    if (EXIF.PhotoExts.Contains(ext, StringComparer.CurrentCultureIgnoreCase))
                     {
-                        if ( !lastSelections.Contains( item.Name ) )
+                        if (!lastSelections.Contains(item.Name))
                         {
                             diff = true;
                             selection_changed = true;
@@ -298,7 +298,7 @@ namespace PhotoGeoTagShell
                         }
                     }
                 }
-                if ( !diff )
+                if (!diff)
                 {
                     selection_changed = false;
                     return;
@@ -308,84 +308,84 @@ namespace PhotoGeoTagShell
             #endregion
             //lock ( explorerBrowser.SelectedItems )
             {
-                BeginInvoke( new MethodInvoker( delegate ()
-                {
+                BeginInvoke(new MethodInvoker(delegate ()
+              {
                     #region get properties
-                    if ( !force && !selection_changed ) return;
-                    tsFilesSelected.Text = $"Selected: 0";
-                    selection_changed = false;
+                    if (!force && !selection_changed) return;
+                  tsFilesSelected.Text = $"Selected: 0";
+                  selection_changed = false;
 
-                    List<KeyValuePair<Image, string>> imgs = new List<KeyValuePair<Image, string>>();
-                    try
-                    {
-                        lastSelections.Clear();
-                        foreach ( ShellObject item in explorerBrowser.SelectedItems )
-                        {
-                            if ( !item.IsFileSystemObject || item.IsLink ) continue;
-                            if ( lastSelections.Contains( item.Name ) ) continue;
+                  List<KeyValuePair<Image, string>> imgs = new List<KeyValuePair<Image, string>>();
+                  try
+                  {
+                      lastSelections.Clear();
+                      foreach (ShellObject item in explorerBrowser.SelectedItems)
+                      {
+                          if (!item.IsFileSystemObject || item.IsLink) continue;
+                          if (lastSelections.Contains(item.Name)) continue;
 
                             #region get property
                             string dn = item.Name;
-                            string dp = item.ParsingName;
-                            string ext = Path.GetExtension(dp);
-                            if ( !File.GetAttributes( dp ).HasFlag( FileAttributes.Directory ) )
-                            {
-                                if ( EXIF.PhotoExts.Contains( ext, StringComparer.CurrentCultureIgnoreCase ) )
-                                {
-                                    lastSelections.Add( item.Name );
+                          string dp = item.ParsingName;
+                          string ext = Path.GetExtension(dp);
+                          if (!File.GetAttributes(dp).HasFlag(FileAttributes.Directory))
+                          {
+                              if (EXIF.PhotoExts.Contains(ext, StringComparer.CurrentCultureIgnoreCase))
+                              {
+                                  lastSelections.Add(item.Name);
 
-                                    Image thumb = new Bitmap(item.Thumbnail.MediumBitmap);
-                                    ShellPropertyCollection props = item.Properties.DefaultPropertyCollection;
+                                  Image thumb = new Bitmap(item.Thumbnail.MediumBitmap);
+                                  ShellPropertyCollection props = item.Properties.DefaultPropertyCollection;
 
-                                    Dictionary<string, string> properties = new Dictionary<string, string>();
+                                  Dictionary<string, string> properties = new Dictionary<string, string>();
                                     //if (props.Contains( "System.Artist" ))
                                     //{
 
                                     //}
 
-                                    for ( int i = 0; i < props.Count; i++ )
-                                    {
-                                        if ( props[i].CanonicalName == null ) continue;
-                                        string key = props[i].CanonicalName.Replace("System.", "");
-                                        string value = "";
+                                    for (int i = 0; i < props.Count; i++)
+                                  {
+                                      if (props[i].CanonicalName == null) continue;
+                                      string key = props[i].CanonicalName.Replace("System.", "");
+                                      string value = "";
 
                                         //if ( !key.StartsWith( "Date" ) && !key.StartsWith( "Photo.Date" ) && !key.StartsWith( "ItemPathDisplay" ) ) continue;
-                                        if ( !key.StartsWith( "Photo.Date" ) && !key.StartsWith( "ItemPathDisplay" ) ) continue;
+                                        if (!key.StartsWith("Photo.Date") && !key.StartsWith("ItemPathDisplay")) continue;
 
-                                        object objValue = props[i].ValueAsObject;
+                                      object objValue = props[i].ValueAsObject;
                                         //object objValue = new object();
                                         //continue;
 
-                                        if ( objValue != null )
-                                        {
-                                            if ( props[i].ValueType == typeof( string[] ) )
-                                            {
-                                                value = string.Join( " ; ", (string[]) objValue );
-                                            }
-                                            else if ( props[i].ValueType == typeof( uint[] ) )
-                                            {
-                                                value = string.Join( " , ", (uint[]) objValue );
-                                            }
-                                            else if ( props[i].ValueType == typeof( double[] ) )
-                                            {
-                                                value = string.Join( " , ", (double[]) objValue );
-                                            }
-                                            else
-                                            {
-                                                value = objValue.ToString();
-                                            }
-                                        }
-                                        properties.Add( key, value );
-                                    }
+                                        if (objValue != null)
+                                      {
+                                          if (props[i].ValueType == typeof(string[]))
+                                          {
+                                              value = string.Join(" ; ", (string[])objValue);
+                                          }
+                                          else if (props[i].ValueType == typeof(uint[]))
+                                          {
+                                              value = string.Join(" , ", (uint[])objValue);
+                                          }
+                                          else if (props[i].ValueType == typeof(double[]))
+                                          {
+                                              value = string.Join(" , ", (double[])objValue);
+                                          }
+                                          else
+                                          {
+                                              value = objValue.ToString();
+                                          }
+                                      }
+                                      properties.Add(key, value);
+                                  }
                                     //properties.Add( "Artist", properties.ContainsKey( "Author" ) ? properties["Author"] : "" );
                                     //properties.Add( "Copyright", properties.ContainsKey( "Copyright" ) ? properties["Copyright"] : "" );
                                     //properties.Add( "ImageDescription", properties.ContainsKey( "Subject" ) ? properties["Subject"] : "" );
                                     //properties.Add( "Software", properties.ContainsKey( "ApplicationName" ) ? properties["ApplicationName"] : "" );
-                                    properties.Add( "FileSize", properties.ContainsKey( "Size" ) ? properties["Size"] : "" );
+                                    properties.Add("FileSize", properties.ContainsKey("Size") ? properties["Size"] : "");
                                     //properties.Add( "FileName", properties.ContainsKey( "ItemPathDisplay" ) ? properties["ItemPathDisplay"] : "" );
-                                    properties.Add( "FilePath", properties.ContainsKey( "ItemPathDisplay" ) ? properties["ItemPathDisplay"] : "" );
-                                    properties.Add( "FolderName", properties.ContainsKey( "ItemFolderPathDisplay" ) ? properties["ItemFolderPathDisplay"] : "" );
-                                    properties.Add( "FileType", properties.ContainsKey( "ItemTypeText" ) ? properties["ItemTypeText"] : "" );
+                                    properties.Add("FilePath", properties.ContainsKey("ItemPathDisplay") ? properties["ItemPathDisplay"] : "");
+                                  properties.Add("FolderName", properties.ContainsKey("ItemFolderPathDisplay") ? properties["ItemFolderPathDisplay"] : "");
+                                  properties.Add("FileType", properties.ContainsKey("ItemTypeText") ? properties["ItemTypeText"] : "");
                                     //properties.Add( "Dimensions", properties.ContainsKey( "Image.Dimensions" ) ? properties["Image.Dimensions"] : "" );
                                     //properties.Add( "Resolution", properties.ContainsKey( "Image.HorizontalResolution" ) && properties.ContainsKey( "Image.VerticalResolution" ) ? $"{properties["Image.HorizontalResolution"]} x {properties["Image.VerticalResolution"]}" : "" );
                                     //properties.Add( "EquipmentModel", properties.ContainsKey( "Photo.CameraModel" ) ? properties["Photo.CameraModel"] : "" );
@@ -394,7 +394,7 @@ namespace PhotoGeoTagShell
                                     //properties.Add( "FocalLength", properties.ContainsKey( "Photo.FocalLength" ) ? properties["Photo.FocalLength"] : "" );
                                     //properties.Add( "ISOSpeed", properties.ContainsKey( "Photo.ISOSpeed" ) ? properties["Photo.ISOSpeed"] : "" );
                                     //properties.Add( "ImageDescription", properties.ContainsKey( "Title" ) ? properties["Title"] : "" );
-                                    properties.Add( "DateTaken", properties.ContainsKey( "Photo.DateTaken" ) ? properties["Photo.DateTaken"] : "" );
+                                    properties.Add("DateTaken", properties.ContainsKey("Photo.DateTaken") ? properties["Photo.DateTaken"] : "");
                                     //properties.Add( "Rating", "" );
                                     //properties.Add( "StarRating", "" );
                                     //properties.Add( "UserComment", "" );
@@ -403,25 +403,25 @@ namespace PhotoGeoTagShell
                                     //{
                                     //    thumb.Tag = item.Properties.DefaultPropertyCollection;
                                     //}
-                                    imgs.Add( new KeyValuePair<Image, string>( thumb, dp ) );
-                                }
-                            }
+                                    imgs.Add(new KeyValuePair<Image, string>(thumb, dp));
+                              }
+                          }
                             #endregion
                         }
-                    }
-                    catch { };
-                    tsFilesSelected.Text = $"Selected: {imgs.Count}";
+                  }
+                  catch { };
+                  tsFilesSelected.Text = $"Selected: {imgs.Count}";
 
-                    try
-                    {
-                        if ( MapViewer != null && MapViewer.Visible )
-                        {
-                            MapViewer.ShowImage( imgs );
-                        }
-                    }
-                    catch { };
+                  try
+                  {
+                      if (MapViewer != null && MapViewer.Visible)
+                      {
+                          MapViewer.ShowImage(imgs);
+                      }
+                  }
+                  catch { };
                     #endregion
-                } ) );
+                }));
             }
         }
 
@@ -429,10 +429,10 @@ namespace PhotoGeoTagShell
         {
             InitializeComponent();
             Application.EnableVisualStyles();
-            Icon = Icon.ExtractAssociatedIcon( Application.ExecutablePath );
+            Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
         }
 
-        private void MainForm_Load( object sender, EventArgs e )
+        private void MainForm_Load(object sender, EventArgs e)
         {
             //
             configLoad();
@@ -444,36 +444,36 @@ namespace PhotoGeoTagShell
             //    "Cache"
             //    );
             CacheFolder = AppFolder + Path.DirectorySeparatorChar + "Cache";
-            if ( !Directory.Exists( CacheFolder ) )
-                Directory.CreateDirectory( CacheFolder );
+            if (!Directory.Exists(CacheFolder))
+                Directory.CreateDirectory(CacheFolder);
 
             //string lastVisited = Properties.Settings.Default.lastVisitedFolder;
             string lastVisited = appSettings["lastVisitedFolder"];
-            if ( string.IsNullOrEmpty( lastVisited ) ) lastVisited = AppFolder;
+            if (string.IsNullOrEmpty(lastVisited)) lastVisited = AppFolder;
 
             string[] args = Common.ParseCommandLine( Environment.CommandLine );
-            if ( args.Length > 0 )
+            if (args.Length > 0)
             {
-                if ( Directory.Exists( args[0] ) )
+                if (Directory.Exists(args[0]))
                 {
                     lastVisited = args[0];
                 }
-                else if ( File.Exists( args[0] ) )
+                else if (File.Exists(args[0]))
                 {
                     lastVisited = Path.GetDirectoryName(args[0]);
                 }
             }
-            lastVisited = Path.GetFullPath( lastVisited );
+            lastVisited = Path.GetFullPath(lastVisited);
 
             // setting KnownFolder
             List<string> knownFolderList = new List<string>();
-            foreach ( IKnownFolder folder in KnownFolders.All )
+            foreach (IKnownFolder folder in KnownFolders.All)
             {
-                knownFolderList.Add( folder.CanonicalName );
+                knownFolderList.Add(folder.CanonicalName);
                 //knownFolderList.Add( string.IsNullOrEmpty(folder.LocalizedName) ? folder.CanonicalName : folder.LocalizedName );
             }
             knownFolderList.Sort();
-            tscbKnownFolder.Items.AddRange( knownFolderList.ToArray() );
+            tscbKnownFolder.Items.AddRange(knownFolderList.ToArray());
 
             // setting explorerBrowser
             explorerBrowser.ContentOptions.AutoArrange = true;
@@ -485,27 +485,27 @@ namespace PhotoGeoTagShell
             explorerBrowser.NavigationOptions.PaneVisibility.AdvancedQuery = PaneVisibilityState.Show;
             explorerBrowser.NavigationOptions.PaneVisibility.Query = PaneVisibilityState.Show;
 
-            if(Directory.Exists( lastVisited ))
-                explorerBrowser.Navigate( ShellFileSystemFolder.FromFolderPath( lastVisited ) );
+            if (Directory.Exists(lastVisited))
+                explorerBrowser.Navigate(ShellFileSystemFolder.FromFolderPath(lastVisited));
 
             //ShellSearchConnector shellSearch = new ShellSearchConnector(ShellFileSystemFolder.FromFolderPath( lastVisited ));
             //shellSearch.
 
             lastVisitedFolders.Clear();
             tscbVistedFolder.Items.Clear();
-            if ( appSettings.ContainsKey( "folderHistory" ) )
+            if (appSettings.ContainsKey("folderHistory"))
             {
                 string historyFolder = appSettings["folderHistory"].ToString();
-                lastVisitedFolders.AddRange( historyFolder.Split( Path.PathSeparator ) );
-                tscbVistedFolder.Items.AddRange( historyFolder.Split( Path.PathSeparator ) );
+                lastVisitedFolders.AddRange(historyFolder.Split(Path.PathSeparator));
+                tscbVistedFolder.Items.AddRange(historyFolder.Split(Path.PathSeparator));
             }
             else
             {
-                appSettings.Add( "folderHistory", "" );
+                appSettings.Add("folderHistory", "");
             }
         }
 
-        private void MainForm_FormClosing( object sender, FormClosingEventArgs e )
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             configSave();
         }
@@ -515,7 +515,7 @@ namespace PhotoGeoTagShell
             //FormMap fm = (FormMap)Application.OpenForms[MapViewer.Text];
             if (tsbtnMapView.DropDownButtonPressed) return;
 
-            if(MapViewer != null)
+            if (MapViewer != null)
             {
                 lastMapProvider = MapViewer.lastMapProvider;
                 lastLat = MapViewer.lastLat;
@@ -529,7 +529,7 @@ namespace PhotoGeoTagShell
             {
                 if (MapViewer == null) { MapViewer = new FormMap(); }
                 else if (MapViewer.Visible) { MapViewer.Activate(); }
-                else { MapViewer = new FormMap();                }
+                else { MapViewer = new FormMap(); }
             }
             catch
             {
@@ -559,7 +559,7 @@ namespace PhotoGeoTagShell
             proxyOn = tsmiUsingProxy.Checked;
         }
 
-        private void tscbKnownFolder_SelectedIndexChanged( object sender, EventArgs e )
+        private void tscbKnownFolder_SelectedIndexChanged(object sender, EventArgs e)
         {
             try
             {
@@ -568,42 +568,42 @@ namespace PhotoGeoTagShell
                 IKnownFolder kf = KnownFolderHelper.FromCanonicalName( cName );
                 //IKnownFolder kf = KnownFolderHelper.FromParsingName(cName);
 
-                explorerBrowser.Navigate( (ShellObject) kf );
+                explorerBrowser.Navigate((ShellObject)kf);
             }
-            catch ( COMException )
+            catch (COMException)
             {
-                MessageBox.Show( "Navigation not possible." );
+                MessageBox.Show("Navigation not possible.");
             }
         }
 
-        private void tscbVistedFolder_SelectedIndexChanged( object sender, EventArgs e )
+        private void tscbVistedFolder_SelectedIndexChanged(object sender, EventArgs e)
         {
             // navigating to specific index in navigation log
-            explorerBrowser.NavigateLogLocation( tscbVistedFolder.Items.Count - tscbVistedFolder.SelectedIndex - 1 );
+            explorerBrowser.NavigateLogLocation(tscbVistedFolder.Items.Count - tscbVistedFolder.SelectedIndex - 1);
         }
 
-        private void tscbVistedFolder_KeyPress( object sender, KeyPressEventArgs e )
+        private void tscbVistedFolder_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if ( e.KeyChar == Convert.ToChar( Keys.Enter ) )
+            if (e.KeyChar == Convert.ToChar(Keys.Enter))
             {
                 tsbtnGo.PerformClick();
             }
         }
 
-        private void tsbtnGo_Click( object sender, EventArgs e )
+        private void tsbtnGo_Click(object sender, EventArgs e)
         {
-            if ( lastVisitedFolders.Count > 0 && !tscbVistedFolder.Text.Equals( lastVisitedFolders[0], StringComparison.CurrentCultureIgnoreCase ) )
+            if (lastVisitedFolders.Count > 0 && !tscbVistedFolder.Text.Equals(lastVisitedFolders[0], StringComparison.CurrentCultureIgnoreCase))
             {
                 string target = tscbVistedFolder.Text;
-                if ( !File.GetAttributes( target ).HasFlag( FileAttributes.Directory ) )
+                if (!File.GetAttributes(target).HasFlag(FileAttributes.Directory))
                 {
-                    target = Path.GetDirectoryName( target );
+                    target = Path.GetDirectoryName(target);
                 }
-                explorerBrowser.Navigate( ShellFileSystemFolder.FromFolderPath( target ) );
+                explorerBrowser.Navigate(ShellFileSystemFolder.FromFolderPath(target));
             }
         }
 
-        private void tsbtnTouch_Click( object sender, EventArgs e )
+        private void tsbtnTouch_Click(object sender, EventArgs e)
         {
             string folder = tscbVistedFolder.Text;
             //EXIF.TouchPhoto( folder, "", SearchOption.TopDirectoryOnly );
@@ -611,20 +611,20 @@ namespace PhotoGeoTagShell
             tsProgress.Maximum = 100;
             KeyValuePair<string, SearchOption> args = new KeyValuePair<string, SearchOption>(folder, SearchOption.TopDirectoryOnly);
             Cursor = Cursors.WaitCursor;
-            bgwTouchTime.RunWorkerAsync( args );
+            bgwTouchTime.RunWorkerAsync(args);
         }
 
-        private void tsmiTouchRecursion_Click( object sender, EventArgs e )
+        private void tsmiTouchRecursion_Click(object sender, EventArgs e)
         {
             string folder = tscbVistedFolder.Text;
             tsProgress.Minimum = 0;
             tsProgress.Maximum = 100;
             KeyValuePair<string, SearchOption> args = new KeyValuePair<string, SearchOption>(folder, SearchOption.AllDirectories);
             Cursor = Cursors.WaitCursor;
-            bgwTouchTime.RunWorkerAsync( args );
+            bgwTouchTime.RunWorkerAsync(args);
         }
 
-        private void tsmiTouchMeta_Click( object sender, EventArgs e )
+        private void tsmiTouchMeta_Click(object sender, EventArgs e)
         {
             //
             string folder = tscbVistedFolder.Text;
@@ -632,10 +632,10 @@ namespace PhotoGeoTagShell
             tsProgress.Maximum = 100;
             KeyValuePair<string, SearchOption> args = new KeyValuePair<string, SearchOption>(folder, SearchOption.TopDirectoryOnly);
             Cursor = Cursors.WaitCursor;
-            bgwTouchMeta.RunWorkerAsync( args );
+            bgwTouchMeta.RunWorkerAsync(args);
         }
 
-        private void tsmiTouchMetaRecursion_Click( object sender, EventArgs e )
+        private void tsmiTouchMetaRecursion_Click(object sender, EventArgs e)
         {
             //
             string folder = tscbVistedFolder.Text;
@@ -643,61 +643,61 @@ namespace PhotoGeoTagShell
             tsProgress.Maximum = 100;
             KeyValuePair<string, SearchOption> args = new KeyValuePair<string, SearchOption>(folder, SearchOption.AllDirectories);
             Cursor = Cursors.WaitCursor;
-            bgwTouchMeta.RunWorkerAsync( args );
+            bgwTouchMeta.RunWorkerAsync(args);
         }
 
-        private void explorerBrowser_NavigationComplete( object sender, NavigationCompleteEventArgs e )
+        private void explorerBrowser_NavigationComplete(object sender, NavigationCompleteEventArgs e)
         {
-            BeginInvoke( new MethodInvoker( delegate ()
-            {
+            BeginInvoke(new MethodInvoker(delegate ()
+          {
                 //lastVisitedFolders.Insert(0, e.NewLocation.ParsingName );
                 lastVisitedFolders.Clear();
-                foreach ( ShellObject location in explorerBrowser.NavigationLog.Locations )
-                {
-                    lastVisitedFolders.Add( location.ParsingName );
-                }
-                lastVisitedFolders.Reverse();
+              foreach (ShellObject location in explorerBrowser.NavigationLog.Locations)
+              {
+                  lastVisitedFolders.Add(location.ParsingName);
+              }
+              lastVisitedFolders.Reverse();
 
-                tscbVistedFolder.Items.Clear();
-                tscbVistedFolder.Items.AddRange( lastVisitedFolders.ToArray() );
-                tscbVistedFolder.Text = explorerBrowser.NavigationLog.CurrentLocation.ParsingName;
+              tscbVistedFolder.Items.Clear();
+              tscbVistedFolder.Items.AddRange(lastVisitedFolders.ToArray());
+              tscbVistedFolder.Text = explorerBrowser.NavigationLog.CurrentLocation.ParsingName;
 
-                explorerBrowser.Focus();
+              explorerBrowser.Focus();
                 //tsFilesTotal.Text = $"Total: {getTotalPhotos( e.NewLocation.ParsingName )}";
                 //tsFilesTotal.Text = $"Total: {getTotalPhotos( explorerBrowser.Items )}";
                 //tsFilesSelected.Text = $"Selected: {0}";
                 //ShowSelectedImage();
                 item_changed = false;
-            } ) );
+          }));
         }
 
-        private void explorerBrowser_ViewEnumerationComplete( object sender, EventArgs e )
+        private void explorerBrowser_ViewEnumerationComplete(object sender, EventArgs e)
         {
-            tsFilesTotal.Text = $"Total: {getTotalPhotos( explorerBrowser.Items )}";
+            tsFilesTotal.Text = $"Total: {getTotalPhotos(explorerBrowser.Items)}";
             tsFilesSelected.Text = $"Selected: {0}";
             ShowSelectedImage();
             item_changed = true;
         }
 
-        private void explorerBrowser_SelectionChanged( object sender, EventArgs e )
+        private void explorerBrowser_SelectionChanged(object sender, EventArgs e)
         {
             ShowSelectedImage();
         }
 
-        private void explorerBrowser_ItemsChanged( object sender, EventArgs e )
+        private void explorerBrowser_ItemsChanged(object sender, EventArgs e)
         {
-            if ( EXIF.IsTouching ) return;
-            if ( !item_changed ) return;
-            BeginInvoke( new MethodInvoker( delegate ()
-            {
-                int total = getTotalPhotos( explorerBrowser.Items );
-                int selected = getTotalPhotos( explorerBrowser.SelectedItems);
-                tsFilesTotal.Text = $"Total: {total}";
-                tsFilesSelected.Text = $"Selected: {selected}";
-            } ) );
+            if (EXIF.IsTouching) return;
+            if (!item_changed) return;
+            BeginInvoke(new MethodInvoker(delegate ()
+          {
+              int total = getTotalPhotos( explorerBrowser.Items );
+              int selected = getTotalPhotos( explorerBrowser.SelectedItems);
+              tsFilesTotal.Text = $"Total: {total}";
+              tsFilesSelected.Text = $"Selected: {selected}";
+          }));
         }
 
-        private void bgwTouchTime_DoWork( object sender, System.ComponentModel.DoWorkEventArgs e )
+        private void bgwTouchTime_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
             KeyValuePair<string, SearchOption> args = (KeyValuePair<string, SearchOption>)e.Argument;
             string folder = args.Key;
@@ -707,27 +707,27 @@ namespace PhotoGeoTagShell
             IEnumerable<FileInfo> fileinfos  = di.EnumerateFiles( "*", option ).Where( f => EXIF.PhotoExts.Contains( f.Extension, StringComparer.CurrentCultureIgnoreCase ) );
             int index = 0;
             int count = fileinfos.Count();
-            foreach ( FileInfo file in fileinfos )
+            foreach (FileInfo file in fileinfos)
             {
-                EXIF.TouchPhoto( $"{file.DirectoryName}{Path.DirectorySeparatorChar}{file.Name}", "" );
-                bgwTouchTime.ReportProgress( (int) Math.Round( ( index++ ) * 100f / count ) );
+                EXIF.TouchPhoto($"{file.DirectoryName}{Path.DirectorySeparatorChar}{file.Name}", "");
+                bgwTouchTime.ReportProgress((int)Math.Round((index++) * 100f / count));
             }
         }
 
-        private void bgwTouchTime_ProgressChanged( object sender, System.ComponentModel.ProgressChangedEventArgs e )
+        private void bgwTouchTime_ProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e)
         {
             tsProgress.Value = e.ProgressPercentage;
             tsInfo.Text = $"Touching file datetime {e.ProgressPercentage}%";
         }
 
-        private void bgwTouchTime_RunWorkerCompleted( object sender, System.ComponentModel.RunWorkerCompletedEventArgs e )
+        private void bgwTouchTime_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
         {
             tsProgress.Value = tsProgress.Maximum;
             Cursor = Cursors.Default;
             tsInfo.Text = $"Touching file(s) datetime 100%";
         }
 
-        private void bgwTouchMeta_DoWork( object sender, System.ComponentModel.DoWorkEventArgs e )
+        private void bgwTouchMeta_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
             KeyValuePair<string, SearchOption> args = (KeyValuePair<string, SearchOption>)e.Argument;
             string folder = args.Key;
@@ -737,20 +737,20 @@ namespace PhotoGeoTagShell
             IEnumerable<FileInfo> fileinfos  = di.EnumerateFiles( "*", option ).Where( f => EXIF.PhotoExts.Contains( f.Extension, StringComparer.CurrentCultureIgnoreCase ) );
             int index = 0;
             int count = fileinfos.Count();
-            foreach ( FileInfo file in fileinfos )
+            foreach (FileInfo file in fileinfos)
             {
-                EXIF.TouchPhoto( $"{file.DirectoryName}{Path.DirectorySeparatorChar}{file.Name}", "" );
-                bgwTouchMeta.ReportProgress( (int) Math.Round( ( index++ ) * 100f / count ) );
+                EXIF.TouchPhoto($"{file.DirectoryName}{Path.DirectorySeparatorChar}{file.Name}", "");
+                bgwTouchMeta.ReportProgress((int)Math.Round((index++) * 100f / count));
             }
         }
 
-        private void bgwTouchMeta_ProgressChanged( object sender, System.ComponentModel.ProgressChangedEventArgs e )
+        private void bgwTouchMeta_ProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e)
         {
             tsProgress.Value = e.ProgressPercentage;
             tsInfo.Text = $"Touching file datetime {e.ProgressPercentage}%";
         }
 
-        private void bgwTouchMeta_RunWorkerCompleted( object sender, System.ComponentModel.RunWorkerCompletedEventArgs e )
+        private void bgwTouchMeta_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
         {
             tsProgress.Value = tsProgress.Maximum;
             Cursor = Cursors.Default;

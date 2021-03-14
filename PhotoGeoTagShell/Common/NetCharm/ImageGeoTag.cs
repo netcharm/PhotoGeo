@@ -23,7 +23,7 @@ namespace NetCharm
     /// </summary>
 
     [Serializable]
-    [ComVisible( true )]
+    [ComVisible(true)]
     public struct PointD
     {
         public double X;
@@ -346,37 +346,37 @@ namespace NetCharm
         /// <param name="photo"></param>
         /// <param name="file"></param>
         /// <param name="touch"></param>
-        public static void TouchPhoto( Image photo, string file, string touch = "" )
+        public static void TouchPhoto(Image photo, string file, string touch = "")
         {
             FileInfo fi = new FileInfo( file );
             DateTime dt = fi.CreationTimeUtc.ToLocalTime();
 
-            if ( string.IsNullOrEmpty( touch ))
+            if (string.IsNullOrEmpty(touch))
             {
                 try
                 {
-                    if ( photo.PropertyIdList.Contains( EXIF.PropertyTagExifDTOrig ) ||
-                         photo.PropertyIdList.Contains( EXIF.PropertyTagExifDTDigitized ) ||
-                         photo.PropertyIdList.Contains( EXIF.PropertyTagDateTime ) )
+                    if (photo.PropertyIdList.Contains(EXIF.PropertyTagExifDTOrig) ||
+                        photo.PropertyIdList.Contains(EXIF.PropertyTagExifDTDigitized) ||
+                        photo.PropertyIdList.Contains(EXIF.PropertyTagDateTime))
                     {
                         PropertyItem dtOrigProp = photo.PropertyIdList.Contains( EXIF.PropertyTagExifDTOrig ) ? photo.GetPropertyItem( EXIF.PropertyTagExifDTOrig ) : null;
                         PropertyItem dtDigiProp = photo.PropertyIdList.Contains( EXIF.PropertyTagExifDTDigitized ) ? photo.GetPropertyItem( EXIF.PropertyTagExifDTDigitized ) : null;
                         PropertyItem dtExifProp = photo.PropertyIdList.Contains( EXIF.PropertyTagDateTime ) ? photo.GetPropertyItem( EXIF.PropertyTagDateTime ) : null;
 
                         PropertyItem DT = null;
-                        if      ( dtOrigProp != null ) DT = dtOrigProp;
-                        else if ( dtDigiProp != null ) DT = dtDigiProp;
-                        else if ( dtExifProp != null ) DT = dtExifProp;
-                        else                           DT = null;
+                        if (dtOrigProp != null) DT = dtOrigProp;
+                        else if (dtDigiProp != null) DT = dtDigiProp;
+                        else if (dtExifProp != null) DT = dtExifProp;
+                        else DT = null;
 
-                        if ( DT != null )
+                        if (DT != null)
                         {
                             ASCIIEncoding encode = new ASCIIEncoding();
                             string dateText = encode.GetString( DT.Value, 0, DT.Len - 1 );
 
-                            if ( !string.IsNullOrEmpty( dateText ) )
+                            if (!string.IsNullOrEmpty(dateText))
                             {
-                                if ( !DateTime.TryParseExact( dateText, "yyyy:MM:dd HH:mm:ss", CultureInfo.CurrentCulture, DateTimeStyles.None, out dt ) )
+                                if (!DateTime.TryParseExact(dateText, "yyyy:MM:dd HH:mm:ss", CultureInfo.CurrentCulture, DateTimeStyles.None, out dt))
                                 {
                                     return;
                                 }
@@ -384,16 +384,28 @@ namespace NetCharm
                             else return;
                         }
                     }
+                    if (photo.PropertyIdList.Contains(EXIF.PropertyTagImageTitle) ||
+                        photo.PropertyIdList.Contains(EXIF.PropertyTagExifXPTitle))
+                    {
+                        PropertyItem title = photo.PropertyIdList.Contains( EXIF.PropertyTagImageTitle ) ? photo.GetPropertyItem( EXIF.PropertyTagImageTitle ) : null;
+                        PropertyItem title_xp = photo.PropertyIdList.Contains( EXIF.PropertyTagExifXPTitle ) ? photo.GetPropertyItem( EXIF.PropertyTagExifXPTitle ) : null;
+
+                        if (title != null) { var t_title = Encoding.UTF8.GetString(title.Value); }
+                        if (title_xp != null) { var t_title_xp = Encoding.UTF32.GetString(title_xp.Value); }
+
+                    }
+                    else
+                    {
+                        AddProperty(photo, EXIF.PropertyTagImageTitle, 6, Encoding.UTF32.GetBytes(Path.GetFileName(file)));
+                        AddProperty(photo, EXIF.PropertyTagExifXPTitle, 6, Encoding.UTF32.GetBytes(Path.GetFileName(file)));
+                    }
                 }
                 catch { }
             }
             else
             {
-                if ( !DateTime.TryParse( touch, out dt ) ) return;
+                if (!DateTime.TryParse(touch, out dt)) return;
             }
-            fi.LastAccessTimeUtc = dt.ToUniversalTime();
-            fi.LastWriteTimeUtc = dt.ToUniversalTime();
-            fi.CreationTimeUtc = dt.ToUniversalTime();
         }
 
         /// <summary>
@@ -401,17 +413,28 @@ namespace NetCharm
         /// </summary>
         /// <param name="photo"></param>
         /// <param name="touch"></param>
-        public static void TouchPhoto(string photo, string touch="" )
+        public static void TouchPhoto(string photo, string touch = "")
         {
-            using ( FileStream fs = new FileStream( photo, FileMode.Open, FileAccess.Read ) )
+            try
             {
-                touching = true;
-                Image img = Image.FromStream( fs, true, true );
-                fs.Close();
-                TouchPhoto( img, photo, touch );
-                img.Dispose();
-                touching = false;
+                FileInfo fi = new FileInfo( photo );
+                DateTime dt = fi.CreationTimeUtc.ToLocalTime();
+                SetImageTitle_WPF(photo, Path.GetFileNameWithoutExtension(fi.Name), dt);
+                //using (MemoryStream ms = new MemoryStream(File.ReadAllBytes(photo)))
+                //{
+                //    touching = true;
+                //    Image img = Image.FromStream(ms, true, true);
+                //    TouchPhoto(img, photo, touch);
+                //    img.Dispose();
+                //    touching = false;
+                //    ms.Close();
+                //    ms.Dispose();
+                //}
+                fi.LastAccessTimeUtc = dt.ToUniversalTime();
+                fi.LastWriteTimeUtc = dt.ToUniversalTime();
+                fi.CreationTimeUtc = dt.ToUniversalTime();
             }
+            catch (Exception ex) { System.Diagnostics.Debug.WriteLine(ex.Message); }
         }
 
         /// <summary>
@@ -420,13 +443,13 @@ namespace NetCharm
         /// <param name="folder"></param>
         /// <param name="touch"></param>
         /// <param name="option"></param>
-        public static void TouchPhoto( string folder, string touch = "", SearchOption option=SearchOption.TopDirectoryOnly )
+        public static void TouchPhoto(string folder, string touch = "", SearchOption option = SearchOption.TopDirectoryOnly)
         {
             DirectoryInfo di = new DirectoryInfo(folder);
             IEnumerable<FileInfo> fileinfos  = di.EnumerateFiles().Where( f => PhotoExts.Contains( f.Extension, StringComparer.CurrentCultureIgnoreCase ) );
-            foreach ( FileInfo file in fileinfos )
+            foreach (FileInfo file in fileinfos)
             {
-                TouchPhoto( $"{file.DirectoryName}{Path.DirectorySeparatorChar}{file.Name}", touch );
+                TouchPhoto($"{file.DirectoryName}{Path.DirectorySeparatorChar}{file.Name}", touch);
             }
         }
 
@@ -437,31 +460,31 @@ namespace NetCharm
         /// <param name="lat"></param>
         /// <param name="lng"></param>
         /// <returns></returns>
-        public static Image Geotag( Image original, double lat, double lng )
+        public static Image Geotag(Image original, double lat, double lng)
         {
             char latHemisphere = 'N';
-            if ( lat < 0 )
+            if (lat < 0)
             {
                 latHemisphere = 'S';
                 lat = -lat;
             }
             char lngHemisphere = 'E';
-            if ( lng < 0 )
+            if (lng < 0)
             {
                 lngHemisphere = 'W';
                 lng = -lng;
             }
 
             MemoryStream ms = new MemoryStream();
-            original.Save( ms, ImageFormat.Jpeg );
-            ms.Seek( 0, SeekOrigin.Begin );
+            original.Save(ms, ImageFormat.Jpeg);
+            ms.Seek(0, SeekOrigin.Begin);
 
             Image img = Image.FromStream(ms);
-            AddProperty( img, PropertyTagGpsVer, PropertyTagTypeByte, new byte[] { 2, 3, 0, 0 } );
-            AddProperty( img, PropertyTagGpsLatitudeRef, PropertyTagTypeASCII, new byte[] { (byte) latHemisphere, 0 } );
-            AddProperty( img, PropertyTagGpsLatitude, PropertyTagTypeRational, ConvertToRationalTriplet( lat ) );
-            AddProperty( img, PropertyTagGpsLongitudeRef, PropertyTagTypeASCII, new byte[] { (byte) lngHemisphere, 0 } );
-            AddProperty( img, PropertyTagGpsLongitude, PropertyTagTypeRational, ConvertToRationalTriplet( lng ) );
+            AddProperty(img, PropertyTagGpsVer, PropertyTagTypeByte, new byte[] { 2, 3, 0, 0 });
+            AddProperty(img, PropertyTagGpsLatitudeRef, PropertyTagTypeASCII, new byte[] { (byte)latHemisphere, 0 });
+            AddProperty(img, PropertyTagGpsLatitude, PropertyTagTypeRational, ConvertToRationalTriplet(lat));
+            AddProperty(img, PropertyTagGpsLongitudeRef, PropertyTagTypeASCII, new byte[] { (byte)lngHemisphere, 0 });
+            AddProperty(img, PropertyTagGpsLongitude, PropertyTagTypeRational, ConvertToRationalTriplet(lng));
 
             return img;
         }
@@ -471,22 +494,22 @@ namespace NetCharm
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        static byte[] ConvertToRationalTriplet( double value )
+        internal static byte[] ConvertToRationalTriplet(double value)
         {
             int factor = 10000000;
             int degrees = (int)Math.Floor(value);
-            value = ( value - degrees ) * 60;
+            value = (value - degrees) * 60;
             int minutes = (int)Math.Floor(value);
-            value = ( value - minutes ) * 60 * factor;
+            value = (value - minutes) * 60 * factor;
             int seconds = (int)Math.Round(value);
             byte[] bytes = new byte[3 * 2 * 4]; // Degrees, minutes, and seconds, each with a numerator and a denominator, each composed of 4 bytes
             int i = 0;
-            Array.Copy( BitConverter.GetBytes( degrees ), 0, bytes, i, 4 ); i += 4;
-            Array.Copy( BitConverter.GetBytes( 1 ), 0, bytes, i, 4 ); i += 4;
-            Array.Copy( BitConverter.GetBytes( minutes ), 0, bytes, i, 4 ); i += 4;
-            Array.Copy( BitConverter.GetBytes( 1 ), 0, bytes, i, 4 ); i += 4;
-            Array.Copy( BitConverter.GetBytes( seconds ), 0, bytes, i, 4 ); i += 4;
-            Array.Copy( BitConverter.GetBytes( factor ), 0, bytes, i, 4 );
+            Array.Copy(BitConverter.GetBytes(degrees), 0, bytes, i, 4); i += 4;
+            Array.Copy(BitConverter.GetBytes(1), 0, bytes, i, 4); i += 4;
+            Array.Copy(BitConverter.GetBytes(minutes), 0, bytes, i, 4); i += 4;
+            Array.Copy(BitConverter.GetBytes(1), 0, bytes, i, 4); i += 4;
+            Array.Copy(BitConverter.GetBytes(seconds), 0, bytes, i, 4); i += 4;
+            Array.Copy(BitConverter.GetBytes(factor), 0, bytes, i, 4);
             return bytes;
         }
 
@@ -497,14 +520,14 @@ namespace NetCharm
         /// <param name="id"></param>
         /// <param name="type"></param>
         /// <param name="value"></param>
-        static void AddProperty( Image img, int id, short type, byte[] value )
+        internal static void AddProperty(Image img, int id, short type, byte[] value)
         {
             PropertyItem pi = img.PropertyItems[0];
             pi.Id = id;
             pi.Type = type;
             pi.Len = value.Length;
             pi.Value = value;
-            img.SetPropertyItem( pi );
+            img.SetPropertyItem(pi);
         }
 
         /// <summary>
@@ -513,13 +536,13 @@ namespace NetCharm
         /// <param name="img"></param>
         /// <param name="Latitude"></param>
         /// <returns></returns>
-        public static double GetLatitude(Image img, double Latitude= double.NaN )
+        public static double GetLatitude(Image img, double Latitude = double.NaN)
         {
             double lat = Latitude;
 
-            foreach ( PropertyItem metaItem in img.PropertyItems )
+            foreach (PropertyItem metaItem in img.PropertyItems)
             {
-                if ( metaItem.Id == PropertyTagGpsLatitude )
+                if (metaItem.Id == PropertyTagGpsLatitude)
                 {
                     uint degreesNumerator   = BitConverter.ToUInt32(metaItem.Value, 0);
                     uint degreesDenominator = BitConverter.ToUInt32(metaItem.Value, 4);
@@ -528,12 +551,12 @@ namespace NetCharm
                     uint secondsNumerator   = BitConverter.ToUInt32(metaItem.Value, 16);
                     uint secondsDenominator = BitConverter.ToUInt32(metaItem.Value, 20);
 
-                    lat = (double) degreesNumerator / (double) degreesDenominator +
-                        (double) minutesNumerator / (double) minutesDenominator / 60f +
-                        (double) secondsNumerator / (double) secondsDenominator / 3600f;
+                    lat = (double)degreesNumerator / (double)degreesDenominator +
+                        (double)minutesNumerator / (double)minutesDenominator / 60f +
+                        (double)secondsNumerator / (double)secondsDenominator / 3600f;
                 }
             }
-            return ( lat );
+            return (lat);
         }
 
         /// <summary>
@@ -542,13 +565,13 @@ namespace NetCharm
         /// <param name="img"></param>
         /// <param name="Longitude"></param>
         /// <returns></returns>
-        public static double GetLongitude( Image img, double Longitude=double.NaN)
+        public static double GetLongitude(Image img, double Longitude = double.NaN)
         {
             double lng = Longitude;
 
-            foreach ( PropertyItem metaItem in img.PropertyItems )
+            foreach (PropertyItem metaItem in img.PropertyItems)
             {
-                if ( metaItem.Id == PropertyTagGpsLongitude )
+                if (metaItem.Id == PropertyTagGpsLongitude)
                 {
                     uint degreesNumerator   = BitConverter.ToUInt32(metaItem.Value, 0);
                     uint degreesDenominator = BitConverter.ToUInt32(metaItem.Value, 4);
@@ -557,12 +580,12 @@ namespace NetCharm
                     uint secondsNumerator   = BitConverter.ToUInt32(metaItem.Value, 16);
                     uint secondsDenominator = BitConverter.ToUInt32(metaItem.Value, 20);
 
-                    lng = (double) degreesNumerator / (double) degreesDenominator +
-                       (double) minutesNumerator / (double) minutesDenominator / 60f +
-                       (double) secondsNumerator / (double) secondsDenominator / 3600f;
+                    lng = (double)degreesNumerator / (double)degreesDenominator +
+                       (double)minutesNumerator / (double)minutesDenominator / 60f +
+                       (double)secondsNumerator / (double)secondsDenominator / 3600f;
                 }
             }
-            return ( lng );
+            return (lng);
         }
 
         /// <summary>
@@ -571,7 +594,7 @@ namespace NetCharm
         /// <param name="img"></param>
         /// <param name="Ref"></param>
         /// <returns></returns>
-        public static char GetLatitudeRef(Image img, char Ref='N')
+        public static char GetLatitudeRef(Image img, char Ref = 'N')
         {
             char latRef = Ref;
 
@@ -614,14 +637,14 @@ namespace NetCharm
         /// <param name="Latitude"></param>
         /// <param name="Longitude"></param>
         /// <returns></returns>
-        public static PointF GetLatLng( Image img, double Latitude= double.NaN, double Longitude= double.NaN )
+        public static PointF GetLatLng(Image img, double Latitude = double.NaN, double Longitude = double.NaN)
         {
             double lat = Latitude;
             double lng = Longitude;
 
-            foreach ( PropertyItem metaItem in img.PropertyItems )
+            foreach (PropertyItem metaItem in img.PropertyItems)
             {
-                if ( metaItem.Id == PropertyTagGpsLatitude )
+                if (metaItem.Id == PropertyTagGpsLatitude)
                 {
                     uint degreesNumerator   = BitConverter.ToUInt32(metaItem.Value, 0);
                     uint degreesDenominator = BitConverter.ToUInt32(metaItem.Value, 4);
@@ -630,11 +653,11 @@ namespace NetCharm
                     uint secondsNumerator   = BitConverter.ToUInt32(metaItem.Value, 16);
                     uint secondsDenominator = BitConverter.ToUInt32(metaItem.Value, 20);
 
-                    lat = (double) degreesNumerator / (double) degreesDenominator +
-                        (double) minutesNumerator / (double) minutesDenominator / 60f +
-                        (double) secondsNumerator / (double) secondsDenominator / 3600f;
+                    lat = (double)degreesNumerator / (double)degreesDenominator +
+                        (double)minutesNumerator / (double)minutesDenominator / 60f +
+                        (double)secondsNumerator / (double)secondsDenominator / 3600f;
                 }
-                else if ( metaItem.Id == PropertyTagGpsLongitude )
+                else if (metaItem.Id == PropertyTagGpsLongitude)
                 {
                     uint degreesNumerator   = BitConverter.ToUInt32(metaItem.Value, 0);
                     uint degreesDenominator = BitConverter.ToUInt32(metaItem.Value, 4);
@@ -643,12 +666,12 @@ namespace NetCharm
                     uint secondsNumerator   = BitConverter.ToUInt32(metaItem.Value, 16);
                     uint secondsDenominator = BitConverter.ToUInt32(metaItem.Value, 20);
 
-                    lng = (double) degreesNumerator / (double) degreesDenominator +
-                       (double) minutesNumerator / (double) minutesDenominator / 60f +
-                        (double) secondsNumerator / (double) secondsDenominator / 3600f;
+                    lng = (double)degreesNumerator / (double)degreesDenominator +
+                       (double)minutesNumerator / (double)minutesDenominator / 60f +
+                        (double)secondsNumerator / (double)secondsDenominator / 3600f;
                 }
             }
-            return ( new PointF((float)lat, (float)lng) );
+            return (new PointF((float)lat, (float)lng));
         }
 
         /// <summary>
@@ -656,14 +679,14 @@ namespace NetCharm
         /// </summary>
         /// <param name="format"></param>
         /// <returns></returns>
-        private static ImageCodecInfo GetEncoder( ImageFormat format )
+        private static ImageCodecInfo GetEncoder(ImageFormat format)
         {
 
             ImageCodecInfo[] codecs = ImageCodecInfo.GetImageDecoders();
 
-            foreach ( ImageCodecInfo codec in codecs )
+            foreach (ImageCodecInfo codec in codecs)
             {
-                if ( codec.FormatID == format.Guid )
+                if (codec.FormatID == format.Guid)
                 {
                     return codec;
                 }
@@ -679,13 +702,13 @@ namespace NetCharm
         /// <param name="image"></param>
         /// <param name="dt"></param>
         /// <returns></returns>
-        public static DateTime SetImageGeoTag_WPF( double lat, double lng, string image, DateTime dt )
+        public static DateTime SetImageGeoTag_WPF(double lat, double lng, string image, DateTime dt)
         {
             #region Using Fotofly library ( WIC wrapper )
-            using ( WpfFileManager wpfFileManager = new WpfFileManager( image, true ) )
+            using (WpfFileManager wpfFileManager = new WpfFileManager(image, true))
             {
                 var metadata = wpfFileManager.BitmapMetadata;
-                if ( metadata != null )
+                if (metadata != null)
                 {
                     HashSet<string> keywords = new HashSet<string>();
                     HashSet<string> authors = new HashSet<string>();
@@ -696,89 +719,89 @@ namespace NetCharm
                     #region Get DateTaken
                     string dtmeta = String.Empty;
                     var dtexif = metadata.GetQuery(META.TagExifDateTime);
-                    if ( metadata.DateTaken != null )
+                    if (metadata.DateTaken != null)
                     {
                         dtmeta = metadata.DateTaken;
-                        if ( !string.IsNullOrEmpty( dtmeta ) && !DateTime.TryParse( dtmeta, CultureInfo.CurrentCulture, DateTimeStyles.None, out dt ) )
+                        if (!string.IsNullOrEmpty(dtmeta) && !DateTime.TryParse(dtmeta, CultureInfo.CurrentCulture, DateTimeStyles.None, out dt))
                         {
                         }
                     }
-                    else if ( dtexif != null )
+                    else if (dtexif != null)
                     {
                         dtmeta = dtexif as string;
-                        if ( !string.IsNullOrEmpty( dtmeta ) && !DateTime.TryParseExact( dtmeta, "yyyy:MM:dd HH:mm:ss", CultureInfo.CurrentCulture, DateTimeStyles.None, out dt ) )
+                        if (!string.IsNullOrEmpty(dtmeta) && !DateTime.TryParseExact(dtmeta, "yyyy:MM:dd HH:mm:ss", CultureInfo.CurrentCulture, DateTimeStyles.None, out dt))
                         {
                         }
                     }
                     #endregion
 
                     #region Get Keywords
-                    if ( metadata.Keywords != null )
+                    if (metadata.Keywords != null)
                     {
-                        foreach ( string keyword in metadata.Keywords )
+                        foreach (string keyword in metadata.Keywords)
                         {
-                            keywords.Add( keyword.Trim() );
+                            keywords.Add(keyword.Trim());
                         }
                     }
                     var iptckeywords = metadata.GetQuery( META.TagIptcKeywords );
-                    if ( iptckeywords != null )
+                    if (iptckeywords != null)
                     {
-                        if ( iptckeywords as string[] == null )
+                        if (iptckeywords as string[] == null)
                         {
-                            keywords.Add( ( iptckeywords as string ).Trim() );
+                            keywords.Add((iptckeywords as string).Trim());
                         }
                         else
                         {
-                            foreach ( string keyword in ( iptckeywords as string[] ) )
+                            foreach (string keyword in (iptckeywords as string[]))
                             {
-                                keywords.Add( keyword.Trim() );
+                                keywords.Add(keyword.Trim());
                             }
                         }
                     }
                     BitmapMetadata xmpsubjects = metadata.GetQuery( META.TagXmpSubject ) as BitmapMetadata;
-                    if ( xmpsubjects != null )
+                    if (xmpsubjects != null)
                     {
-                        foreach ( string query in xmpsubjects.ToList() )
+                        foreach (string query in xmpsubjects.ToList())
                         {
                             string keyword = xmpsubjects.GetQuery( query ) as string;
-                            keywords.Add( keyword.Trim() );
+                            keywords.Add(keyword.Trim());
                         }
                     }
                     var xpkeywords = metadata.GetQuery( META.TagExifXPKeywords );
-                    if ( xpkeywords != null )
+                    if (xpkeywords != null)
                     {
                         string xpkeywords_str = Encoding.Unicode.GetString( (byte[]) xpkeywords ).Trim( new char[] { ' ', '\0' } );
-                        foreach ( string key in xpkeywords_str.Split( ';' ) )
+                        foreach (string key in xpkeywords_str.Split(';'))
                         {
-                            keywords.Add( key.Trim() );
+                            keywords.Add(key.Trim());
                         }
                     }
                     #endregion
 
                     #region Get Authors
                     var artist = metadata.GetQuery( META.TagExifArtist );
-                    if ( artist != null )
+                    if (artist != null)
                     {
-                        foreach ( string art in ( artist as string ).Split( ';' ) )
+                        foreach (string art in (artist as string).Split(';'))
                         {
-                            authors.Add( art.Trim( new char[] { ' ', '\0' } ) );
+                            authors.Add(art.Trim(new char[] { ' ', '\0' }));
                         }
                     }
-                    if ( wpfFileManager.BitmapMetadata.Author != null )
+                    if (wpfFileManager.BitmapMetadata.Author != null)
                     {
-                        foreach ( string art in wpfFileManager.BitmapMetadata.Author )
+                        foreach (string art in wpfFileManager.BitmapMetadata.Author)
                         {
-                            authors.Add( art.Trim( new char[] { ' ', '\0' } ) );
+                            authors.Add(art.Trim(new char[] { ' ', '\0' }));
                         }
                     }
                     var xpauthor = metadata.GetQuery( META.TagExifXPAuthor );
-                    if ( xpauthor != null )
+                    if (xpauthor != null)
                     {
                         string xpauthor_str = Encoding.Unicode.GetString( (byte[]) xpauthor ).Trim( new char[] { ' ', '\0' } );
                         //metadata.SetQuery( META.TagIptcByline, xpauthor_str );
-                        foreach ( string art in xpauthor_str.Split( ';' ) )
+                        foreach (string art in xpauthor_str.Split(';'))
                         {
-                            authors.Add( art.Trim( new char[] { ' ', '\0' } ) );
+                            authors.Add(art.Trim(new char[] { ' ', '\0' }));
                         }
                     }
                     #endregion
@@ -795,20 +818,20 @@ namespace NetCharm
 
                     #endregion
 
-                    if ( metadata.IsFrozen )
+                    if (metadata.IsFrozen)
                     {
                         //metadata = metadata.Clone();
                     }
 
                     #region Set GPS Info
                     char latHemisphere = 'N';
-                    if ( lat < 0 )
+                    if (lat < 0)
                     {
                         latHemisphere = 'S';
                         lat = -lat;
                     }
                     char lngHemisphere = 'E';
-                    if ( lng < 0 )
+                    if (lng < 0)
                     {
                         lngHemisphere = 'W';
                         lng = -lng;
@@ -830,63 +853,63 @@ namespace NetCharm
                         //Convert.ToUInt64( (( glng.Numeric - glng.Degrees ) * 60 - glng.Minutes ) * 60 * factor ) + 0x0098968000000000L
                     };
 
-                    metadata.SetQuery( META.TagExifGpsLatitudeRef, latHemisphere );
-                    metadata.SetQuery( META.TagExifGpsLatitude, ulat );
-                    metadata.SetQuery( META.TagExifGpsLongitudeRef, lngHemisphere );
-                    metadata.SetQuery( META.TagExifGpsLongitude, ulng );
+                    metadata.SetQuery(META.TagExifGpsLatitudeRef, latHemisphere);
+                    metadata.SetQuery(META.TagExifGpsLatitude, ulat);
+                    metadata.SetQuery(META.TagExifGpsLongitudeRef, lngHemisphere);
+                    metadata.SetQuery(META.TagExifGpsLongitude, ulng);
                     #endregion
 
                     #region Set Title & Subject & Comment
                     var xptitle = metadata.GetQuery( META.TagExifXPTitle );
-                    if ( xptitle != null )
+                    if (xptitle != null)
                     {
                         string xptitle_str = Encoding.Unicode.GetString( (byte[]) xptitle ).Trim(new char[] { ' ', '\0' } );
-                        metadata.SetQuery( META.TagIptcBylineTitle, xptitle_str );
+                        metadata.SetQuery(META.TagIptcBylineTitle, xptitle_str);
                     }
                     var xpcomment = metadata.GetQuery( META.TagExifXPComment );
-                    if ( xpcomment != null )
+                    if (xpcomment != null)
                     {
                         string xpcomment_str = Encoding.Unicode.GetString( (byte[]) xpcomment ).Trim( new char[] { ' ', '\0' } );
-                        metadata.SetQuery( META.TagIptcCaption, xpcomment_str );
+                        metadata.SetQuery(META.TagIptcCaption, xpcomment_str);
                     }
                     var xpsubject = metadata.GetQuery( META.TagExifXPSubject );
-                    if ( xpsubject != null )
+                    if (xpsubject != null)
                     {
                         string xpsubject_str = Encoding.Unicode.GetString( (byte[]) xpsubject ).Trim( new char[] { ' ', '\0' } );
-                        metadata.SetQuery( META.TagIptcHeadline, xpsubject_str );
+                        metadata.SetQuery(META.TagIptcHeadline, xpsubject_str);
                     }
                     var xpcopyright = metadata.GetQuery( META.TagExifCopyright );
-                    if ( xpcopyright != null && !string.IsNullOrEmpty( ( xpcopyright as string ).Trim() ) )
+                    if (xpcopyright != null && !string.IsNullOrEmpty((xpcopyright as string).Trim()))
                     {
                         string xpcopyright_str = (xpcopyright as string).Trim();
-                        metadata.SetQuery( META.TagIptcCopyrightNotice, xpcopyright_str );
+                        metadata.SetQuery(META.TagIptcCopyrightNotice, xpcopyright_str);
                     }
                     #endregion
 
                     #region Set Keywords & Authors
                     ulong idx = 0;
-                    foreach ( string keyword in keywords )
+                    foreach (string keyword in keywords)
                     {
                         string query = $"{META.TagXmpSubject}/{{ulong={idx}}}";
-                        metadata.SetQuery( query, keyword );
+                        metadata.SetQuery(query, keyword);
                         idx++;
                     }
-                    if ( keywords.Count > 0 )
+                    if (keywords.Count > 0)
                     {
-                        metadata.SetQuery( META.TagIptcKeywords, keywords.ToArray() );
+                        metadata.SetQuery(META.TagIptcKeywords, keywords.ToArray());
                     }
 
-                    if ( authors.Count > 0 )
+                    if (authors.Count > 0)
                     {
-                        metadata.SetQuery( META.TagIptcByline, string.Join( ";", authors ) );
+                        metadata.SetQuery(META.TagIptcByline, string.Join(";", authors));
                     }
                     #endregion
 
                     #region Set Image.Datetime to Taken datetime
-                    if ( !string.IsNullOrEmpty( metadata.DateTaken ) )
+                    if (!string.IsNullOrEmpty(metadata.DateTaken))
                     {
                         //metadata.SetQuery( META.TagExifDateTime, metadata.DateTaken );
-                        metadata.SetQuery( META.TagExifDateTime, metadata.DateTaken.Replace( '/', ':' ).Replace( '-', ':' ).Replace( ',', ':' ).Replace( '.', ':' ) );
+                        metadata.SetQuery(META.TagExifDateTime, metadata.DateTaken.Replace('/', ':').Replace('-', ':').Replace(',', ':').Replace('.', ':'));
                     }
                     #endregion
                     wpfFileManager.WriteMetadata();
@@ -894,7 +917,7 @@ namespace NetCharm
             }
             #endregion
 
-            return ( dt );
+            return (dt);
         }
 
         /// <summary>
@@ -905,29 +928,29 @@ namespace NetCharm
         /// <param name="image"></param>
         /// <param name="dt"></param>
         /// <returns></returns>
-        public static DateTime SetImageGeoTag_GDI( double lat, double lng, string image, DateTime dt )
+        public static DateTime SetImageGeoTag_GDI(double lat, double lng, string image, DateTime dt)
         {
-            using ( FileStream fs = new FileStream( image, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite ) )
+            using (FileStream fs = new FileStream(image, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
             {
 
-                fs.Seek( 0, SeekOrigin.Begin );
+                fs.Seek(0, SeekOrigin.Begin);
                 Image photo = Image.FromStream( fs, true, true );
-                photo = EXIF.Geotag( photo, lat, lng );
+                photo = EXIF.Geotag(photo, lat, lng);
 
                 fs.Close();
 
                 try
                 {
-                    if ( photo.PropertyIdList.Contains( EXIF.PropertyTagExifDTOrig ) )
+                    if (photo.PropertyIdList.Contains(EXIF.PropertyTagExifDTOrig))
                     {
                         PropertyItem DTOrig = photo.GetPropertyItem(EXIF.PropertyTagExifDTOrig);
 
                         ASCIIEncoding enc = new ASCIIEncoding();
                         string dateTakenText = enc.GetString( DTOrig.Value, 0, DTOrig.Len - 1 );
 
-                        if ( !string.IsNullOrEmpty( dateTakenText ) )
+                        if (!string.IsNullOrEmpty(dateTakenText))
                         {
-                            if ( !DateTime.TryParseExact( dateTakenText, "yyyy:MM:dd HH:mm:ss", CultureInfo.CurrentCulture, DateTimeStyles.None, out dt ) )
+                            if (!DateTime.TryParseExact(dateTakenText, "yyyy:MM:dd HH:mm:ss", CultureInfo.CurrentCulture, DateTimeStyles.None, out dt))
                             {
                             }
                         }
@@ -941,12 +964,225 @@ namespace NetCharm
                 EncoderParameter myEncoderParameter = new EncoderParameter(myEncoder, 95L);
                 myEncoderParameters.Param[0] = myEncoderParameter;
 
-                photo.Save( image, jpgEncoder, myEncoderParameters );
+                photo.Save(image, jpgEncoder, myEncoderParameters);
                 photo.Dispose();
             }
-            return ( dt );
+            return (dt);
         }
 
+        public static void SetImageTitle_WPF(string image, string title, DateTime dt, string subject = "", string copyright = "", string author = "", string comment = "", string keyword_list = "")
+        {
+            #region Using Fotofly library ( WIC wrapper )
+            using (WpfFileManager wpfFileManager = new WpfFileManager(image, true))
+            {
+                var metadata = wpfFileManager.BitmapMetadata;
+                if (metadata != null)
+                {
+                    HashSet<string> keywords = new HashSet<string>();
+                    HashSet<string> authors = new HashSet<string>();
+                    HashSet<string> titles = new HashSet<string>();
+                    HashSet<string> copyrights = new HashSet<string>();
+                    HashSet<string> comments = new HashSet<string>();
+
+                    #region Get DateTaken
+                    string dtmeta = String.Empty;
+                    var dtexif = metadata.GetQuery(META.TagExifDateTime);
+                    if (metadata.DateTaken != null)
+                    {
+                        dtmeta = metadata.DateTaken;
+                        if (!string.IsNullOrEmpty(dtmeta) && !DateTime.TryParse(dtmeta, CultureInfo.CurrentCulture, DateTimeStyles.None, out dt))
+                        {
+                        }
+                    }
+                    else if (dtexif != null)
+                    {
+                        dtmeta = dtexif as string;
+                        if (!string.IsNullOrEmpty(dtmeta) && !DateTime.TryParseExact(dtmeta, "yyyy:MM:dd HH:mm:ss", CultureInfo.CurrentCulture, DateTimeStyles.None, out dt))
+                        {
+                        }
+                    }
+                    #endregion
+
+                    #region Get Keywords
+                    if (metadata.Keywords != null)
+                    {
+                        foreach (string keyword in metadata.Keywords)
+                        {
+                            keywords.Add(keyword.Trim());
+                        }
+                    }
+                    var iptckeywords = metadata.GetQuery( META.TagIptcKeywords );
+                    if (iptckeywords != null)
+                    {
+                        if (iptckeywords as string[] == null)
+                        {
+                            keywords.Add((iptckeywords as string).Trim());
+                        }
+                        else
+                        {
+                            foreach (string keyword in (iptckeywords as string[]))
+                            {
+                                keywords.Add(keyword.Trim());
+                            }
+                        }
+                    }
+                    BitmapMetadata xmpsubjects = metadata.GetQuery( META.TagXmpSubject ) as BitmapMetadata;
+                    if (xmpsubjects != null)
+                    {
+                        foreach (string query in xmpsubjects.ToList())
+                        {
+                            string keyword = xmpsubjects.GetQuery( query ) as string;
+                            keywords.Add(keyword.Trim());
+                        }
+                    }
+                    var xpkeywords = metadata.GetQuery( META.TagExifXPKeywords );
+                    if (xpkeywords != null)
+                    {
+                        string xpkeywords_str = Encoding.Unicode.GetString( (byte[]) xpkeywords ).Trim( new char[] { ' ', '\0' } );
+                        foreach (string key in xpkeywords_str.Split(';'))
+                        {
+                            keywords.Add(key.Trim());
+                        }
+                    }
+                    #endregion
+
+                    #region Get Authors
+                    var artist = metadata.GetQuery( META.TagExifArtist );
+                    if (artist != null)
+                    {
+                        foreach (string art in (artist as string).Split(';'))
+                        {
+                            authors.Add(art.Trim(new char[] { ' ', '\0' }));
+                        }
+                    }
+                    if (wpfFileManager.BitmapMetadata.Author != null)
+                    {
+                        foreach (string art in wpfFileManager.BitmapMetadata.Author)
+                        {
+                            authors.Add(art.Trim(new char[] { ' ', '\0' }));
+                        }
+                    }
+                    var xpauthor = metadata.GetQuery( META.TagExifXPAuthor );
+                    if (xpauthor != null)
+                    {
+                        string xpauthor_str = Encoding.Unicode.GetString( (byte[]) xpauthor ).Trim( new char[] { ' ', '\0' } );
+                        //metadata.SetQuery( META.TagIptcByline, xpauthor_str );
+                        foreach (string art in xpauthor_str.Split(';'))
+                        {
+                            authors.Add(art.Trim(new char[] { ' ', '\0' }));
+                        }
+                    }
+                    #endregion
+
+                    #region Get Title
+
+                    #endregion
+
+                    #region Get Copyright
+
+                    #endregion
+
+                    #region Get Comments
+
+                    #endregion
+
+                    if (metadata.IsFrozen)
+                    {
+                        //metadata = metadata.Clone();
+                    }
+
+                    #region Set Title & Subject & Comment
+                    var xptitle = metadata.GetQuery( META.TagExifXPTitle );
+                    if (xptitle != null)
+                    {
+                        string xptitle_str = Encoding.Unicode.GetString( (byte[]) xptitle ).Trim(new char[] { ' ', '\0' } );
+                        metadata.SetQuery(META.TagIptcBylineTitle, Encoding.Unicode.GetBytes(xptitle_str));
+                    }
+                    else if(!string.IsNullOrEmpty(title))
+                    {
+                        metadata.Title = title;
+                        metadata.SetQuery(META.TagExifXPTitle, Encoding.Unicode.GetBytes(title));
+                        metadata.SetQuery(META.TagIptcBylineTitle, Encoding.Unicode.GetBytes(title));
+                    }
+                    var xpcomment = metadata.GetQuery( META.TagExifXPComment );
+                    if (xpcomment != null)
+                    {
+                        string xpcomment_str = Encoding.Unicode.GetString( (byte[]) xpcomment ).Trim( new char[] { ' ', '\0' } );
+                        metadata.SetQuery(META.TagIptcCaption, xpcomment_str);
+                    }
+                    else if(!string.IsNullOrEmpty(comment))
+                    {
+                        metadata.Comment = comment;
+                        metadata.SetQuery(META.TagExifXPComment, Encoding.Unicode.GetBytes(comment));
+                        metadata.SetQuery(META.TagIptcCaption, comment);
+                    }
+                    var xpsubject = metadata.GetQuery( META.TagExifXPSubject );
+                    if (xpsubject != null)
+                    {
+                        string xpsubject_str = Encoding.Unicode.GetString( (byte[]) xpsubject ).Trim( new char[] { ' ', '\0' } );
+                        metadata.SetQuery(META.TagIptcHeadline, xpsubject_str);
+                    }
+                    else if (!string.IsNullOrEmpty(subject))
+                    {
+                        metadata.Subject = subject;
+                        metadata.SetQuery(META.TagExifXPSubject, Encoding.Unicode.GetBytes(subject));
+                        metadata.SetQuery(META.TagIptcHeadline, subject);
+                    }
+                    var xpcopyright = metadata.GetQuery( META.TagExifCopyright );
+                    if (xpcopyright != null && !string.IsNullOrEmpty((xpcopyright as string).Trim()))
+                    {
+                        string xpcopyright_str = (xpcopyright as string).Trim();
+                        metadata.SetQuery(META.TagIptcCopyrightNotice, xpcopyright_str);
+                    }
+                    else if (!string.IsNullOrEmpty(copyright))
+                    {
+                        metadata.Copyright = copyright;
+                        metadata.SetQuery(META.TagExifCopyright, Encoding.Unicode.GetBytes(copyright));
+                        metadata.SetQuery(META.TagIptcCopyrightNotice, copyright);
+                    }
+                    #endregion
+
+                    #region Set Keywords & Authors
+                    ulong idx = 0;
+                    foreach (string keyword in keywords)
+                    {
+                        string query = $"{META.TagXmpSubject}/{{ulong={idx}}}";
+                        metadata.SetQuery(query, keyword);
+                        idx++;
+                    }
+                    if (keywords.Count > 0)
+                    {
+                        metadata.SetQuery(META.TagIptcKeywords, keywords.ToArray());
+                    }
+                    else if(!string.IsNullOrEmpty(keyword_list))
+                    {
+                        var keys = keyword_list.Split(new char[] { ';', '/', '\\', }).Select(k => k.Trim());
+                        if (keys.Count() > 0) metadata.SetQuery(META.TagIptcKeywords, keys.ToArray());
+                    }
+
+                    if (authors.Count > 0)
+                    {
+                        metadata.SetQuery(META.TagIptcByline, string.Join(";", authors));
+                    }
+                    else if (!string.IsNullOrEmpty(author))
+                    {
+                        var aus = author.Split(new char[] { ';', '/', '\\', }).Select(k => k.Trim());
+                        if (aus.Count() > 0) metadata.SetQuery(META.TagIptcByline, aus.ToArray());
+                    }
+                    #endregion
+
+                    #region Set Image.Datetime to Taken datetime
+                    if (!string.IsNullOrEmpty(metadata.DateTaken))
+                    {
+                        //metadata.SetQuery( META.TagExifDateTime, metadata.DateTaken );
+                        metadata.SetQuery(META.TagExifDateTime, metadata.DateTaken.Replace('/', ':').Replace('-', ':').Replace(',', ':').Replace('.', ':'));
+                    }
+                    #endregion
+                    wpfFileManager.WriteMetadata();
+                }
+            }
+            #endregion
+        }
     }
 
     class META
@@ -965,7 +1201,7 @@ namespace NetCharm
         public const string TagIptcCountryPrimaryLocationName = "/app13/irb/8bimiptc/iptc/{str=Country/Primary Location Name}";
         public const string TagIptcCredit = "/app13/irb/8bimiptc/iptc/{str=Credit}";
         public const string TagIptcDateCreated = "/app13/irb/8bimiptc/iptc/{str=Date Created}";
-        public const string TagIptcDescription = "/app13/irb/8bimiptc/iptc/{str=Description}"; 
+        public const string TagIptcDescription = "/app13/irb/8bimiptc/iptc/{str=Description}";
         public const string TagIptcHeadline = "/app13/irb/8bimiptc/iptc/{str=Headline}";
         public const string TagIptcKeywords = "/app13/irb/8bimiptc/iptc/{str=Keywords}";
         public const string TagIptcObjectName = "/app13/irb/8bimiptc/iptc/{str=Object Name}";
@@ -1057,7 +1293,7 @@ namespace NetCharm
         public const string TagIptcKeywordsAlt = "/app13/{ushort=0}/{ulonglong=61857348781060}/iptc/{str=Keywords}";
 
         // XP System Property
-        public const string TagExifImageDescription = "/app1/ifd/{ushort=270}"; 
+        public const string TagExifImageDescription = "/app1/ifd/{ushort=270}";
         public const string TagExifXPTitle = "/app1/ifd/exif:{ushort=40091}";
         public const string TagExifXPComment = "/app1/ifd/exif:{ushort=40092}";
         public const string TagExifXPAuthor = "/app1/ifd/exif:{ushort=40093}";
@@ -1095,7 +1331,7 @@ namespace NetCharm
         /// <param name="e"></param>
         /// <param name="n"></param>
         /// <param name="s"></param>
-        public GeoRegion( double w, double e, double n, double s )
+        public GeoRegion(double w, double e, double n, double s)
         {
             west = w;
             east = e;
@@ -1139,20 +1375,20 @@ namespace NetCharm
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns></returns>
-        public Boolean pointInPolygon( double x, double y )
+        public Boolean pointInPolygon(double x, double y)
         {
 
             int polyCorners = polyX.Count;
             int i, j = polyCorners - 1;
             bool oddNodes = false;
 
-            for ( i = 0; i < polyCorners; i++ )
+            for (i = 0; i < polyCorners; i++)
             {
-                if ( ( polyY[i] < y && polyY[j] >= y )
-                 || ( polyY[j] < y && polyY[i] >= y )
-                 && ( polyX[i] <= x || polyX[j] <= x ) )
+                if ((polyY[i] < y && polyY[j] >= y)
+                 || (polyY[j] < y && polyY[i] >= y)
+                 && (polyX[i] <= x || polyX[j] <= x))
                 {
-                    if ( polyX[i] + ( y - polyY[i] ) / ( polyY[j] - polyY[i] ) * ( polyX[j] - polyX[i] ) < x )
+                    if (polyX[i] + (y - polyY[i]) / (polyY[j] - polyY[i]) * (polyX[j] - polyX[i]) < x)
                     {
                         oddNodes = !oddNodes;
                     }
@@ -1169,25 +1405,25 @@ namespace NetCharm
         private void LoadPolygon()
         {
             string OffsetFile = string.Format("{0}{1}", AppPath, "china-mainland.poly");
-            if ( System.IO.File.Exists( OffsetFile ) )
+            if (System.IO.File.Exists(OffsetFile))
             {
-                using ( StreamReader sr = new StreamReader( OffsetFile ) )
+                using (StreamReader sr = new StreamReader(OffsetFile))
                 {
                     string s = sr.ReadToEnd();
 
                     Match MP = Regex.Match(s, "(\\d\\.\\d{6,6}E\\+\\d{2,2})");
 
                     int i = 0;
-                    while ( MP.Success )
+                    while (MP.Success)
                     {
                         //MessageBox.Show(MP.Value);
-                        if ( i % 2 == 0 ) //第一列
+                        if (i % 2 == 0) //第一列
                         {
-                            polyX.Add( Convert.ToDouble( MP.Value ) );
+                            polyX.Add(Convert.ToDouble(MP.Value));
                         }
                         else //第二列
                         {
-                            polyY.Add( Convert.ToDouble( MP.Value ) );
+                            polyY.Add(Convert.ToDouble(MP.Value));
                         }
                         i++;
                         MP = MP.NextMatch();
@@ -1215,7 +1451,7 @@ namespace NetCharm
         /// <param name="lon"></param>
         /// <param name="lat"></param>
         /// <returns></returns>
-        private Boolean isInRect( GeoRegion rect, double lon, double lat )
+        private Boolean isInRect(GeoRegion rect, double lon, double lat)
         {
             return rect.west <= lon && rect.east >= lon && rect.north >= lat && rect.south <= lat;
         }
@@ -1227,17 +1463,17 @@ namespace NetCharm
         /// <param name="lat"></param>
         /// <param name="simple"></param>
         /// <returns></returns>
-        private Boolean isInChina( double lon, double lat, Boolean simple = false )
+        private Boolean isInChina(double lon, double lat, Boolean simple = false)
         {
-            if ( simple )
+            if (simple)
             {
-                for ( int i = 0; i < chinaRegion.Count; i++ )
+                for (int i = 0; i < chinaRegion.Count; i++)
                 {
-                    if ( isInRect( chinaRegion[i], lon, lat ) )
+                    if (isInRect(chinaRegion[i], lon, lat))
                     {
-                        for ( int j = 0; j < excludeRegion.Count; j++ )
+                        for (int j = 0; j < excludeRegion.Count; j++)
                         {
-                            if ( isInRect( excludeRegion[j], lon, lat ) )
+                            if (isInRect(excludeRegion[j], lon, lat))
                             {
                                 return false;
                             }
@@ -1249,7 +1485,7 @@ namespace NetCharm
             }
             else
             {
-                return pointInPolygon( lon, lat );
+                return pointInPolygon(lon, lat);
             }
 
         }
@@ -1266,18 +1502,18 @@ namespace NetCharm
         /// <param name="yMars">中国地图经度</param>
         /// <param name="xWgs">GPS纬度</param>
         /// <param name="yWgs">GPS经度</param>
-        public void Convert2WGS( double xMars, double yMars, out double xWgs, out double yWgs )
+        public void Convert2WGS(double xMars, double yMars, out double xWgs, out double yWgs)
         {
             double xtry, ytry, dx, dy;
 
             xWgs = xMars;
             yWgs = yMars;
 
-            if ( !isInChina( xMars, yMars ) ) return;
+            if (!isInChina(xMars, yMars)) return;
 
             xtry = xMars;
             ytry = yMars;
-            Convert2Mars( xMars, yMars, out xtry, out ytry );
+            Convert2Mars(xMars, yMars, out xtry, out ytry);
             dx = xtry - xMars;
             dy = ytry - yMars;
 
@@ -1297,7 +1533,7 @@ namespace NetCharm
         /// <param name="yWgs">GPS经度</param>
         /// <param name="xMars">中国地图纬度</param>
         /// <param name="yMars">中国地图经度</param>
-        public void Convert2Mars( double xWgs, double yWgs, out double xMars, out double yMars )
+        public void Convert2Mars(double xWgs, double yWgs, out double xMars, out double yMars)
         {
             xMars = xWgs;
             yMars = yWgs;
@@ -1317,28 +1553,28 @@ namespace NetCharm
             //    return;
             //if ( yWgs < 9.9984 || yWgs > 55.8271 )
             //    return;
-            if ( !isInChina( xWgs, yWgs ) ) return;
+            if (!isInChina(xWgs, yWgs)) return;
 
             double x=0, y=0;
             x = xWgs - 105.0;
             y = yWgs - 35.0;
 
             double dLon =  300.0 + 1.0 * x + 2.0 * y + 0.1 * x * x + 0.1 * x * y + 0.1 * Math.Sqrt( Math.Abs( x ) );
-            dLon += ( 20.0 * Math.Sin( 6.0 * x * pi ) + 20.0 * Math.Sin( 2.0 * x * pi ) ) * 2.0 / 3.0;
-            dLon += ( 20.0 * Math.Sin( x * pi ) + 40.0 * Math.Sin( x / 3.0 * pi ) ) * 2.0 / 3.0;
-            dLon += ( 150.0 * Math.Sin( x / 12.0 * pi ) + 300.0 * Math.Sin( x / 30.0 * pi ) ) * 2.0 / 3.0;
+            dLon += (20.0 * Math.Sin(6.0 * x * pi) + 20.0 * Math.Sin(2.0 * x * pi)) * 2.0 / 3.0;
+            dLon += (20.0 * Math.Sin(x * pi) + 40.0 * Math.Sin(x / 3.0 * pi)) * 2.0 / 3.0;
+            dLon += (150.0 * Math.Sin(x / 12.0 * pi) + 300.0 * Math.Sin(x / 30.0 * pi)) * 2.0 / 3.0;
 
             double dLat = -100.0 + 2.0 * x + 3.0 * y + 0.2 * y * y + 0.1 * x * y + 0.2 * Math.Sqrt( Math.Abs( x ) );
-            dLat += ( 20.0 * Math.Sin( 6.0 * x * pi ) + 20.0 * Math.Sin( 2.0 * x * pi ) ) * 2.0 / 3.0;
-            dLat += ( 20.0 * Math.Sin( y * pi ) + 40.0 * Math.Sin( y / 3.0 * pi ) ) * 2.0 / 3.0;
-            dLat += ( 160.0 * Math.Sin( y / 12.0 * pi ) + 320.0 * Math.Sin( y * pi / 30.0 ) ) * 2.0 / 3.0;
+            dLat += (20.0 * Math.Sin(6.0 * x * pi) + 20.0 * Math.Sin(2.0 * x * pi)) * 2.0 / 3.0;
+            dLat += (20.0 * Math.Sin(y * pi) + 40.0 * Math.Sin(y / 3.0 * pi)) * 2.0 / 3.0;
+            dLat += (160.0 * Math.Sin(y / 12.0 * pi) + 320.0 * Math.Sin(y * pi / 30.0)) * 2.0 / 3.0;
 
             double radLat = yWgs / 180.0 * pi;
             double magic = Math.Sin( radLat );
             magic = 1 - ee * magic * magic;
             double sqrtMagic = Math.Sqrt( magic );
-            dLon = ( dLon * 180.0 ) / ( a / sqrtMagic * Math.Cos( radLat ) * pi );
-            dLat = ( dLat * 180.0 ) / ( ( a * ( 1 - ee ) ) / ( magic * sqrtMagic ) * pi );
+            dLon = (dLon * 180.0) / (a / sqrtMagic * Math.Cos(radLat) * pi);
+            dLat = (dLat * 180.0) / ((a * (1 - ee)) / (magic * sqrtMagic) * pi);
             xMars = xWgs + dLon;
             yMars = yWgs + dLat;
         }
@@ -1348,18 +1584,18 @@ namespace NetCharm
         /// </summary>
         public MarsWGS()
         {
-            chinaRegion.Add( new GeoRegion( 79.446200, 49.220400, 96.330000, 42.889900 ) );
-            chinaRegion.Add( new GeoRegion( 109.687200, 54.141500, 135.000200, 39.374200 ) );
-            chinaRegion.Add( new GeoRegion( 73.124600, 42.889900, 124.143255, 29.529700 ) );
-            chinaRegion.Add( new GeoRegion( 82.968400, 29.529700, 97.035200, 26.718600 ) );
-            chinaRegion.Add( new GeoRegion( 97.025300, 29.529700, 124.367395, 20.414096 ) );
-            chinaRegion.Add( new GeoRegion( 107.975793, 20.414096, 111.744104, 17.871542 ) );
-            excludeRegion.Add( new GeoRegion( 119.921265, 25.398623, 122.497559, 21.785006 ) );
-            excludeRegion.Add( new GeoRegion( 101.865200, 22.284000, 106.665000, 20.098800 ) );
-            excludeRegion.Add( new GeoRegion( 106.452500, 21.542200, 108.051000, 20.487800 ) );
-            excludeRegion.Add( new GeoRegion( 109.032300, 55.817500, 119.127000, 50.325700 ) );
-            excludeRegion.Add( new GeoRegion( 127.456800, 55.817500, 137.022700, 49.557400 ) );
-            excludeRegion.Add( new GeoRegion( 131.266200, 44.892200, 137.022700, 42.569200 ) );
+            chinaRegion.Add(new GeoRegion(79.446200, 49.220400, 96.330000, 42.889900));
+            chinaRegion.Add(new GeoRegion(109.687200, 54.141500, 135.000200, 39.374200));
+            chinaRegion.Add(new GeoRegion(73.124600, 42.889900, 124.143255, 29.529700));
+            chinaRegion.Add(new GeoRegion(82.968400, 29.529700, 97.035200, 26.718600));
+            chinaRegion.Add(new GeoRegion(97.025300, 29.529700, 124.367395, 20.414096));
+            chinaRegion.Add(new GeoRegion(107.975793, 20.414096, 111.744104, 17.871542));
+            excludeRegion.Add(new GeoRegion(119.921265, 25.398623, 122.497559, 21.785006));
+            excludeRegion.Add(new GeoRegion(101.865200, 22.284000, 106.665000, 20.098800));
+            excludeRegion.Add(new GeoRegion(106.452500, 21.542200, 108.051000, 20.487800));
+            excludeRegion.Add(new GeoRegion(109.032300, 55.817500, 119.127000, 50.325700));
+            excludeRegion.Add(new GeoRegion(127.456800, 55.817500, 137.022700, 49.557400));
+            excludeRegion.Add(new GeoRegion(131.266200, 44.892200, 137.022700, 42.569200));
 
             LoadPolygon();
         }
@@ -1434,6 +1670,5 @@ namespace NetCharm
         {
 
         }
-
     }
 }

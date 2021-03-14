@@ -18,38 +18,38 @@ namespace NetCharm
         /// </summary>
         /// <param name="cmdline"></param>
         /// <returns></returns>
-        public static string[] ParseCommandLine( string cmdline )
+        public static string[] ParseCommandLine(string cmdline)
         {
             List<string> args = new List<string>();
 
             string[] cmds = cmdline.Split( new char[] { ' ' } );
             string arg = "";
-            foreach ( string cmd in cmds )
+            foreach (string cmd in cmds)
             {
-                if ( cmd.StartsWith( "\"" ) && cmd.EndsWith( "\"" ) )
+                if (cmd.StartsWith("\"") && cmd.EndsWith("\""))
                 {
-                    args.Add( cmd.Trim( new char[] { '\"', ' ' } ) );
+                    args.Add(cmd.Trim(new char[] { '\"', ' ' }));
                     arg = "";
                 }
-                else if ( cmd.StartsWith( "\"" ) )
+                else if (cmd.StartsWith("\""))
                 {
                     arg = cmd + " ";
                 }
-                else if ( cmd.EndsWith( "\"" ) )
+                else if (cmd.EndsWith("\""))
                 {
                     arg += cmd;
-                    args.Add( arg.Trim( new char[] { '\"', ' ' } ) );
+                    args.Add(arg.Trim(new char[] { '\"', ' ' }));
                     arg = "";
                 }
-                else if ( !string.IsNullOrEmpty( arg ) )
+                else if (!string.IsNullOrEmpty(arg))
                 {
                     arg += cmd + " ";
                 }
                 else
                 {
-                    if ( !string.IsNullOrEmpty( cmd ) )
+                    if (!string.IsNullOrEmpty(cmd))
                     {
-                        args.Add( cmd );
+                        args.Add(cmd);
                     }
                     arg = "";
                 }
@@ -57,7 +57,7 @@ namespace NetCharm
                 Console.WriteLine( $"Curent ARG: {cmd}, Parsed ARG: {arg}" );
 #endif
             }
-            return ( args.GetRange( 1, args.Count - 1 ).ToArray() );
+            return (args.GetRange(1, args.Count - 1).ToArray());
         }
     }
 }
