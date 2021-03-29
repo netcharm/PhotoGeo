@@ -78,10 +78,6 @@
       <HintPath>..\packages\ImageListView.11.0.8\lib\net35\ImageListView.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="ImageListView_noWPF, Version=11.0.8.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\ImageListView.11.0.8\lib\net35\ImageListView_noWPF.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.Configuration" />

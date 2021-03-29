@@ -852,7 +852,7 @@ namespace NetCharm
                     }
                     gMap.Position = location;
                     tsProgress.Style = ProgressBarStyle.Blocks;
-                    this.Cursor = Cursors.Default;
+                    Cursor = Cursors.Default;
                     return;
                 }
             }

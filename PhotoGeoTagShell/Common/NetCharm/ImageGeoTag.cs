@@ -1096,6 +1096,7 @@ namespace NetCharm
                     if (xptitle != null)
                     {
                         string xptitle_str = Encoding.Unicode.GetString( (byte[]) xptitle ).Trim(new char[] { ' ', '\0' } );
+                        if (string.IsNullOrEmpty(xptitle_str) || Regex.IsMatch(xptitle_str, @"\?{2,}", RegexOptions.IgnoreCase)) xptitle_str = title;
                         metadata.SetQuery(META.TagIptcBylineTitle, Encoding.Unicode.GetBytes(xptitle_str));
                     }
                     else if(!string.IsNullOrEmpty(title))
@@ -1108,6 +1109,7 @@ namespace NetCharm
                     if (xpcomment != null)
                     {
                         string xpcomment_str = Encoding.Unicode.GetString( (byte[]) xpcomment ).Trim( new char[] { ' ', '\0' } );
+                        if (string.IsNullOrEmpty(xpcomment_str) || Regex.IsMatch(xpcomment_str, @"\?{2,}", RegexOptions.IgnoreCase)) xpcomment_str = comment;
                         metadata.SetQuery(META.TagIptcCaption, xpcomment_str);
                     }
                     else if(!string.IsNullOrEmpty(comment))
@@ -1120,6 +1122,7 @@ namespace NetCharm
                     if (xpsubject != null)
                     {
                         string xpsubject_str = Encoding.Unicode.GetString( (byte[]) xpsubject ).Trim( new char[] { ' ', '\0' } );
+                        if (string.IsNullOrEmpty(xpsubject_str) || Regex.IsMatch(xpsubject_str, @"\?{2,}", RegexOptions.IgnoreCase)) xpsubject_str = subject;
                         metadata.SetQuery(META.TagIptcHeadline, xpsubject_str);
                     }
                     else if (!string.IsNullOrEmpty(subject))
@@ -1132,6 +1135,7 @@ namespace NetCharm
                     if (xpcopyright != null && !string.IsNullOrEmpty((xpcopyright as string).Trim()))
                     {
                         string xpcopyright_str = (xpcopyright as string).Trim();
+                        if (string.IsNullOrEmpty(xpcopyright_str) || Regex.IsMatch(xpcopyright_str, @"\?{2,}", RegexOptions.IgnoreCase)) xpcopyright_str = copyright;
                         metadata.SetQuery(META.TagIptcCopyrightNotice, xpcopyright_str);
                     }
                     else if (!string.IsNullOrEmpty(copyright))
@@ -1609,60 +1613,60 @@ namespace NetCharm
             {
                 struct EMAIL
                 {
-                    string id;
-                    string domain;
+                    string id { get; set; }
+                    string domain { get; set; }
                 }
-                string name;
-                EMAIL email;
+                string name { get; set; }
+                EMAIL email { get; set; }
             }
 
             struct COPYRIGHT
             {
-                string year;
-                string license;
+                string year { get; set; }
+                string license { get; set; }
             }
 
             struct LINK
             {
-                string href;
-                string text;
+                string href { get; set; }
+                string text { get; set; }
             }
 
-            string desc;
-            string author;
-            COPYRIGHT copyright;
+            string desc { get; set; }
+            string author { get; set; }
+            COPYRIGHT copyright { get; set; }
             List<string> keywords = new List<string>();
-            LINK link;
-            DateTime time;
-            RectangleF bounds;
+            LINK link { get; set; }
+            DateTime time { get; set; }
+            RectangleF bounds { get; set; }
         }
 
         public class WAYPOINT
         {
-            double latitude;
-            double longitude;
-            double altitude;
+            double latitude { get; set; }
+            double longitude { get; set; }
+            double altitude { get; set; }
 
-            DateTime time;
-            string name;
+            DateTime time { get; set; }
+            string name { get; set; }
         }
 
         public class TRACKPOINT
         {
-            double latitude;
-            double longitude;
-            double altitude;
+            double latitude { get; set; }
+            double longitude { get; set; }
+            double altitude { get; set; }
 
-            DateTime time;
+            DateTime time { get; set; }
         }
 
         public class TRACK
         {
-            string name;
+            string name { get; set; }
             List<List<TRACKPOINT>> segments = new List<List<TRACKPOINT>>();
         }
 
-        public META metadata;
+        public META metadata { get; set; }
         public List<WAYPOINT> waypoints = new List<WAYPOINT>();
         public List<TRACK> tracks = new List<TRACK>();
 
