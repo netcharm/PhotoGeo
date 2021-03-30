@@ -337,7 +337,7 @@ namespace NetCharm
         /// <summary>
         /// 
         /// </summary>
-        public static string[] PhotoExts = { ".jpg", ".jpeg", ".tif", ".tiff" };
+        public static string[] PhotoExts = { ".jpg", ".jpeg", ".tif", ".tiff", ".png" };
 
         /// <summary>
         /// 
@@ -419,17 +419,21 @@ namespace NetCharm
             {
                 FileInfo fi = new FileInfo( photo );
                 DateTime dt = fi.CreationTimeUtc.ToLocalTime();
-                SetImageTitle_WPF(photo, Path.GetFileNameWithoutExtension(fi.Name), dt);
-                //using (MemoryStream ms = new MemoryStream(File.ReadAllBytes(photo)))
-                //{
-                //    touching = true;
-                //    Image img = Image.FromStream(ms, true, true);
-                //    TouchPhoto(img, photo, touch);
-                //    img.Dispose();
-                //    touching = false;
-                //    ms.Close();
-                //    ms.Dispose();
-                //}
+                bool is_png = fi.Extension.Equals(".png", StringComparison.CurrentCultureIgnoreCase);
+                string name = Path.GetFileNameWithoutExtension(fi.Name);
+                if (Microsoft.WindowsAPICodePack.Shell.ShellObject.IsPlatformSupported)
+                {
+                    var sh = Microsoft.WindowsAPICodePack.Shell.ShellFile.FromFilePath(photo);
+                    if (sh.Properties.System.Photo.DateTaken.Value == null) sh.Properties.System.Photo.DateTaken.Value = dt;
+                    if (!is_png)
+                    {
+                        if (sh.Properties.System.Title.Value == null) sh.Properties.System.Title.Value = name;
+                        if (sh.Properties.System.Subject.Value == null) sh.Properties.System.Subject.Value = name;
+                        if (sh.Properties.System.DateAcquired.Value == null) sh.Properties.System.DateAcquired.Value = dt;
+                        if (sh.Properties.System.FileDescription.Value == null) sh.Properties.System.FileDescription.Value = name;
+                        SetImageTitle_WPF(photo, Path.GetFileNameWithoutExtension(fi.Name), dt);
+                    }
+                }
                 fi.LastAccessTimeUtc = dt.ToUniversalTime();
                 fi.LastWriteTimeUtc = dt.ToUniversalTime();
                 fi.CreationTimeUtc = dt.ToUniversalTime();
@@ -985,7 +989,7 @@ namespace NetCharm
                     HashSet<string> comments = new HashSet<string>();
 
                     #region Get DateTaken
-                    string dtmeta = String.Empty;
+                    string dtmeta = string.Empty;
                     var dtexif = metadata.GetQuery(META.TagExifDateTime);
                     if (metadata.DateTaken != null)
                     {
@@ -1001,6 +1005,19 @@ namespace NetCharm
                         {
                         }
                     }
+                    //var meta_date = Encoding.Unicode.GetBytes(dt.ToString("yyyy:MM:dd HH:mm:ss"));
+                    var meta_date = dt.ToString("yyyy:MM:dd HH:mm:ss.fff");
+                    if (metadata.DateTaken == null) metadata.DateTaken = dt.ToString("yyyy/MM/dd HH:mm:ss.fff");
+                    if (metadata.GetQuery(META.TagIptcDateCreated) == null) metadata.SetQuery(META.TagIptcDateCreated, meta_date);
+                    if (metadata.GetQuery(META.TagExifDateTime) == null) metadata.SetQuery(META.TagExifDateTime, meta_date);
+                    if (metadata.GetQuery(META.TagExifDTOrig) == null) metadata.SetQuery(META.TagExifDTOrig, meta_date);
+                    //if (metadata.GetQuery(META.TagExifDTOrigSS) == null) metadata.SetQuery(META.TagExifDTOrigSS, meta_date);
+                    if (metadata.GetQuery(META.TagExifDTDigitized) == null) metadata.SetQuery(META.TagExifDTDigitized, meta_date);
+                    //if (metadata.GetQuery(META.TagExifDTDigSS) == null) metadata.SetQuery(META.TagExifDTDigSS, meta_date);
+                    if (metadata.GetQuery(META.TagExifDTSubsec) == null) metadata.SetQuery(META.TagExifDTSubsec, meta_date);
+                    if (metadata.GetQuery(META.TagXmpCreateDate) == null) metadata.SetQuery(META.TagXmpCreateDate, meta_date);
+                    if (metadata.GetQuery(META.TagXmpDateAcquired) == null) metadata.SetQuery(META.TagXmpDateAcquired, meta_date);
+                    //if (metadata.GetQuery(META.TagTiffDateAcquired) == null) metadata.SetQuery(META.TagTiffDateAcquired, meta_date);
                     #endregion
 
                     #region Get Keywords
@@ -1011,7 +1028,7 @@ namespace NetCharm
                             keywords.Add(keyword.Trim());
                         }
                     }
-                    var iptckeywords = metadata.GetQuery( META.TagIptcKeywords );
+                    var iptckeywords = metadata.GetQuery(META.TagIptcKeywords);
                     if (iptckeywords != null)
                     {
                         if (iptckeywords as string[] == null)
@@ -1026,7 +1043,7 @@ namespace NetCharm
                             }
                         }
                     }
-                    BitmapMetadata xmpsubjects = metadata.GetQuery( META.TagXmpSubject ) as BitmapMetadata;
+                    BitmapMetadata xmpsubjects = metadata.GetQuery(META.TagXmpSubject) as BitmapMetadata;
                     if (xmpsubjects != null)
                     {
                         foreach (string query in xmpsubjects.ToList())
@@ -1035,7 +1052,7 @@ namespace NetCharm
                             keywords.Add(keyword.Trim());
                         }
                     }
-                    var xpkeywords = metadata.GetQuery( META.TagExifXPKeywords );
+                    var xpkeywords = metadata.GetQuery(META.TagExifXPKeywords);
                     if (xpkeywords != null)
                     {
                         string xpkeywords_str = Encoding.Unicode.GetString( (byte[]) xpkeywords ).Trim( new char[] { ' ', '\0' } );
@@ -1092,33 +1109,36 @@ namespace NetCharm
                     }
 
                     #region Set Title & Subject & Comment
-                    var xptitle = metadata.GetQuery( META.TagExifXPTitle );
+                    var xptitle = metadata.GetQuery(META.TagExifXPTitle);
                     if (xptitle != null)
                     {
                         string xptitle_str = Encoding.Unicode.GetString( (byte[]) xptitle ).Trim(new char[] { ' ', '\0' } );
                         if (string.IsNullOrEmpty(xptitle_str) || Regex.IsMatch(xptitle_str, @"\?{2,}", RegexOptions.IgnoreCase)) xptitle_str = title;
                         metadata.SetQuery(META.TagIptcBylineTitle, Encoding.Unicode.GetBytes(xptitle_str));
                     }
-                    else if(!string.IsNullOrEmpty(title))
+                    else if (!string.IsNullOrEmpty(title))
                     {
                         metadata.Title = title;
                         metadata.SetQuery(META.TagExifXPTitle, Encoding.Unicode.GetBytes(title));
                         metadata.SetQuery(META.TagIptcBylineTitle, Encoding.Unicode.GetBytes(title));
+                        //var meta_title = metadata.GetQuery(META.TagXmpTitleRoot) as BitmapMetadata;
+                        //meta_title.SetQuery("/x-default", Encoding.Unicode.GetBytes(title));
+                        //metadata.SetQuery(META.TagXmpTitle, Encoding.Unicode.GetBytes(title));
                     }
-                    var xpcomment = metadata.GetQuery( META.TagExifXPComment );
+                    var xpcomment = metadata.GetQuery(META.TagExifXPComment);
                     if (xpcomment != null)
                     {
                         string xpcomment_str = Encoding.Unicode.GetString( (byte[]) xpcomment ).Trim( new char[] { ' ', '\0' } );
                         if (string.IsNullOrEmpty(xpcomment_str) || Regex.IsMatch(xpcomment_str, @"\?{2,}", RegexOptions.IgnoreCase)) xpcomment_str = comment;
                         metadata.SetQuery(META.TagIptcCaption, xpcomment_str);
                     }
-                    else if(!string.IsNullOrEmpty(comment))
+                    else if (!string.IsNullOrEmpty(comment))
                     {
                         metadata.Comment = comment;
                         metadata.SetQuery(META.TagExifXPComment, Encoding.Unicode.GetBytes(comment));
                         metadata.SetQuery(META.TagIptcCaption, comment);
                     }
-                    var xpsubject = metadata.GetQuery( META.TagExifXPSubject );
+                    var xpsubject = metadata.GetQuery(META.TagExifXPSubject);
                     if (xpsubject != null)
                     {
                         string xpsubject_str = Encoding.Unicode.GetString( (byte[]) xpsubject ).Trim( new char[] { ' ', '\0' } );
@@ -1130,8 +1150,9 @@ namespace NetCharm
                         metadata.Subject = subject;
                         metadata.SetQuery(META.TagExifXPSubject, Encoding.Unicode.GetBytes(subject));
                         metadata.SetQuery(META.TagIptcHeadline, subject);
+                        metadata.SetQuery(META.TagXmpDescription, comment);
                     }
-                    var xpcopyright = metadata.GetQuery( META.TagExifCopyright );
+                    var xpcopyright = metadata.GetQuery(META.TagExifCopyright);
                     if (xpcopyright != null && !string.IsNullOrEmpty((xpcopyright as string).Trim()))
                     {
                         string xpcopyright_str = (xpcopyright as string).Trim();
@@ -1158,7 +1179,7 @@ namespace NetCharm
                     {
                         metadata.SetQuery(META.TagIptcKeywords, keywords.ToArray());
                     }
-                    else if(!string.IsNullOrEmpty(keyword_list))
+                    else if (!string.IsNullOrEmpty(keyword_list))
                     {
                         var keys = keyword_list.Split(new char[] { ';', '/', '\\', }).Select(k => k.Trim());
                         if (keys.Count() > 0) metadata.SetQuery(META.TagIptcKeywords, keys.ToArray());
@@ -1179,7 +1200,7 @@ namespace NetCharm
                     if (!string.IsNullOrEmpty(metadata.DateTaken))
                     {
                         //metadata.SetQuery( META.TagExifDateTime, metadata.DateTaken );
-                        metadata.SetQuery(META.TagExifDateTime, metadata.DateTaken.Replace('/', ':').Replace('-', ':').Replace(',', ':').Replace('.', ':'));
+                        //metadata.SetQuery(META.TagExifDateTime, metadata.DateTaken.Replace('/', ':').Replace('-', ':').Replace(',', ':').Replace('.', ':'));
                     }
                     #endregion
                     wpfFileManager.WriteMetadata();
@@ -1303,10 +1324,19 @@ namespace NetCharm
         public const string TagExifXPAuthor = "/app1/ifd/exif:{ushort=40093}";
         public const string TagExifXPKeywords = "/app1/ifd/exif:{ushort=40094}";
         public const string TagExifXPSubject = "/app1/ifd/exif:{ushort=40095}";
-
+        
+        // TIFF Paths
+        public const string TagTiffDateAcquired = "/ifd/xmp/MicrosoftPhoto:DateAcquired";
 
         // XMP Query Path
+        public const string TagXmpTitleRoot = "/xmp/dc:title";
+        public const string TagXmpTitle = "/xmp/dc:title/x-default";
         public const string TagXmpSubject = "/xmp/dc:subject";
+        public const string TagXmpDescription = "/xmp/dc:description";
+        public const string TagXmpCreateDate = "/xmp/xmp:CreateDate";
+        public const string TagXmpDateAcquired = "/xmp/MicrosoftPhoto:DateAcquired";
+        public const string TagXmpCopyrights = "/xmp/dc:rights";
+        public const string TagXmpPaddingSchema = "/xmp/PaddingSchema:padding";
 
         // Extentions for metadata padding
         // Queries for the EXIF, IFD & XMP Padding
