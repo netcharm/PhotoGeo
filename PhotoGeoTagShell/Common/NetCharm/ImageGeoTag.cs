@@ -406,6 +406,9 @@ namespace NetCharm
             {
                 if (!DateTime.TryParse(touch, out dt)) return;
             }
+            fi.LastAccessTimeUtc = dt.ToUniversalTime();
+            fi.LastWriteTimeUtc = dt.ToUniversalTime();
+            fi.CreationTimeUtc = dt.ToUniversalTime();
         }
 
         /// <summary>
@@ -417,26 +420,32 @@ namespace NetCharm
         {
             try
             {
-                FileInfo fi = new FileInfo( photo );
-                DateTime dt = fi.CreationTimeUtc.ToLocalTime();
-                bool is_png = fi.Extension.Equals(".png", StringComparison.CurrentCultureIgnoreCase);
-                string name = Path.GetFileNameWithoutExtension(fi.Name);
                 if (Microsoft.WindowsAPICodePack.Shell.ShellObject.IsPlatformSupported)
                 {
+                    FileInfo fi = new FileInfo( photo );
+                    DateTime dt = fi.CreationTimeUtc.ToLocalTime();
                     var sh = Microsoft.WindowsAPICodePack.Shell.ShellFile.FromFilePath(photo);
-                    if (sh.Properties.System.Photo.DateTaken.Value == null) sh.Properties.System.Photo.DateTaken.Value = dt;
-                    if (!is_png)
+                    if (sh.Properties.System.DateAcquired.Value != null) dt = sh.Properties.System.DateAcquired.Value ?? dt;
+                    else if (sh.Properties.System.Photo.DateTaken.Value != null) dt = sh.Properties.System.Photo.DateTaken.Value ?? dt;
+                    fi.LastAccessTimeUtc = dt.ToUniversalTime();
+                    fi.LastWriteTimeUtc = dt.ToUniversalTime();
+                    fi.CreationTimeUtc = dt.ToUniversalTime();
+                }
+                else
+                {
+                    if (!photo.EndsWith(".png", StringComparison.CurrentCultureIgnoreCase))
                     {
-                        if (sh.Properties.System.Title.Value == null) sh.Properties.System.Title.Value = name;
-                        if (sh.Properties.System.Subject.Value == null) sh.Properties.System.Subject.Value = name;
-                        if (sh.Properties.System.DateAcquired.Value == null) sh.Properties.System.DateAcquired.Value = dt;
-                        if (sh.Properties.System.FileDescription.Value == null) sh.Properties.System.FileDescription.Value = name;
-                        SetImageTitle_WPF(photo, Path.GetFileNameWithoutExtension(fi.Name), dt);
+                        using (FileStream fs = new FileStream(photo, FileMode.Open, FileAccess.Read))
+                        {
+                            touching = true;
+                            Image img = Image.FromStream(fs, true, true);
+                            fs.Close();
+                            TouchPhoto(img, photo, touch);
+                            img.Dispose();
+                            touching = false;
+                        }
                     }
                 }
-                fi.LastAccessTimeUtc = dt.ToUniversalTime();
-                fi.LastWriteTimeUtc = dt.ToUniversalTime();
-                fi.CreationTimeUtc = dt.ToUniversalTime();
             }
             catch (Exception ex) { System.Diagnostics.Debug.WriteLine(ex.Message); }
         }
@@ -455,6 +464,34 @@ namespace NetCharm
             {
                 TouchPhoto($"{file.DirectoryName}{Path.DirectorySeparatorChar}{file.Name}", touch);
             }
+        }
+
+        public static void TouchMeta(string photo, string touch = "")
+        {
+            try
+            {
+                FileInfo fi = new FileInfo( photo );
+                DateTime dt = fi.CreationTimeUtc.ToLocalTime();
+                bool is_png = fi.Extension.Equals(".png", StringComparison.CurrentCultureIgnoreCase);
+                string name = Path.GetFileNameWithoutExtension(fi.Name);
+                if (Microsoft.WindowsAPICodePack.Shell.ShellObject.IsPlatformSupported)
+                {
+                    var sh = Microsoft.WindowsAPICodePack.Shell.ShellFile.FromFilePath(photo);
+                    if (sh.Properties.System.Photo.DateTaken.Value == null) sh.Properties.System.Photo.DateTaken.Value = dt;
+                    if (!is_png)
+                    {
+                        if (sh.Properties.System.Title.Value == null) sh.Properties.System.Title.Value = name;
+                        if (sh.Properties.System.Subject.Value == null) sh.Properties.System.Subject.Value = name;
+                        if (sh.Properties.System.DateAcquired.Value == null) sh.Properties.System.DateAcquired.Value = dt;
+                        //if (sh.Properties.System.FileDescription.Value == null) sh.Properties.System.FileDescription.Value = name;
+                        SetImageTitle_WPF(photo, Path.GetFileNameWithoutExtension(fi.Name), dt);
+                    }
+                }
+                fi.LastAccessTimeUtc = dt.ToUniversalTime();
+                fi.LastWriteTimeUtc = dt.ToUniversalTime();
+                fi.CreationTimeUtc = dt.ToUniversalTime();
+            }
+            catch (Exception ex) { System.Diagnostics.Debug.WriteLine(ex.Message); }
         }
 
         /// <summary>

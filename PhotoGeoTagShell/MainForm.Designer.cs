@@ -38,8 +38,6 @@
             this.dlgFolderBrowser = new System.Windows.Forms.FolderBrowserDialog();
             this.toolContainer = new System.Windows.Forms.ToolStripContainer();
             this.explorerBrowser = new Microsoft.WindowsAPICodePack.Controls.WindowsForms.ExplorerBrowser();
-            this.menuMain = new System.Windows.Forms.MenuStrip();
-            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolMain = new System.Windows.Forms.ToolStrip();
             this.tsbtnMapView = new System.Windows.Forms.ToolStripSplitButton();
             this.tsmiUsingProxy = new System.Windows.Forms.ToolStripMenuItem();
@@ -48,11 +46,13 @@
             this.tsbtnGo = new System.Windows.Forms.ToolStripSplitButton();
             this.tsSep3 = new System.Windows.Forms.ToolStripSeparator();
             this.tsbtnTouch = new System.Windows.Forms.ToolStripSplitButton();
-            this.tsmiTouchRecursion = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiTouchTimeRecursion = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.tsmiTouchMeta = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiTouchMetaRecursion = new System.Windows.Forms.ToolStripMenuItem();
             this.tscbKnownFolder = new System.Windows.Forms.ToolStripComboBox();
+            this.menuMain = new System.Windows.Forms.MenuStrip();
+            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.bgwTouchTime = new System.ComponentModel.BackgroundWorker();
             this.bgwTouchMeta = new System.ComponentModel.BackgroundWorker();
@@ -60,8 +60,8 @@
             this.toolContainer.ContentPanel.SuspendLayout();
             this.toolContainer.TopToolStripPanel.SuspendLayout();
             this.toolContainer.SuspendLayout();
-            this.menuMain.SuspendLayout();
             this.toolMain.SuspendLayout();
+            this.menuMain.SuspendLayout();
             this.SuspendLayout();
             // 
             // status
@@ -140,8 +140,8 @@
             // 
             // toolContainer.TopToolStripPanel
             // 
-            this.toolContainer.TopToolStripPanel.Controls.Add(this.toolMain);
             this.toolContainer.TopToolStripPanel.Controls.Add(this.menuMain);
+            this.toolContainer.TopToolStripPanel.Controls.Add(this.toolMain);
             // 
             // explorerBrowser
             // 
@@ -155,26 +155,6 @@
             this.explorerBrowser.ItemsChanged += new System.EventHandler(this.explorerBrowser_ItemsChanged);
             this.explorerBrowser.NavigationComplete += new System.EventHandler<Microsoft.WindowsAPICodePack.Controls.NavigationCompleteEventArgs>(this.explorerBrowser_NavigationComplete);
             this.explorerBrowser.ViewEnumerationComplete += new System.EventHandler(this.explorerBrowser_ViewEnumerationComplete);
-            // 
-            // menuMain
-            // 
-            this.menuMain.Dock = System.Windows.Forms.DockStyle.None;
-            this.menuMain.GripStyle = System.Windows.Forms.ToolStripGripStyle.Visible;
-            this.menuMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem});
-            this.menuMain.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.Flow;
-            this.menuMain.Location = new System.Drawing.Point(0, 0);
-            this.menuMain.Name = "menuMain";
-            this.menuMain.Size = new System.Drawing.Size(42, 25);
-            this.menuMain.TabIndex = 0;
-            this.menuMain.Text = "MainMenu";
-            this.menuMain.Visible = false;
-            // 
-            // fileToolStripMenuItem
-            // 
-            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(39, 21);
-            this.fileToolStripMenuItem.Text = "File";
             // 
             // toolMain
             // 
@@ -256,7 +236,7 @@
             // 
             this.tsbtnTouch.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.tsbtnTouch.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsmiTouchRecursion,
+            this.tsmiTouchTimeRecursion,
             this.toolStripMenuItem1,
             this.tsmiTouchMeta,
             this.tsmiTouchMetaRecursion});
@@ -267,15 +247,15 @@
             this.tsbtnTouch.Size = new System.Drawing.Size(91, 22);
             this.tsbtnTouch.Text = "Touch Time";
             this.tsbtnTouch.ToolTipText = "Touch Photos Datetime to Taken";
-            this.tsbtnTouch.ButtonClick += new System.EventHandler(this.tsbtnTouch_Click);
+            this.tsbtnTouch.ButtonClick += new System.EventHandler(this.tsbtnTouchTime_Click);
             // 
-            // tsmiTouchRecursion
+            // tsmiTouchTimeRecursion
             // 
-            this.tsmiTouchRecursion.Name = "tsmiTouchRecursion";
-            this.tsmiTouchRecursion.Size = new System.Drawing.Size(232, 22);
-            this.tsmiTouchRecursion.Text = "Touch Datetime Recursion";
-            this.tsmiTouchRecursion.ToolTipText = "Recursion touch image file(s) datetime to taken time";
-            this.tsmiTouchRecursion.Click += new System.EventHandler(this.tsmiTouchRecursion_Click);
+            this.tsmiTouchTimeRecursion.Name = "tsmiTouchTimeRecursion";
+            this.tsmiTouchTimeRecursion.Size = new System.Drawing.Size(232, 22);
+            this.tsmiTouchTimeRecursion.Text = "Touch Datetime Recursion";
+            this.tsmiTouchTimeRecursion.ToolTipText = "Recursion touch image file(s) datetime to taken time";
+            this.tsmiTouchTimeRecursion.Click += new System.EventHandler(this.tsmiTouchTimeRecursion_Click);
             // 
             // toolStripMenuItem1
             // 
@@ -308,6 +288,26 @@
             this.tscbKnownFolder.Size = new System.Drawing.Size(121, 25);
             this.tscbKnownFolder.Visible = false;
             this.tscbKnownFolder.SelectedIndexChanged += new System.EventHandler(this.tscbKnownFolder_SelectedIndexChanged);
+            // 
+            // menuMain
+            // 
+            this.menuMain.Dock = System.Windows.Forms.DockStyle.None;
+            this.menuMain.GripStyle = System.Windows.Forms.ToolStripGripStyle.Visible;
+            this.menuMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.fileToolStripMenuItem});
+            this.menuMain.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.Flow;
+            this.menuMain.Location = new System.Drawing.Point(0, 0);
+            this.menuMain.Name = "menuMain";
+            this.menuMain.Size = new System.Drawing.Size(42, 25);
+            this.menuMain.TabIndex = 0;
+            this.menuMain.Text = "MainMenu";
+            this.menuMain.Visible = false;
+            // 
+            // fileToolStripMenuItem
+            // 
+            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(39, 21);
+            this.fileToolStripMenuItem.Text = "File";
             // 
             // toolTip
             // 
@@ -350,10 +350,10 @@
             this.toolContainer.TopToolStripPanel.PerformLayout();
             this.toolContainer.ResumeLayout(false);
             this.toolContainer.PerformLayout();
-            this.menuMain.ResumeLayout(false);
-            this.menuMain.PerformLayout();
             this.toolMain.ResumeLayout(false);
             this.toolMain.PerformLayout();
+            this.menuMain.ResumeLayout(false);
+            this.menuMain.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -378,7 +378,7 @@
         private System.Windows.Forms.ToolStripStatusLabel tsFilesSelected;
         private System.Windows.Forms.ToolStripStatusLabel tsFilesTotal;
         private System.Windows.Forms.ToolStripSplitButton tsbtnTouch;
-        private System.Windows.Forms.ToolStripMenuItem tsmiTouchRecursion;
+        private System.Windows.Forms.ToolStripMenuItem tsmiTouchTimeRecursion;
         private System.ComponentModel.BackgroundWorker bgwTouchTime;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem tsmiTouchMeta;
