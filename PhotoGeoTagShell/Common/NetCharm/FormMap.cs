@@ -800,11 +800,11 @@ namespace NetCharm
             #region parse lng/lat
             try
             {
-                string[] loc = edPoiQuery.Text.Trim().Split(new char[] {' ', ',', ';' } );
+                string[] loc = edPoiQuery.Text.Trim().Split(new char[] {' ', ',', ';', '，', '~', '&' } );
                 if (loc.Length == 2)
                 {
                     PointLatLng location = new PointLatLng(pos.Lat, pos.Lng);
-                    bool latMod = false;
+                    bool latMod = true;
                     bool lngMod = false;
                     foreach (string value in loc)
                     {
@@ -835,6 +835,7 @@ namespace NetCharm
                         {
                             location.Lng = dValue;
                             lngMod = true;
+                            latMod = false;
                         }
                         else
                         {
@@ -842,6 +843,11 @@ namespace NetCharm
                             {
                                 location.Lat = dValue;
                                 latMod = true;
+                            }
+                            else if(latMod)
+                            {
+                                location.Lat = dValue;
+                                latMod = false;
                             }
                             else
                             {
